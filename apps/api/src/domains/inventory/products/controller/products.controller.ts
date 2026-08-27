@@ -1,0 +1,27 @@
+import { Request, Response, NextFunction } from 'express';
+import { ProductsModel } from '../model/products.model.js';
+import { BaseResponse } from '../../../../shared/base/BaseResponse.js';
+
+export class ProductsController {
+  list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const items = await ProductsModel.find({ isDeleted: false }).exec();
+      res.status(200).json(BaseResponse.success({ items, total: items.length }, 'Products catalog retrieved.'));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const created = await ProductsModel.create({
+        ...req.body,
+        tenantId: req.body.tenantId || 'tenant_enterprise_01',
+        status: 'active',
+      });
+      res.status(201).json(BaseResponse.success(created, 'Product added to inventory.'));
+    } catch (error) {
+      next(error);
+    }
+  };
+}

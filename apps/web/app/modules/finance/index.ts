@@ -1,0 +1,10 @@
+export * from './routes';
+export * as PaymentsModule from './payments';
+export * as InvoicesModule from './invoices';
+export * as ExpensesModule from './expenses';
+export * as SalaryModule from './salary';
+export * as TrainerCommissionModule from './trainer-commission';
+export * as PosModule from './pos';
+export * as DiscountsModule from './discounts';
+export * as WalletModule from './wallet';
+export * as TaxesModule from './taxes';

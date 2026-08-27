@@ -1,0 +1,10 @@
+export * from './routes';
+export * as ExerciseCategoriesModule from './exercise-categories';
+export * as ExerciseLibraryModule from './exercise-library';
+export * as WorkoutTemplatesModule from './workout-templates';
+export * as WorkoutPlansModule from './workout-plans';
+export * as WorkoutAssignmentModule from './workout-assignment';
+export * as FitnessAssessmentModule from './fitness-assessment';
+export * as PersonalTrainingModule from './personal-training';
+export * as GroupClassesModule from './group-classes';
+export * as ClassBookingModule from './class-booking';

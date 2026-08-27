@@ -1,0 +1,8 @@
+import { z } from 'zod';
+
+export const workoutPlansSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+});
+
+export type WorkoutPlansFormData = z.infer<typeof workoutPlansSchema>;

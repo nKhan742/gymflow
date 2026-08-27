@@ -1,0 +1,19 @@
+{
+  "name": "gymflow-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GymFlow ERP - Commercial Multi-Tenant Gym Management SaaS Monorepo",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@gymflow/web",
+    "dev:api": "npm run dev --workspace=@gymflow/api",
+    "build:web": "npm run build --workspace=@gymflow/web",
+    "build:api": "npm run build --workspace=@gymflow/api",
+    "build": "npm run build --workspaces --if-present",
+    "lint:web": "npm run lint --workspace=@gymflow/web",
+    "lint:api": "npm run lint --workspace=@gymflow/api",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

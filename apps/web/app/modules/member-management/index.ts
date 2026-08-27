@@ -1,0 +1,13 @@
+export * from './routes';
+export * as MembersModule from './members';
+export * as MembershipPlansModule from './membership-plans';
+export * as MembershipRenewalsModule from './membership-renewals';
+export * as AttendanceModule from './attendance';
+export * as FreezeMembershipModule from './freeze-membership';
+export * as BmiModule from './bmi';
+export * as BodyMeasurementsModule from './body-measurements';
+export * as ProgressModule from './progress';
+export * as TransformationModule from './transformation';
+export * as MedicalHistoryModule from './medical-history';
+export * as EmergencyContactsModule from './emergency-contacts';
+export * as DocumentsModule from './documents';
