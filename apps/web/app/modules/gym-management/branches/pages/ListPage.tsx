@@ -66,7 +66,12 @@ export const ListPage: React.FC = () => {
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setBranchList([...localCustom, ...items]);
+        if (items.length > 0) {
+          setBranchList(items);
+          localStorage.removeItem('gymflow_custom_gym_branches');
+        } else {
+          setBranchList(localCustom);
+        }
       } else {
         setBranchList(localCustom);
       }

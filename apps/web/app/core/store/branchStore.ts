@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface IBranchItem {
@@ -98,7 +98,10 @@ export const useBranchStore = create<IBranchState>((set, get) => {
 
           const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
           const localCustom: IBranchItem[] = localRaw ? JSON.parse(localRaw) : [];
-          const allBranches = [...localCustom, ...loadedBranches];
+          const allBranches = loadedBranches.length > 0 ? loadedBranches : localCustom;
+          if (loadedBranches.length > 0) {
+            localStorage.removeItem('gymflow_custom_gym_branches');
+          }
 
           set({
             branches: allBranches,
