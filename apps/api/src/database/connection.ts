@@ -3,6 +3,7 @@ import { databaseConfig } from '../config/database.config.js';
 
 export class DatabaseConnection {
   private static isConnected = false;
+  public static lastError: string | null = null;
 
   static async connect(): Promise<void> {
     if (this.isConnected) return;
@@ -14,8 +15,10 @@ export class DatabaseConnection {
 
       await mongoose.connect(databaseConfig.uri, databaseConfig.options);
       this.isConnected = true;
+      this.lastError = null;
       console.log('[Database] MongoDB connection established successfully.');
-    } catch (error) {
+    } catch (error: any) {
+      this.lastError = error?.message || String(error);
       console.error('[Database] Failed to connect to MongoDB:', error);
       throw error;
     }
