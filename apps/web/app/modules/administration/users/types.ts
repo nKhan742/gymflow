@@ -5,7 +5,7 @@ export interface IUserModel {
   email: string;
   avatarUrl?: string;
   phone: string;
-  role: 'SUPER_ADMIN' | 'FACILITY_ADMIN' | 'BRANCH_MANAGER' | 'STAFF_USER' | 'AUDITOR';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'FACILITY_ADMIN' | 'BRANCH_MANAGER' | 'STAFF_USER' | 'AUDITOR';
   roleName: string;
   department: string;
   branchId?: string;

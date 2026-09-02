@@ -18,8 +18,8 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     email: 's.jenkins@gymflow.io',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     phone: '+1 (555) 234-8901',
-    role: 'SUPER_ADMIN',
-    roleName: 'Super Administrator (Global)',
+    role: 'ADMIN',
+    roleName: 'Administrator',
     department: 'Executive Operations',
     branchName: 'PD Vihar',
     mfaEnabled: true,
@@ -142,8 +142,8 @@ export const ViewPage: React.FC = () => {
         />
         <MetricCard
           title="RBAC ROLE"
-          value={user?.role || 'SUPER_ADMIN'}
-          change={user?.roleName || 'Super Administrator'}
+          value={user?.role || 'ADMIN'}
+          change={user?.roleName || 'Administrator'}
           trend="up"
           timeframe="Access Clearance"
           icon={<Shield className="h-5 w-5 text-purple-500" />}

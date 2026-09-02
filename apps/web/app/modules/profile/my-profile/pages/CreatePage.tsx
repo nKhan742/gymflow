@@ -245,6 +245,7 @@ export const CreatePage: React.FC = () => {
                       <SelectValue placeholder="Role" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="ADMIN">🛡️ Admin (Facility Leadership)</SelectItem>
                       <SelectItem value="SUPER_ADMIN">👑 Super Admin (Full Access)</SelectItem>
                       <SelectItem value="FACILITY_MANAGER">🏛️ Facility Manager</SelectItem>
                       <SelectItem value="HEAD_COACH">🏋️ Head Coach / Trainer</SelectItem>

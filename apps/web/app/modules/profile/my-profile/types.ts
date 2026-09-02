@@ -9,7 +9,7 @@ export interface IMyProfileModel {
   avatarUrl?: string;
   coverBannerUrl?: string;
   employeeId: string;
-  securityRole: 'SUPER_ADMIN' | 'FACILITY_MANAGER' | 'HEAD_COACH' | 'FINANCE_DIRECTOR' | 'FRONT_DESK';
+  securityRole: 'SUPER_ADMIN' | 'ADMIN' | 'FACILITY_MANAGER' | 'HEAD_COACH' | 'FINANCE_DIRECTOR' | 'FRONT_DESK';
   shiftSchedule: string;
   emergencyContactName: string;
   emergencyContactPhone: string;

@@ -79,7 +79,7 @@ export const ListPage: React.FC = () => {
   // Telemetry Metrics
   const totalActiveUsers = `${users.filter((u) => u.status === 'ACTIVE').length} / ${users.length} Active`;
   const mfaEnforcedRate = `${Math.round((users.filter((u) => u.mfaEnabled).length / (users.length || 1)) * 100)}% Enforced`;
-  const superAdminCount = `${users.filter((u) => u.role === 'SUPER_ADMIN').length} Super Admins`;
+  const adminCount = `${users.filter((u) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN').length} Admins`;
   const liveSessionHealth = '100% Verified SSO';
 
   const columns: ColumnDef<IUserModel>[] = [
@@ -121,10 +121,12 @@ export const ListPage: React.FC = () => {
         const role = row.original.role;
         return (
           <Badge
-            variant={role === 'SUPER_ADMIN' ? 'default' : role === 'FACILITY_ADMIN' ? 'success' : 'outline'}
+            variant={role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'default' : role === 'FACILITY_ADMIN' ? 'success' : 'outline'}
             className="text-[9px] font-bold"
           >
-            {role === 'SUPER_ADMIN'
+            {role === 'ADMIN'
+              ? '🛡️ ADMIN'
+              : role === 'SUPER_ADMIN'
               ? '👑 SUPER ADMIN'
               : role === 'FACILITY_ADMIN'
               ? '🏛️ FACILITY ADMIN'
@@ -299,12 +301,12 @@ export const ListPage: React.FC = () => {
           icon={<ShieldCheck className="h-5 w-5 text-emerald-500" />}
         />
         <MetricCard
-          title="SUPER ADMIN TIER"
-          value={superAdminCount}
-          change="Global Root Clearance"
+          title="ADMINISTRATOR TIER"
+          value={adminCount}
+          change="Facility Leadership"
           trend="up"
           timeframe="Governance"
-          icon={<Shield className="h-5 w-5 text-purple-500" />}
+          icon={<Shield className="h-5 w-5 text-primary" />}
         />
         <MetricCard
           title="SESSION INTEGRITY"

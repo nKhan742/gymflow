@@ -124,6 +124,7 @@ export const EditPage: React.FC = () => {
   }, [id]);
 
   const roleNameMap: Record<IUserModel['role'], string> = {
+    ADMIN: 'Administrator',
     SUPER_ADMIN: 'Super Administrator (Global)',
     FACILITY_ADMIN: 'Facility Administrator',
     BRANCH_MANAGER: 'Branch General Manager',
@@ -279,6 +280,7 @@ export const EditPage: React.FC = () => {
                       <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="ADMIN">🛡️ Admin (Facility Leadership)</SelectItem>
                       <SelectItem value="SUPER_ADMIN">👑 Super Admin (Full Global Network)</SelectItem>
                       <SelectItem value="FACILITY_ADMIN">🏛️ Facility Administrator</SelectItem>
                       <SelectItem value="BRANCH_MANAGER">🏢 Branch General Manager</SelectItem>
