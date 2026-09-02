@@ -19,6 +19,13 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     open: false,
+    proxy: {
+      '/api': {
+        target: 'https://gymflow-api-2jdh.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   build: {
     sourcemap: false,

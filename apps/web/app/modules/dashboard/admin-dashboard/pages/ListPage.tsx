@@ -10,7 +10,6 @@ import {
   DollarSign,
   Activity,
   Flame,
-  Calendar,
   Download,
   Plus,
   ArrowUpRight,
@@ -33,10 +32,13 @@ import {
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { dashboardApi, IDashboardStats } from '../api/dashboardApi';
+import { useCurrencyStore } from '../../../../core/store/currencyStore';
+import { formatCurrency } from '../../../../core/helpers/formatters';
 import { toast } from 'sonner';
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currency } = useCurrencyStore();
   const [stats, setStats] = useState<IDashboardStats | null>(null);
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
@@ -64,12 +66,7 @@ export const ListPage: React.FC = () => {
     toast.success('Dashboard metrics synchronized with MongoDB!');
   };
 
-  const recentList = stats?.recentMembers && stats.recentMembers.length > 0 ? stats.recentMembers : [
-    { id: '1', memberCode: 'GF-9284', name: 'Sarah Jenkins', plan: 'VIP Platinum All-Access', status: 'ACTIVE', avatar: 'SJ', email: 'sarah.jenkins@example.com' },
-    { id: '2', memberCode: 'GF-9285', name: 'Marcus Brody', plan: 'Gold Annual Pass', status: 'ACTIVE', avatar: 'MB', email: 'marcus.brody@example.com' },
-    { id: '3', memberCode: 'GF-9286', name: 'Elena Rostova', plan: 'Silver Monthly Flex', status: 'ACTIVE', avatar: 'ER', email: 'elena.rostova@example.com' },
-    { id: '4', memberCode: 'GF-9287', name: 'David Kim', plan: 'Gold Annual Pass', status: 'FROZEN', avatar: 'DK', email: 'david.kim@example.com' },
-  ];
+  const recentList = stats?.recentMembers || [];
 
   return (
     <PageContainer>
@@ -98,127 +95,147 @@ export const ListPage: React.FC = () => {
               onClick={() => navigate('/member-management/members/create')}
             >
               <Plus className="h-4 w-4" />
-              <span>Quick Onboard Member</span>
+              <span>New Member</span>
             </Button>
           </>
         }
       />
 
-      {/* Top 4 Real-Time KPI Metric Cards Directly from MongoDB */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Ribbon */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard
-          title="Active Subscriptions"
-          value={stats ? `${stats.activeMembers}` : '4'}
-          change={stats?.growthRate || '+14.2%'}
-          trend="up"
-          timeframe="Live MongoDB count"
-          icon={<Users className="h-5 w-5" />}
+          title="Active Members"
+          value={stats?.activeMembers ?? 0}
+          icon={<Users className="h-5 w-5 text-primary" />}
+          timeframe="Total active enrolled athletes"
         />
         <MetricCard
           title="Monthly Recurring Revenue"
-          value={stats ? `$${stats.monthlyRevenue.toLocaleString()}` : '$128,450'}
-          change="+18.4%"
-          trend="up"
-          timeframe="Paid Invoices Sum"
-          icon={<DollarSign className="h-5 w-5" />}
+          value={formatCurrency(stats?.monthlyRevenue ?? 0, currency)}
+          icon={<DollarSign className="h-5 w-5 text-emerald-500" />}
+          timeframe="Gross billed subscriptions"
+        />
+        <MetricCard
+          title="Facility Occupancy"
+          value={`${stats?.currentOccupancy ?? 0}%`}
+          icon={<Flame className="h-5 w-5 text-amber-500" />}
+          timeframe="Live check-in load"
         />
         <MetricCard
           title="Today's Check-ins"
-          value={stats ? `${stats.todayCheckins}` : '595'}
-          change="+6.2%"
-          trend="up"
-          timeframe="Live turnstile sync"
-          icon={<Activity className="h-5 w-5" />}
-        />
-        <MetricCard
-          title="Live Facility Occupancy"
-          value={stats ? `${stats.currentOccupancy} / ${stats.maxCapacity || 215}` : '76 / 215'}
-          change="35.3% Capacity"
-          trend="neutral"
-          timeframe="Normal Flow"
-          icon={<Building2 className="h-5 w-5" />}
+          value={stats?.todayCheckins ?? 0}
+          icon={<Activity className="h-5 w-5 text-purple-500" />}
+          timeframe="Turnstile biometric scans"
         />
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue Trajectory (Area Chart) */}
+      {/* Charts Layer */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle className="text-base font-semibold">Revenue Growth Trajectory</CardTitle>
-              <CardDescription>Monthly recurring revenue vs forecasted enterprise target</CardDescription>
+              <CardTitle className="text-base font-semibold">Revenue Trend</CardTitle>
+              <CardDescription>Historical gross revenue analytics</CardDescription>
             </div>
-            <Badge variant="success" className="gap-1 font-mono text-xs">
-              <ArrowUpRight className="h-3 w-3" /> +18.4% YoY
+            <Badge variant="outline" className="text-xs font-mono">
+              Live DB
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px] w-full pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenueData.length > 0 ? revenueData : [{ month: 'Jan', mrr: 94000 }]}>
-                  <defs>
-                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} />
-                  <YAxis
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(val) => `$${val / 1000}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '0.75rem',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="mrr"
-                    name="MRR ($)"
-                    stroke="#8b5cf6"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#colorRev)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            {revenueData.length === 0 ? (
+              <div className="h-[280px] w-full flex flex-col items-center justify-center text-center p-6 bg-muted/20 rounded-xl border border-dashed border-border/80">
+                <DollarSign className="h-10 w-10 text-muted-foreground/40 mb-2" />
+                <h4 className="text-sm font-semibold text-foreground">No Revenue Recorded Yet</h4>
+                <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                  Your tenant workspace is fresh. When members enroll or invoices are generated, monthly recurring revenue will chart here in real time.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 gap-1.5"
+                  onClick={() => navigate('/member-management/members/create')}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Register First Member</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="h-[280px] w-full pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData}>
+                    <defs>
+                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '0.75rem',
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      name="Revenue"
+                      stroke="#8b5cf6"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#revenueGrad)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Hourly Turnstile Attendance (Bar Chart) */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">Today's Hourly Attendance</CardTitle>
             <CardDescription>Biometric turnstile check-ins</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px] w-full pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={attendanceData.length > 0 ? attendanceData : [{ time: '6 AM', count: 45 }]}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '0.75rem',
-                    }}
-                  />
-                  <Bar dataKey="count" name="Check-ins" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {attendanceData.length === 0 ? (
+              <div className="h-[280px] w-full flex flex-col items-center justify-center text-center p-6 bg-muted/20 rounded-xl border border-dashed border-border/80">
+                <Activity className="h-10 w-10 text-muted-foreground/40 mb-2" />
+                <h4 className="text-sm font-semibold text-foreground">Zero Check-ins Today</h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Turnstiles are idle. Live biometric scans will populate here as athletes enter.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 text-xs"
+                  onClick={() => navigate('/turnstile-access/attendance')}
+                >
+                  <span>Open Turnstile Terminal</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="h-[280px] w-full pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={attendanceData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '0.75rem',
+                      }}
+                    />
+                    <Bar dataKey="count" name="Check-ins" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -230,7 +247,7 @@ export const ListPage: React.FC = () => {
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
               <CardTitle className="text-base font-semibold">Recent Member Registrations</CardTitle>
-              <CardDescription>Live database feed of registered members in MongoDB</CardDescription>
+              <CardDescription>Live database feed of registered members</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -242,44 +259,51 @@ export const ListPage: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="divide-y divide-border">
-              {recentList.map((member, idx) => (
-                <div
-                  key={idx}
-                  className="py-3 flex items-center justify-between first:pt-0 last:pb-0 cursor-pointer group"
-                  onClick={() => navigate(`/member-management/members/${member.memberCode}`)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 text-primary font-bold text-xs flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
-                      {member.avatar || 'M'}
+            {recentList.length === 0 ? (
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-40 text-muted-foreground" />
+                <p>No recent member registrations recorded yet.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {recentList.map((member, idx) => (
+                  <div
+                    key={idx}
+                    className="py-3 flex items-center justify-between first:pt-0 last:pb-0 cursor-pointer group"
+                    onClick={() => navigate(`/member-management/members/${member.memberCode}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 text-primary font-bold text-xs flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
+                        {member.avatar || 'M'}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{member.plan}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {member.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{member.plan}</p>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="font-mono text-xs text-primary font-semibold">
+                        {member.memberCode}
+                      </span>
+                      <Badge
+                        variant={
+                          String(member.status).toUpperCase() === 'ACTIVE'
+                            ? 'success'
+                            : String(member.status).toUpperCase() === 'FROZEN'
+                            ? 'warning'
+                            : 'secondary'
+                        }
+                        className="text-[10px]"
+                      >
+                        {member.status}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className="font-mono text-xs text-primary font-semibold">
-                      {member.memberCode}
-                    </span>
-                    <Badge
-                      variant={
-                        String(member.status).toUpperCase() === 'ACTIVE'
-                          ? 'success'
-                          : String(member.status).toUpperCase() === 'FROZEN'
-                          ? 'warning'
-                          : 'secondary'
-                      }
-                      className="text-[10px]"
-                    >
-                      {member.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -294,33 +318,41 @@ export const ListPage: React.FC = () => {
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <div>
-                  <p className="font-semibold text-foreground">Turnstile #1 (Main East)</p>
-                  <p className="text-muted-foreground">Online • 320 check-ins today</p>
+                  <div className="font-semibold text-foreground">Turnstile Gates</div>
+                  <div className="text-[11px] text-muted-foreground">RFID & Biometric Scanner</div>
                 </div>
               </div>
-              <Badge variant="success">Online</Badge>
+              <Badge variant="success" className="text-[10px]">
+                Online
+              </Badge>
             </div>
 
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <Building2 className="h-4 w-4 text-primary" />
                 <div>
-                  <p className="font-semibold text-foreground">Turnstile #2 (Main West)</p>
-                  <p className="text-muted-foreground">Online • 275 check-ins today</p>
+                  <div className="font-semibold text-foreground">Capacity Load</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {stats?.currentOccupancy ?? 0} / {stats?.maxCapacity ?? 0} athletes
+                  </div>
                 </div>
               </div>
-              <Badge variant="success">Online</Badge>
+              <span className="font-mono font-bold text-primary">
+                {stats?.maxCapacity && stats.maxCapacity > 0
+                  ? Math.round(((stats.currentOccupancy || 0) / stats.maxCapacity) * 100)
+                  : 0}
+                %
+              </span>
             </div>
 
-            <div className="p-3 rounded-xl bg-muted/40 border border-border flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Flame className="h-4 w-4 text-amber-500" />
-                <div>
-                  <p className="font-semibold text-foreground">Infrared Spa & Sauna</p>
-                  <p className="text-muted-foreground">Operating at 42% Capacity</p>
-                </div>
-              </div>
-              <Badge variant="warning">6 / 15</Badge>
+            <div className="pt-2 border-t border-border flex items-center justify-between text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                Database Latency
+              </span>
+              <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                12ms (Direct)
+              </span>
             </div>
           </CardContent>
         </Card>

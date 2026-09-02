@@ -31,9 +31,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { memberApi, IMemberItem } from '../api/memberApi';
+import { useCurrencyStore } from '../../../../core/store/currencyStore';
+import { formatCurrency } from '../../../../core/helpers/formatters';
 import { toast } from 'sonner';
 
 export const ListPage: React.FC = () => {
+  const { currency } = useCurrencyStore();
   const [members, setMembers] = useState<IMemberItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const navigate = useNavigate();
@@ -137,9 +140,10 @@ export const ListPage: React.FC = () => {
       header: 'Plan Tier',
       cell: ({ row }) => {
         const tier = row.original.membership?.tier || 'STANDARD';
-        const planName = row.original.membership?.planName || tier.replace('_', ' ');
+        const planName = row.original.membership?.planName || tier?.replace('_', ' ') || 'STANDARD';
+        const formattedPrice = formatCurrency(row.original.membership?.price || 0, currency);
         return (
-          <Tooltip content={`Plan: ${planName} • $${row.original.membership?.price || 899}/yr`} side="top">
+          <Tooltip content={`Plan: ${planName} • ${formattedPrice}/yr`} side="top">
             <Badge
               variant={
                 tier === 'VIP_PLATINUM'
@@ -152,7 +156,7 @@ export const ListPage: React.FC = () => {
               }
               className="text-[11px] font-medium cursor-help"
             >
-              {tier.replace('_', ' ')}
+              {tier?.replace('_', ' ') || 'STANDARD'}
             </Badge>
           </Tooltip>
         );
@@ -277,7 +281,20 @@ export const ListPage: React.FC = () => {
   // Metrics computation from live data
   const totalCount = members.length;
   const activeCount = members.filter((m) => m.memberStatus === 'ACTIVE' || m.status === 'active').length;
-  const activeRate = totalCount > 0 ? `${Math.round((activeCount / totalCount) * 100)}%` : '100%';
+  const activeRate = totalCount > 0 ? `${Math.round((activeCount / totalCount) * 100)}%` : '0%';
+  const todayCheckins = members.reduce((sum, m) => {
+    if (m.stats?.lastVisit) {
+      const isToday = new Date(m.stats.lastVisit).toDateString() === new Date().toDateString();
+      return sum + (isToday ? 1 : 0);
+    }
+    return sum;
+  }, 0);
+  const expiringCount = members.filter((m) => {
+    if (!m.membership?.endDate) return false;
+    const end = new Date(m.membership.endDate).getTime();
+    const now = Date.now();
+    return end > now && end - now < 30 * 24 * 60 * 60 * 1000;
+  }).length;
 
   return (
     <PageContainer>
@@ -307,7 +324,7 @@ export const ListPage: React.FC = () => {
         <MetricCard
           title="Total Members"
           value={`${totalCount}`}
-          change="+12 this month"
+          change={totalCount > 0 ? `+${totalCount} active` : 'No members yet'}
           trend="up"
           timeframe="All registered"
           icon={<Users className="h-5 w-5" />}
@@ -322,16 +339,16 @@ export const ListPage: React.FC = () => {
         />
         <MetricCard
           title="Today's Check-ins"
-          value="84"
-          change="+6.2%"
+          value={`${todayCheckins}`}
+          change={todayCheckins > 0 ? `${todayCheckins} today` : '0 today'}
           trend="up"
           timeframe="Turnstile entries"
           icon={<CheckCircle2 className="h-5 w-5" />}
         />
         <MetricCard
           title="Expiring This Month"
-          value="2"
-          change="Renewal target"
+          value={`${expiringCount}`}
+          change={expiringCount > 0 ? 'Renewal required' : '0 expiring'}
           trend="neutral"
           timeframe="Next 30 days"
           icon={<Calendar className="h-5 w-5" />}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -80,7 +80,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/progress', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/progress', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export const ListPage: React.FC = () => {
 
       const name = memberNames[memberCode] || `Member #${memberCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/progress', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/progress', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -219,7 +219,7 @@ export const ListPage: React.FC = () => {
           </span>
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <Badge variant="outline" className="text-[9px] px-1 py-0 font-semibold">
-              {row.original.primaryGoal.replace(/_/g, ' ')}
+              {row.original.primaryGoal?.replace(/_/g, ' ') || 'GENERAL FITNESS'}
             </Badge>
             <span>Target: {new Date(row.original.targetDate).toLocaleDateString()}</span>
           </div>

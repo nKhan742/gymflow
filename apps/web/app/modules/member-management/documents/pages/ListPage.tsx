@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+﻿import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -88,7 +88,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/documents', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/documents', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const docId = selectedDoc._id || selectedDoc.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/member-management/documents/${docId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/member-management/documents/${docId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -204,7 +204,7 @@ export const ListPage: React.FC = () => {
 
       const name = memberNames[memberCode] || `Member #${memberCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/documents', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/documents', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -290,7 +290,7 @@ export const ListPage: React.FC = () => {
       size: 190,
       cell: ({ row }) => (
         <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-semibold whitespace-nowrap bg-primary/5 text-primary border-primary/20">
-          {row.original.documentType.replace(/_/g, ' ')}
+          {row.original.documentType?.replace(/_/g, ' ') || 'DOCUMENT'}
         </Badge>
       ),
     },
@@ -523,7 +523,7 @@ export const ListPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <Badge variant={selectedDoc.verificationStatus === 'VERIFIED' ? 'success' : 'warning'} className="font-semibold text-[10px]">
-                    {selectedDoc.verificationStatus.replace(/_/g, ' ')}
+                    {selectedDoc.verificationStatus?.replace(/_/g, ' ') || 'PENDING'}
                   </Badge>
                   <span className="text-[10px] text-muted-foreground block font-mono mt-0.5">
                     {selectedDoc.fileFormat} • {selectedDoc.fileSize}
@@ -539,7 +539,7 @@ export const ListPage: React.FC = () => {
                 <div>
                   <p className="font-bold text-foreground text-sm">{selectedDoc.fileName}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Uploaded on {new Date(selectedDoc.uploadDate).toLocaleDateString()} • Category: {selectedDoc.documentType.replace(/_/g, ' ')}
+                    Uploaded on {new Date(selectedDoc.uploadDate).toLocaleDateString()} • Category: {selectedDoc.documentType?.replace(/_/g, ' ') || 'DOCUMENT'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 mt-2">

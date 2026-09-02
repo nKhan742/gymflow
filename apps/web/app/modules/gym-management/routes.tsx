@@ -6,6 +6,9 @@ import { staffRoutes } from './staff/routes';
 import { shiftManagementRoutes } from './shift-management/routes';
 import { holidaysRoutes } from './holidays/routes';
 import { workingHoursRoutes } from './working-hours/routes';
+import { partnersRoutes } from './partners/routes';
+import { floorsZonesRoutes } from './floors-zones/routes';
+import { accessControlRoutes } from './access-control/routes';
 
 export const gymManagementRoutes: RouteObject[] = [
   ...gymProfileRoutes,
@@ -15,4 +18,8 @@ export const gymManagementRoutes: RouteObject[] = [
   ...shiftManagementRoutes,
   ...holidaysRoutes,
   ...workingHoursRoutes,
+  ...partnersRoutes,
+  ...floorsZonesRoutes,
+  ...accessControlRoutes,
 ];
+

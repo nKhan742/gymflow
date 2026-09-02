@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -84,7 +84,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/finance/wallet', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/wallet', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export const ListPage: React.FC = () => {
         const newDeposited = (target.lifetimeDeposited || 0) + amountToAdd;
         const earnedPoints = (target.rewardPoints || 0) + Math.round(amountToAdd * 0.5);
 
-        const res = await fetch(`http://localhost:5000/api/v1/finance/wallet/${targetId}`, {
+        const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/wallet/${targetId}`, {
           method: 'PUT',
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
@@ -195,7 +195,7 @@ export const ListPage: React.FC = () => {
       const newBal = selectedWallet.currentBalance - amountToDebit;
       const newSpent = (selectedWallet.lifetimeSpent || 0) + amountToDebit;
 
-      const res = await fetch(`http://localhost:5000/api/v1/finance/wallet/${targetId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/wallet/${targetId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

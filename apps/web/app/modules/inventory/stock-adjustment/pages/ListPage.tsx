@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -68,7 +68,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/inventory/stock-adjustment', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/stock-adjustment', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
-      const res = await fetch('http://localhost:5000/api/v1/inventory/stock-adjustment', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/stock-adjustment', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -194,20 +194,20 @@ export const ListPage: React.FC = () => {
         if (t === 'DAMAGE_WRITE_OFF' || t === 'EXPIRED_BATCH') {
           return (
             <Badge variant="destructive" className="text-[10px] font-semibold uppercase whitespace-nowrap px-2 py-0.5">
-              💥 {t.replace(/_/g, ' ')}
+              💥 {t?.replace(/_/g, ' ') || 'WRITE OFF'}
             </Badge>
           );
         }
         if (t === 'THEFT_LOSS') {
           return (
             <Badge variant="warning" className="text-[10px] font-semibold uppercase whitespace-nowrap px-2 py-0.5">
-              ⚠️ {t.replace(/_/g, ' ')}
+              ⚠️ {t?.replace(/_/g, ' ') || 'LOSS'}
             </Badge>
           );
         }
         return (
           <Badge variant="outline" className="text-[10px] font-semibold uppercase bg-muted/40 text-foreground whitespace-nowrap px-2 py-0.5">
-            🔍 {t.replace(/_/g, ' ')}
+            🔍 {t?.replace(/_/g, ' ') || 'AUDIT'}
           </Badge>
         );
       },

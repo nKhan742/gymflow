@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -75,7 +75,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/finance/taxes', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/taxes', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
-      const res = await fetch('http://localhost:5000/api/v1/finance/taxes', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/taxes', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -161,7 +161,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const taxId = tax._id || tax.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/finance/taxes/${taxId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/taxes/${taxId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -188,7 +188,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const taxId = tax._id || tax.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/finance/taxes/${taxId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/taxes/${taxId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

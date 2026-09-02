@@ -1,13 +1,27 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IUsers extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IUserModel {
+  id: string;
+  _id?: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+  phone: string;
+  role: 'SUPER_ADMIN' | 'FACILITY_ADMIN' | 'BRANCH_MANAGER' | 'STAFF_USER' | 'AUDITOR';
+  roleName: string;
+  department: string;
+  branchId?: string;
+  branchName: string;
+  mfaEnabled: boolean;
+  lastLoginAt: string;
+  ipAddress: string;
+  status: 'ACTIVE' | 'SUSPENDED' | 'INVITED';
+  securityScore: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IUsersFilters {
+export interface IUserModelFilters {
   search?: string;
-  status?: StatusType;
+  role?: string;
+  status?: string;
+  branchId?: string;
 }

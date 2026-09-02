@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
+﻿import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
 export interface IMemberItem {
   id?: string;
@@ -45,7 +45,7 @@ export interface IMemberItem {
   updatedAt?: string;
 }
 
-const API_BASE = 'http://localhost:5000/api/v1/members/members';
+const API_BASE = 'https://gymflow-api-2jdh.onrender.com/api/v1/members/members';
 
 const getHeaders = () => {
   const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
@@ -74,38 +74,9 @@ export const memberApi = {
       }
     } catch {}
 
-    // Fallback seed list
-    return [
-      {
-        id: '1',
-        memberCode: 'GF-9284',
-        firstName: 'Sarah',
-        lastName: 'Jenkins',
-        email: 'sarah.jenkins@example.com',
-        phone: '+1 (555) 234-5678',
-        memberStatus: 'ACTIVE',
-        membership: {
-          tier: 'VIP_PLATINUM',
-          planName: 'VIP Platinum All-Access',
-          price: 1499,
-          startDate: '2026-01-15',
-          endDate: '2027-01-15',
-          autoRenew: true,
-          status: 'ACTIVE',
-        },
-        assignedTrainer: {
-          name: 'Alex Vance',
-          email: 'alex.vance@gymflow.io',
-        },
-        lockerNumber: 'L-104',
-        stats: {
-          totalVisits: 142,
-          visitsThisMonth: 18,
-          lastVisit: 'Today at 7:30 AM',
-          streakDays: 4,
-        },
-      },
-    ];
+    const localCustomRaw = localStorage.getItem('gymflow_custom_members');
+    const localCustomItems: IMemberItem[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
+    return localCustomItems;
   },
 
   async getMemberById(id: string): Promise<IMemberItem> {

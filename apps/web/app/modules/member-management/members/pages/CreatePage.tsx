@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { memberApi } from '../api/memberApi';
 import { toast } from 'sonner';
+import { ImageUpload } from '../../../../shared/components/image-upload';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ export const CreatePage: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [tier, setTier] = useState<'VIP_PLATINUM' | 'GOLD_ANNUAL' | 'SILVER_MONTHLY' | 'STANDARD'>('GOLD_ANNUAL');
   const [emergencyName, setEmergencyName] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
@@ -150,6 +152,14 @@ export const CreatePage: React.FC = () => {
                   <CardDescription>Enter contact details and identity credentials</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <ImageUpload
+                    label="Member Profile Photo"
+                    variant="avatar"
+                    value={avatar}
+                    onChange={setAvatar}
+                    helperText="Upload member profile portrait (PNG, JPG, WebP)"
+                  />
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-foreground">First Name *</label>

@@ -187,6 +187,24 @@ export const SIDEBAR_MENU_CONFIG: ISidebarMenuItem[] = [
         title: 'Working Hours',
         path: '/gym-management/working-hours',
         permission: 'gym-management:working-hours:view',
+      },
+      {
+        id: 'gym-management-partners',
+        title: 'Gym Partners',
+        path: '/gym-management/partners',
+        permission: 'gym-management:partners:view',
+      },
+      {
+        id: 'gym-management-floors-zones',
+        title: 'Floors & Zones',
+        path: '/gym-management/floors-zones',
+        permission: 'gym-management:floors-zones:view',
+      },
+      {
+        id: 'gym-management-access-control',
+        title: 'Physical Access Control',
+        path: '/gym-management/access-control',
+        permission: 'gym-management:access-control:view',
       }
     ],
   },

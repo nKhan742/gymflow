@@ -1,13 +1,17 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IExerciseCategories extends IBaseEntity {
+export interface IExerciseCategory {
+  id: string;
+  _id?: string;
   name: string;
-  code?: string;
-  status: StatusType;
+  code: string;
+  primaryMuscleGroup: 'CHEST' | 'BACK' | 'LEGS' | 'SHOULDERS' | 'ARMS' | 'CORE' | 'CARDIO' | 'MOBILITY' | 'FULL_BODY';
+  movementPattern: 'PUSH' | 'PULL' | 'SQUAT' | 'HINGE' | 'LUNGE' | 'CARRY' | 'ISOLATION' | 'CONDITIONING';
+  exerciseCount: number;
+  iconName?: string;
+  color: string;
+  branchId?: string;
+  branchName?: string;
+  status: 'active' | 'archived';
   description?: string;
-}
-
-export interface IExerciseCategoriesFilters {
-  search?: string;
-  status?: StatusType;
+  createdAt?: string;
+  updatedAt?: string;
 }

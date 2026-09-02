@@ -1,13 +1,29 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IFollowUps extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IFollowUp {
+  id: string;
+  _id?: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  avatarUrl?: string;
+  channel: 'PHONE_CALL' | 'WHATSAPP' | 'SMS_TEXT' | 'EMAIL' | 'IN_PERSON_DESK';
+  scheduledDate: string;
+  scheduledTime: string;
+  priority: 'URGENT' | 'NORMAL' | 'LOW';
+  assignedRep: string;
+  branchId?: string;
+  branchName?: string;
+  outcome: 'PENDING' | 'CONNECTED_SCHEDULED' | 'VOICEMAIL_LEFT' | 'NO_ANSWER' | 'WON_CONVERTED' | 'NOT_INTERESTED';
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IFollowUpsFilters {
+export type IFollowUps = IFollowUp;
+
+export interface IFollowUpFilters {
   search?: string;
-  status?: StatusType;
+  channel?: string;
+  outcome?: string;
+  priority?: string;
+  branchId?: string;
 }

@@ -1,13 +1,23 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IRoles extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IRoleModel {
+  id: string;
+  _id?: string;
+  roleName: string;
+  roleKey: string;
+  description: string;
+  iconAvatarUrl?: string;
+  isSystemRole: boolean;
+  assignedUsersCount: number;
+  permissionModulesCount: number;
+  permissionsList: string[];
+  hierarchyTier: number;
+  status: 'ACTIVE' | 'ARCHIVED';
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IRolesFilters {
+export interface IRoleModelFilters {
   search?: string;
-  status?: StatusType;
+  status?: string;
+  isSystemRole?: boolean;
 }

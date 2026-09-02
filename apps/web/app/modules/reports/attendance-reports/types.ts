@@ -1,13 +1,29 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IAttendanceReports extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IAttendanceReport {
+  id: string;
+  _id?: string;
+  reportTitle: string;
+  reportingPeriod: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY';
+  startDate: string;
+  endDate: string;
+  totalCheckIns: number;
+  uniqueMembers: number;
+  peakHour: string;
+  peakHeadcount: number;
+  averageDurationMinutes: number;
+  groupClassAttendance: number;
+  turnstileScanPassRate: number;
+  auditedBy: string;
+  auditorAvatar?: string;
+  status: 'COMPILED' | 'VERIFIED' | 'PROCESSING';
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IAttendanceReportsFilters {
+export interface IAttendanceReportFilters {
   search?: string;
-  status?: StatusType;
+  reportingPeriod?: string;
+  status?: string;
+  branchId?: string;
 }

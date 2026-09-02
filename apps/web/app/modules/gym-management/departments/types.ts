@@ -1,13 +1,25 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IDepartments extends IBaseEntity {
+export interface IDepartment {
+  id: string;
+  _id?: string;
   name: string;
-  code?: string;
-  status: StatusType;
+  code: string;
+  category: string;
   description?: string;
-}
-
-export interface IDepartmentsFilters {
-  search?: string;
-  status?: StatusType;
+  icon?: string;
+  color?: string;
+  headOfDepartment?: {
+    name: string;
+    email: string;
+    phone?: string;
+    avatar?: string;
+  };
+  headcount?: number;
+  monthlyBudget?: number;
+  actualSpend?: number;
+  revenueGenerating?: boolean;
+  glCode?: string;
+  branchId?: string;
+  branchName?: string;
+  shifts?: string[];
+  status?: string;
 }

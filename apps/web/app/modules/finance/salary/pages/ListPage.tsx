@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -84,7 +84,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/finance/salary', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/salary', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export const ListPage: React.FC = () => {
 
       const name = staffNames[staffCode] || `Staff #${staffCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/finance/salary', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/salary', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -201,7 +201,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const salId = sal._id || sal.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/finance/salary/${salId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/salary/${salId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -243,7 +243,7 @@ export const ListPage: React.FC = () => {
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
               <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-semibold bg-muted/40 text-foreground whitespace-nowrap">
-                {row.original.role.replace(/_/g, ' ')}
+                {row.original.role?.replace(/_/g, ' ') || 'STAFF'}
               </Badge>
               <span className="text-[10px] text-muted-foreground font-mono">
                 #{row.original.staffCode}
@@ -294,7 +294,7 @@ export const ListPage: React.FC = () => {
           </span>
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
             <Badge variant="outline" className="text-[8px] px-1 py-0 uppercase">
-              {row.original.paymentMethod.replace(/_/g, ' ')}
+              {row.original.paymentMethod?.replace(/_/g, ' ') || 'DIRECT DEPOSIT'}
             </Badge>
             <span>{row.original.accountNumber}</span>
           </div>

@@ -1,13 +1,31 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IReferrals extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IReferral {
+  id: string;
+  _id?: string;
+  referrerName: string;
+  referrerEmail: string;
+  referrerPhone: string;
+  referrerAvatar?: string;
+  referredProspectName: string;
+  referredProspectEmail: string;
+  referredProspectPhone: string;
+  referredProspectAvatar?: string;
+  referralCode: string;
+  rewardType: 'CASH_CREDIT' | 'FREE_MONTH' | 'PT_SESSION_PACK' | 'VIP_SWAG_BOX';
+  rewardValue: string;
+  rewardStatus: 'PENDING_QUALIFICATION' | 'APPROVED_ISSUED' | 'REDEEMED' | 'EXPIRED';
+  status: 'INVITED' | 'TOUR_BOOKED' | 'CONVERTED_MEMBER' | 'UNRESPONSIVE';
+  branchId?: string;
+  branchName?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IReferralsFilters {
+export type IReferrals = IReferral;
+
+export interface IReferralFilters {
   search?: string;
-  status?: StatusType;
+  status?: string;
+  rewardStatus?: string;
+  branchId?: string;
 }

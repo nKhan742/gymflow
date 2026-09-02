@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useThemeStore } from '../../core/store/themeStore';
 import { useAuthStore } from '../../core/store/authStore';
+import { useBranchStore } from '../../core/store/branchStore';
 import { Button } from '../components/ui/button';
 import { CommandPalette } from '../components/command/CommandPalette';
 import {
@@ -38,7 +39,10 @@ import {
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
 import { SIDEBAR_MENU_CONFIG, ISidebarMenuItem } from '../../core/config/sidebarConfig';
+import { usePlanStore } from '../../core/store/planStore';
+import { PlanUpgradeModal } from '../components/plan/PlanUpgradeModal';
 import { toast } from 'sonner';
+import { MapPin, Check, ChevronDown, Lock } from 'lucide-react';
 
 const ICONS_MAP: Record<string, React.ReactElement> = {
   dashboard: <Activity className="h-4 w-4" />,
@@ -63,6 +67,9 @@ export const AppLayout: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { mode, toggleTheme } = useThemeStore();
   const { user, logout } = useAuthStore();
+  const { activeBranchId, branches, setActiveBranchId, getActiveBranch } = useBranchStore();
+  const { currentPlan, hasAccess, openUpgradeModal, getRequiredPlan } = usePlanStore();
+  const activeBranch = getActiveBranch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -195,6 +202,8 @@ export const AppLayout: React.FC = () => {
                           const isSubActive =
                             location.pathname === sub.path ||
                             location.pathname.startsWith(sub.path + '/');
+                          const isAllowed = hasAccess(sub.path);
+                          const requiredTier = getRequiredPlan(sub.path);
 
                           return (
                             <button
@@ -203,18 +212,25 @@ export const AppLayout: React.FC = () => {
                                 navigate(sub.path);
                                 setMobileOpen(false);
                               }}
-                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-left truncate ${
+                              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-left ${
                                 isSubActive
                                   ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                                   : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                               }`}
                             >
-                              <span
-                                className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
-                                  isSubActive ? 'bg-primary-foreground' : 'bg-muted-foreground/40'
-                                }`}
-                              />
-                              <span className="truncate">{sub.title}</span>
+                              <div className="flex items-center gap-2 truncate">
+                                <span
+                                  className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
+                                    isSubActive ? 'bg-primary-foreground' : 'bg-muted-foreground/40'
+                                  }`}
+                                />
+                                <span className="truncate">{sub.title}</span>
+                              </div>
+                              {!isAllowed && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
+                                  {requiredTier === 'ENTERPRISE' ? 'ENT' : 'PRO'}
+                                </span>
+                              )}
                             </button>
                           );
                         })}
@@ -280,20 +296,101 @@ export const AppLayout: React.FC = () => {
                 const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
                 document.dispatchEvent(event);
               }}
-              className="hidden sm:flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-muted/40 text-muted-foreground hover:bg-muted/80 text-xs transition-colors w-64 justify-between"
+              className="hidden sm:flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-muted/40 text-muted-foreground hover:bg-muted/80 text-xs transition-colors w-52 md:w-60 justify-between"
             >
               <div className="flex items-center gap-2">
                 <Search className="h-3.5 w-3.5" />
-                <span>Search everything...</span>
+                <span>Search...</span>
               </div>
               <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </button>
+
+            {/* Global Gym Branch Switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-muted/60 text-xs font-semibold transition-all shadow-2xs group max-w-[210px] sm:max-w-[240px]">
+                  <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="truncate text-foreground">
+                    {activeBranch ? activeBranch.name : 'All Gym Locations (HQ)'}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 group-hover:text-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">
+                  Switch Active Gym Location
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                {/* All Locations option */}
+                <DropdownMenuItem
+                  onClick={() => {
+                    setActiveBranchId('ALL');
+                    toast.success('Switched to Consolidated View (All Gyms)');
+                  }}
+                  className="flex items-center justify-between cursor-pointer text-xs py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-indigo-500" />
+                    <div>
+                      <div className="font-semibold text-foreground">All Gym Locations (Consolidated)</div>
+                      <div className="text-[10px] text-muted-foreground">Network-wide telemetry</div>
+                    </div>
+                  </div>
+                  {activeBranchId === 'ALL' && <Check className="w-4 h-4 text-primary shrink-0" />}
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+
+                {/* Individual Branches list */}
+                {branches.map((b) => {
+                  const isSelected = activeBranchId === b.id || activeBranchId === b._id;
+                  return (
+                    <DropdownMenuItem
+                      key={b.id || b._id}
+                      onClick={() => {
+                        setActiveBranchId(b.id || (b._id as string));
+                        toast.success(`Switched active branch to ${b.name}`);
+                      }}
+                      className="flex items-center justify-between cursor-pointer text-xs py-2"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <div className="truncate">
+                          <div className="font-semibold text-foreground truncate">{b.name}</div>
+                          <div className="text-[10px] text-muted-foreground">{b.address?.city || 'San Francisco'} • {b.memberCount || 0} members</div>
+                        </div>
+                      </div>
+                      {isSelected && <Check className="w-4 h-4 text-primary shrink-0 ml-2" />}
+                    </DropdownMenuItem>
+                  );
+                })}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate('/gym-management/branches')}
+                  className="text-xs text-primary font-semibold cursor-pointer py-1.5 justify-center"
+                >
+                  Manage All Gym Branches →
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Right Header Action Buttons */}
           <div className="flex items-center gap-2">
+            {/* Plan Tier Badge Button */}
+            <button
+              type="button"
+              onClick={() => openUpgradeModal()}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all cursor-pointer shadow-xs"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>{currentPlan === 'ENTERPRISE' ? 'Enterprise' : currentPlan === 'PROFESSIONAL' ? 'Professional' : 'Essential'} Plan</span>
+            </button>
+
             <Button
               size="sm"
               onClick={() => {
@@ -322,6 +419,9 @@ export const AppLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Global Software Plan Upgrade & Comparison Modal */}
+      <PlanUpgradeModal />
     </div>
   );
 };

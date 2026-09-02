@@ -1,13 +1,29 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IRevenueAnalytics extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IRevenueAnalyticsModel {
+  id: string;
+  _id?: string;
+  modelTitle: string;
+  reportingCadence: 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
+  dateRange: string;
+  mrrAmount: number;
+  arrAmount: number;
+  arpuAmount: number;
+  cacPaybackMonths: number;
+  ltvToCacRatio: number;
+  subscriptionYieldPercent: number;
+  ptYieldPercent: number;
+  posRetailYieldPercent: number;
+  analystName: string;
+  analystAvatar?: string;
+  status: 'VALIDATED' | 'FORECAST_PROJECTION' | 'AUDIT_PENDING';
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IRevenueAnalyticsFilters {
+export interface IRevenueAnalyticsModelFilters {
   search?: string;
-  status?: StatusType;
+  reportingCadence?: string;
+  status?: string;
+  branchId?: string;
 }

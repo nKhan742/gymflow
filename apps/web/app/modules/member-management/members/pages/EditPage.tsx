@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { memberApi, IMemberItem } from '../api/memberApi';
 import { toast } from 'sonner';
+import { ImageUpload } from '../../../../shared/components/image-upload';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ export const EditPage: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [gender, setGender] = useState<'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY'>('FEMALE');
   const [dateOfBirth, setDateOfBirth] = useState('');
 
@@ -184,6 +186,14 @@ export const EditPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-5 space-y-4">
+              <ImageUpload
+                label="Member Profile Photo"
+                variant="avatar"
+                value={avatar}
+                onChange={setAvatar}
+                helperText="Upload member profile portrait (PNG, JPG, WebP)"
+              />
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">First Name</label>

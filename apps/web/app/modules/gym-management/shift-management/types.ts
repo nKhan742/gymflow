@@ -1,13 +1,24 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IShiftManagement extends IBaseEntity {
+export interface IShift {
+  id: string;
+  _id?: string;
   name: string;
-  code?: string;
-  status: StatusType;
+  code: string;
+  departmentId?: string;
+  departmentName?: string;
+  startTime: string;
+  endTime: string;
+  durationHours: number;
+  breakDurationMins?: number;
+  minHeadcount: number;
+  daysOfWeek: string[];
+  gracePeriodMins?: number;
+  overtimeMultiplier?: number;
+  color?: string;
+  branchId?: string;
+  branchName?: string;
+  status: 'active' | 'inactive';
   description?: string;
-}
-
-export interface IShiftManagementFilters {
-  search?: string;
-  status?: StatusType;
+  assignedStaffCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }

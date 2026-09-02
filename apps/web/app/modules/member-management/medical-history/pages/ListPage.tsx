@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -78,7 +78,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/medical-history', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/medical-history', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ export const ListPage: React.FC = () => {
 
       const name = memberNames[memberCode] || `Member #${memberCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/medical-history', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/medical-history', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -159,7 +159,7 @@ export const ListPage: React.FC = () => {
 
       if (res.ok) {
         toast.success(`Medical safeguarding record saved for ${name}!`, {
-          description: `Clearance: ${clearanceLevel.replace(/_/g, ' ')} • Blood: ${bloodGroup}`,
+          description: `Clearance: ${clearanceLevel?.replace(/_/g, ' ') || 'STANDARD'} • Blood: ${bloodGroup}`,
         });
         setCreateModalOpen(false);
         await loadMedicalRecords();
@@ -304,7 +304,7 @@ export const ListPage: React.FC = () => {
             size="sm"
             onClick={() => {
               toast.success(`Exporting Emergency Safeguarding Summary for ${row.original.memberName}!`, {
-                description: `Clearance: ${row.original.clearanceLevel.replace(/_/g, ' ')} • Blood: ${row.original.bloodGroup}`,
+                description: `Clearance: ${row.original.clearanceLevel?.replace(/_/g, ' ') || 'STANDARD'} • Blood: ${row.original.bloodGroup}`,
               });
             }}
             className="h-7 px-2 text-xs gap-1 shadow-xs"

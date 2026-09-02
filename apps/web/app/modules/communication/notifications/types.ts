@@ -1,13 +1,30 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface INotifications extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface INotification {
+  id: string;
+  _id?: string;
+  title: string;
+  message: string;
+  bannerPhoto?: string;
+  category: 'BILLING' | 'CLASS_REMINDER' | 'EQUIPMENT_ALERT' | 'SECURITY_TURNSTILE' | 'PROMOTION' | 'SYSTEM';
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  targetAudience: 'ALL_MEMBERS' | 'VIP_MEMBERS' | 'TRAINERS_STAFF' | 'OVERDUE_MEMBERS';
+  channel: 'IN_APP_PUSH' | 'MOBILE_POPUP' | 'SOUND_CHIME';
+  deliveryStatus: 'SENT' | 'SCHEDULED' | 'FAILED' | 'DRAFT';
+  readCount: number;
+  totalRecipients: number;
+  scheduledFor: string;
+  authorName: string;
+  authorAvatar?: string;
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface INotificationsFilters {
+export interface INotificationFilters {
   search?: string;
-  status?: StatusType;
+  category?: string;
+  priority?: string;
+  deliveryStatus?: string;
+  targetAudience?: string;
+  branchId?: string;
 }

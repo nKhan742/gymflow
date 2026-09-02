@@ -1,13 +1,27 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IMemberAnalytics extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IMemberAnalyticsModel {
+  id: string;
+  _id?: string;
+  cohortTitle: string;
+  cohortPeriod: 'MONTHLY_COHORT' | 'QUARTERLY_CENSUS' | 'ANNUAL_LIFECYCLE';
+  cohortDate: string;
+  activeEnrolledAthletes: number;
+  cohortRetentionRate: number;
+  churnHazardRate: number;
+  avgVisitsPerWeek: number;
+  atRiskMembersCount: number;
+  memberEngagementScore: number;
+  cxAnalyst: string;
+  analystAvatar?: string;
+  status: 'HEALTHY_ENGAGEMENT' | 'CHURN_ALERT' | 'CAMPAIGN_TRIGGERED';
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IMemberAnalyticsFilters {
+export interface IMemberAnalyticsModelFilters {
   search?: string;
-  status?: StatusType;
+  cohortPeriod?: string;
+  status?: string;
+  branchId?: string;
 }

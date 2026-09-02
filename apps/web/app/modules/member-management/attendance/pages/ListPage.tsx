@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -12,14 +12,11 @@ import {
   Users,
   CheckCircle2,
   AlertTriangle,
-  Clock,
   ScanFace,
   CreditCard,
   QrCode,
   UserCheck,
   Flame,
-  ArrowRight,
-  ShieldCheck,
   ShieldAlert,
   Building2,
   FileDown,
@@ -48,38 +45,34 @@ interface IAttendanceItem {
   status: string;
 }
 
-const HOURLY_FOOTFALL = [
-  { hour: '6 AM', count: 45 },
-  { hour: '8 AM', count: 78 },
-  { hour: '10 AM', count: 52 },
-  { hour: '12 PM', count: 64 },
-  { hour: '2 PM', count: 48 },
-  { hour: '4 PM', count: 82 },
-  { hour: '6 PM', count: 110 },
-  { hour: '8 PM', count: 75 },
-];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<IAttendanceItem[]>([]);
   const [activeTab, setActiveTab] = useState<'ALL' | 'GRANTED' | 'DENIED'>('ALL');
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Available registered members for quick check-in
+  const [availableMembers, setAvailableMembers] = useState<Array<{ value: string; label: string }>>([]);
+
   // Quick Check-In Terminal Form
-  const [quickMemberCode, setQuickMemberCode] = useState('GF-9284');
+  const [quickMemberCode, setQuickMemberCode] = useState('');
   const [quickGate, setQuickGate] = useState('Gate A - Main Turnstile #1');
   const [quickMethod, setQuickMethod] = useState<'BIOMETRIC_FACE' | 'RFID_KEYCARD' | 'QR_MOBILE' | 'MANUAL_DESK'>('BIOMETRIC_FACE');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     loadAttendance();
+    loadRegisteredMembers();
   }, []);
 
   const loadAttendance = async () => {
     setLoading(true);
     try {
+      const localLogsRaw = localStorage.getItem('gymflow_custom_attendance_logs');
+      const localLogs: IAttendanceItem[] = localLogsRaw ? JSON.parse(localLogsRaw) : [];
+
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/attendance', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/attendance', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -88,15 +81,53 @@ export const ListPage: React.FC = () => {
 
       if (res.ok) {
         const json = await res.json();
-        if (json.success && Array.isArray(json.data)) {
-          setLogs(json.data);
-          setLoading(false);
-          return;
-        }
+        const serverItems = Array.isArray(json.data) ? json.data : json.data?.items || [];
+        setLogs([...localLogs, ...serverItems]);
+      } else {
+        setLogs(localLogs);
       }
-    } catch {}
+    } catch {
+      const localLogsRaw = localStorage.getItem('gymflow_custom_attendance_logs');
+      setLogs(localLogsRaw ? JSON.parse(localLogsRaw) : []);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setLoading(false);
+  const loadRegisteredMembers = async () => {
+    try {
+      const localRaw = localStorage.getItem('gymflow_custom_members');
+      const localMembers = localRaw ? JSON.parse(localRaw) : [];
+      let members = localMembers;
+
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/members/members', {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const serverItems = Array.isArray(json.data) ? json.data : json.data?.items || [];
+        members = [...localMembers, ...serverItems];
+      }
+
+      if (members.length > 0) {
+        setAvailableMembers(
+          members.map((m: any) => ({
+            value: m.code || m.memberCode || m.id || m._id,
+            label: `${m.name || m.fullName || m.memberName} (#${m.code || m.memberCode || 'MEMBER'} • ${m.planTier || m.tier || 'ACTIVE'})`,
+          }))
+        );
+        setQuickMemberCode(members[0].code || members[0].memberCode || members[0].id || '');
+      } else {
+        setAvailableMembers([]);
+      }
+    } catch {
+      setAvailableMembers([]);
+    }
   };
 
   // Filtered by Granted / Denied
@@ -110,62 +141,84 @@ export const ListPage: React.FC = () => {
   const stats = useMemo(() => {
     const granted = logs.filter((l) => l.accessResult === 'GRANTED');
     const denied = logs.filter((l) => l.accessResult !== 'GRANTED');
+    const liveOccupancy = logs.filter((l) => !l.checkOutTime && l.accessResult === 'GRANTED').length;
     return {
       total: logs.length,
       grantedCount: granted.length,
       deniedCount: denied.length,
+      liveOccupancy,
     };
+  }, [logs]);
+
+  // Compute dynamic hourly footfall
+  const hourlyData = useMemo(() => {
+    const hours = ['6 AM', '8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM', '8 PM'];
+    const counts: Record<string, number> = {};
+    hours.forEach((h) => (counts[h] = 0));
+
+    logs.forEach((log) => {
+      if (log.checkInTime) {
+        const hour = new Date(log.checkInTime).getHours();
+        if (hour >= 5 && hour < 7) counts['6 AM']++;
+        else if (hour >= 7 && hour < 9) counts['8 AM']++;
+        else if (hour >= 9 && hour < 11) counts['10 AM']++;
+        else if (hour >= 11 && hour < 13) counts['12 PM']++;
+        else if (hour >= 13 && hour < 15) counts['2 PM']++;
+        else if (hour >= 15 && hour < 17) counts['4 PM']++;
+        else if (hour >= 17 && hour < 19) counts['6 PM']++;
+        else if (hour >= 19 && hour <= 23) counts['8 PM']++;
+      }
+    });
+
+    return hours.map((hour) => ({ hour, count: counts[hour] }));
   }, [logs]);
 
   const handleQuickCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quickMemberCode) {
-      toast.error('Please enter or select a Member Code / Name');
+      toast.error('Please select or enter a Member Code');
       return;
     }
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const memberNames: Record<string, string> = {
-        'GF-9284': 'Sarah Jenkins',
-        'GF-3109': 'David Chen',
-        'GF-4821': 'Marcus Rodriguez',
-        'GF-7712': 'Emily Watson',
-        'GF-5520': 'Liam O Connor',
-        'GF-9014': 'Jessica Taylor',
+      const selectedOption = availableMembers.find((m) => m.value === quickMemberCode);
+      const name = selectedOption ? selectedOption.label.split(' (')[0] : `Member #${quickMemberCode}`;
+
+      const newLog: IAttendanceItem = {
+        id: `att_${Date.now()}`,
+        code: `ATT-${Date.now().toString().slice(-4)}`,
+        memberCode: quickMemberCode,
+        memberName: name,
+        planTier: 'STANDARD',
+        checkInTime: new Date().toISOString(),
+        durationMinutes: 0,
+        method: quickMethod,
+        gateLocation: quickGate,
+        accessResult: 'GRANTED',
+        turnstileCode: 'TRN-01',
+        status: 'active',
       };
 
-      const name = memberNames[quickMemberCode] || `Member #${quickMemberCode}`;
+      const updated = [newLog, ...logs];
+      setLogs(updated);
+      localStorage.setItem('gymflow_custom_attendance_logs', JSON.stringify(updated));
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/attendance', {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/attendance', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          memberCode: quickMemberCode,
-          memberName: name,
-          planTier: 'VIP_PLATINUM',
-          gateLocation: quickGate,
-          method: quickMethod,
-          accessResult: 'GRANTED',
-          turnstileCode: 'TRN-01',
-          durationMinutes: 0,
-        }),
-      });
+        body: JSON.stringify(newLog),
+      }).catch(() => {});
 
-      if (res.ok) {
-        toast.success(`Turnstile Unlocked: ${name}!`, {
-          description: `Access Granted via ${quickMethod.replace('_', ' ')} at ${quickGate}`,
-        });
-        await loadAttendance();
-      } else {
-        toast.error('Check-in failed');
-      }
+      toast.success(`Turnstile Unlocked: ${name}!`, {
+        description: `Access Granted via ${quickMethod.replace('_', ' ')} at ${quickGate}`,
+      });
     } catch {
-      toast.error('Failed to connect to turnstile controller');
+      toast.error('Check-in failed');
     } finally {
       setSubmitting(false);
     }
@@ -178,7 +231,7 @@ export const ListPage: React.FC = () => {
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-primary/15 text-primary font-bold flex items-center justify-center text-xs shrink-0">
-            {row.original.memberName.charAt(0)}
+            {row.original.memberName ? row.original.memberName.charAt(0) : 'M'}
           </div>
           <div className="truncate">
             <span
@@ -223,7 +276,7 @@ export const ListPage: React.FC = () => {
               {m === 'RFID_KEYCARD' && <CreditCard className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
               {m === 'QR_MOBILE' && <QrCode className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
               {m === 'MANUAL_DESK' && <UserCheck className="h-3.5 w-3.5 text-amber-500 shrink-0" />}
-              <span>{m.replace(/_/g, ' ')}</span>
+              <span>{m?.replace(/_/g, ' ') || 'METHOD'}</span>
             </div>
             <span className="text-[10px] text-muted-foreground block truncate">
               {row.original.gateLocation}
@@ -248,7 +301,7 @@ export const ListPage: React.FC = () => {
         return (
           <Badge variant="destructive" className="gap-1 text-[10px] font-semibold">
             <AlertTriangle className="h-3 w-3" />
-            <span>{res.replace(/_/g, ' ')}</span>
+            <span>{res?.replace(/_/g, ' ') || 'DENIED'}</span>
           </Badge>
         );
       },
@@ -282,7 +335,7 @@ export const ListPage: React.FC = () => {
               variant="outline"
               size="sm"
               className="gap-1.5 shadow-xs"
-              onClick={() => toast.success('Exporting verified attendance report (CSV)...')}
+              onClick={() => toast.success('Exporting attendance report (CSV)...')}
             >
               <FileDown className="h-4 w-4" />
               <span>Export Logs</span>
@@ -295,24 +348,24 @@ export const ListPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Current Live Occupancy"
-          value="142 In Gym"
-          change="48% Capacity (300 Max)"
-          trend="up"
+          value={`${stats.liveOccupancy} In Gym`}
+          change={stats.liveOccupancy === 0 ? 'Quiet Facility' : 'Active Athletes'}
+          trend="neutral"
           timeframe="Real-time head count"
           icon={<Users className="h-5 w-5 text-primary" />}
         />
         <MetricCard
           title="Today's Check-Ins"
-          value="384 Total"
-          change="+12% vs last Thursday"
+          value={`${stats.total} Total`}
+          change={stats.total === 0 ? '0 Biometric Scans' : `${stats.grantedCount} Verified`}
           trend="up"
           timeframe="Total entries today"
           icon={<Sparkles className="h-5 w-5 text-emerald-500" />}
         />
         <MetricCard
           title="Peak Traffic Time"
-          value="6:00 PM - 7:30 PM"
-          change="Evening rush expected"
+          value={stats.total > 0 ? '06:00 PM – 07:30 PM' : '-- : --'}
+          change="Facility Flow"
           trend="neutral"
           timeframe="Staff alert"
           icon={<Flame className="h-5 w-5 text-amber-500" />}
@@ -320,8 +373,8 @@ export const ListPage: React.FC = () => {
         <MetricCard
           title="Gate Security Denials"
           value={`${stats.deniedCount} Denials`}
-          change="Expired passes flagged"
-          trend="down"
+          change={stats.deniedCount === 0 ? '0 Security Exceptions' : `${stats.deniedCount} Flagged`}
+          trend={stats.deniedCount === 0 ? 'neutral' : 'down'}
           timeframe="Past 24 hours"
           icon={<ShieldAlert className="h-5 w-5 text-rose-500" />}
         />
@@ -340,19 +393,23 @@ export const ListPage: React.FC = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <form onSubmit={handleQuickCheckIn} className="space-y-3.5">
-              <SelectBox
-                label="Select Member (or Scan Tag)"
-                value={quickMemberCode}
-                onChange={setQuickMemberCode}
-                options={[
-                  { value: 'GF-9284', label: '👑 Sarah Jenkins (#GF-9284 • VIP)' },
-                  { value: 'GF-3109', label: '🥈 David Chen (#GF-3109 • Silver)' },
-                  { value: 'GF-4821', label: '⭐ Marcus Rodriguez (#GF-4821 • Gold)' },
-                  { value: 'GF-7712', label: '👑 Emily Watson (#GF-7712 • VIP)' },
-                  { value: 'GF-5520', label: '🎓 Liam O Connor (#GF-5520 • Student)' },
-                  { value: 'GF-9014', label: '⭐ Jessica Taylor (#GF-9014 • Gold)' },
-                ]}
-              />
+              {availableMembers.length > 0 ? (
+                <SelectBox
+                  label="Select Registered Member"
+                  value={quickMemberCode}
+                  onChange={setQuickMemberCode}
+                  options={availableMembers}
+                />
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Member Code / RFID Tag</label>
+                  <Input
+                    placeholder="Enter Member Code (e.g. GF-1001)..."
+                    value={quickMemberCode}
+                    onChange={(e) => setQuickMemberCode(e.target.value)}
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SelectBox
@@ -386,7 +443,7 @@ export const ListPage: React.FC = () => {
                 className="w-full gap-2 shadow-md shadow-primary/25 font-bold mt-2"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                <span>{submitting ? 'Verifying with Turnstile...' : '1-Tap Verify & Unlock Turnstile'}</span>
+                <span>{submitting ? 'Verifying...' : '1-Tap Verify & Unlock Turnstile'}</span>
               </Button>
             </form>
           </CardContent>
@@ -403,15 +460,15 @@ export const ListPage: React.FC = () => {
               <CardDescription>Club occupancy distribution by hour</CardDescription>
             </div>
             <Badge variant="outline" className="text-[11px] font-mono">
-              Peak: 110 Check-ins (6 PM)
+              Total Today: {stats.total} Check-ins
             </Badge>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="h-[180px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={HOURLY_FOOTFALL}>
+                <BarChart data={hourlyData}>
                   <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
@@ -448,7 +505,7 @@ export const ListPage: React.FC = () => {
               className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                 activeTab === t.key
                   ? 'bg-white/20 text-white'
-                  : 'bg-primary/10 text-primary'
+                  : 'bg-background text-muted-foreground'
               }`}
             >
               {t.count}
@@ -457,11 +514,11 @@ export const ListPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Main Attendance Table */}
+      {/* Data Table */}
       <DataTable
         columns={columns}
         data={filteredLogs}
-        searchPlaceholder="Search check-ins by member name, ID, gate, method..."
+        searchPlaceholder="Search member name, code, gate location..."
       />
     </PageContainer>
   );

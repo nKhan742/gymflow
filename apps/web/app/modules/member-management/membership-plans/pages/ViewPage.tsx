@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -78,7 +78,7 @@ export const ViewPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`http://localhost:5000/api/v1/member-management/membership-plans/${id}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/member-management/membership-plans/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const ViewPage: React.FC = () => {
       }
 
       // Fetch enrolled members for this tier
-      const memRes = await fetch('http://localhost:5000/api/v1/members/members', {
+      const memRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/members/members', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',

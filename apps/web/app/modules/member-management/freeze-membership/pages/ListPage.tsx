@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -73,7 +73,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/freeze-membership', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/freeze-membership', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export const ListPage: React.FC = () => {
       const start = new Date();
       const end = new Date(start.getTime() + Number(durationDays) * 24 * 60 * 60 * 1000);
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/freeze-membership', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/freeze-membership', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -176,7 +176,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch(
-        `http://localhost:5000/api/v1/member-management/freeze-membership/${item.id || item.code}/unfreeze`,
+        `https://gymflow-api-2jdh.onrender.com/api/v1/member-management/freeze-membership/${item.id || item.code}/unfreeze`,
         {
           method: 'POST',
           headers: {
@@ -228,7 +228,7 @@ export const ListPage: React.FC = () => {
       cell: ({ row }) => (
         <div>
           <span className="font-semibold text-xs text-foreground block">
-            {row.original.planTier.replace(/_/g, ' ')}
+            {row.original.planTier?.replace(/_/g, ' ') || 'STANDARD'}
           </span>
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
             <span>Quota:</span>
@@ -269,7 +269,7 @@ export const ListPage: React.FC = () => {
               {r === 'TRAVEL' && <Plane className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
               {r === 'WORK_RELOCATION' && <Briefcase className="h-3.5 w-3.5 text-amber-500 shrink-0" />}
               <Badge variant="outline" className="text-[10px] font-semibold">
-                {r.replace(/_/g, ' ')}
+                {r?.replace(/_/g, ' ') || 'OTHER'}
               </Badge>
             </div>
             {row.original.doctorNoteAttached && (

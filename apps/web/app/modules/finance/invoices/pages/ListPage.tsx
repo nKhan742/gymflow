@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
 import { DataTable } from '../../../../shared/components/table/DataTable';
 import { Button } from '../../../../shared/components/ui/button';
 import { Badge } from '../../../../shared/components/ui/badge';
-import { Tooltip } from '../../../../shared/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +14,14 @@ import {
 } from '../../../../shared/components/ui/dropdown-menu';
 import {
   Plus,
-  Download,
   Eye,
   DollarSign,
   FileText,
   CheckCircle2,
   MoreHorizontal,
   Printer,
-  Calendar,
   CreditCard,
+  RefreshCw,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
@@ -57,15 +55,20 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<IInvoiceItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     loadInvoices();
   }, [statusFilter]);
 
   const loadInvoices = async () => {
+    setLoading(true);
     try {
+      const localInvoicesRaw = localStorage.getItem('gymflow_custom_invoices');
+      const localInvoices: IInvoiceItem[] = localInvoicesRaw ? JSON.parse(localInvoicesRaw) : [];
+
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const url = new URL('http://localhost:5000/api/v1/finance/invoices');
+      const url = new URL('https://gymflow-api-2jdh.onrender.com/api/v1/finance/invoices');
       if (statusFilter !== 'ALL') url.searchParams.append('status', statusFilter);
 
       const res = await fetch(url.toString(), {
@@ -77,12 +80,17 @@ export const ListPage: React.FC = () => {
 
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data?.items) {
-          setInvoices(json.data.items);
-          return;
-        }
+        const serverItems = Array.isArray(json.data) ? json.data : json.data?.items || [];
+        setInvoices([...localInvoices, ...serverItems]);
+      } else {
+        setInvoices(localInvoices);
       }
-    } catch {}
+    } catch {
+      const localInvoicesRaw = localStorage.getItem('gymflow_custom_invoices');
+      setInvoices(localInvoicesRaw ? JSON.parse(localInvoicesRaw) : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePrint = (invoiceNumber: string) => {
@@ -104,15 +112,12 @@ export const ListPage: React.FC = () => {
       accessorKey: 'memberName',
       header: 'Billed Member',
       cell: ({ row }) => (
-        <div
-          className="flex items-center gap-2.5 cursor-pointer group"
-          onClick={() => navigate(`/finance/invoices/${row.original._id || row.original.invoiceNumber}`)}
-        >
-          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-500/30 to-primary/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center border border-emerald-500/20 group-hover:scale-105 transition-transform shrink-0">
-            {row.original.memberName?.charAt(0) || 'M'}
-          </div>
-          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors truncate">
+        <div className="space-y-0.5">
+          <span className="font-semibold text-xs text-foreground block">
             {row.getValue('memberName')}
+          </span>
+          <span className="text-[10px] text-muted-foreground font-mono block">
+            {row.original.memberEmail}
           </span>
         </div>
       ),
@@ -121,8 +126,8 @@ export const ListPage: React.FC = () => {
       accessorKey: 'totalAmount',
       header: 'Amount',
       cell: ({ row }) => (
-        <span className="font-bold text-sm text-foreground">
-          ${Number(row.getValue('totalAmount')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <span className="font-mono text-xs font-bold text-foreground">
+          ${Number(row.getValue('totalAmount') || 0).toFixed(2)}
         </span>
       ),
     },
@@ -130,30 +135,25 @@ export const ListPage: React.FC = () => {
       accessorKey: 'paymentMethod',
       header: 'Method',
       cell: ({ row }) => (
-        <Badge variant="outline" className="text-[10px] font-mono capitalize">
-          {row.original.paymentMethod?.replace('_', ' ').toLowerCase()}
-        </Badge>
+        <span className="text-xs font-medium text-foreground">
+          {row.getValue('paymentMethod')}
+        </span>
       ),
     },
     {
       accessorKey: 'paymentStatus',
       header: 'Status',
       cell: ({ row }) => {
-        const val = row.original.paymentStatus || 'PAID';
+        const status = row.getValue('paymentStatus') as string;
+        const variants: Record<string, 'success' | 'warning' | 'destructive' | 'secondary'> = {
+          PAID: 'success',
+          PENDING: 'warning',
+          OVERDUE: 'destructive',
+          REFUNDED: 'secondary',
+        };
         return (
-          <Badge
-            variant={
-              val === 'PAID'
-                ? 'success'
-                : val === 'PENDING'
-                ? 'warning'
-                : val === 'OVERDUE'
-                ? 'destructive'
-                : 'secondary'
-            }
-            className="text-xs font-semibold"
-          >
-            {val}
+          <Badge variant={variants[status] || 'default'} className="text-[10px] font-semibold">
+            {status}
           </Badge>
         );
       },
@@ -161,41 +161,24 @@ export const ListPage: React.FC = () => {
     {
       accessorKey: 'dueDate',
       header: 'Due / Paid Date',
-      cell: ({ row }) => {
-        const dateStr = row.original.paidAt || row.original.dueDate;
-        let formatted = 'Today';
-        try {
-          if (dateStr && !dateStr.toLowerCase().includes('today')) {
-            const date = new Date(dateStr);
-            if (!isNaN(date.getTime())) {
-              formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            }
-          }
-        } catch {}
-
-        return (
-          <span className="text-xs text-muted-foreground flex items-center gap-1.5 truncate">
-            <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span className="truncate">{formatted}</span>
-          </span>
-        );
-      },
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {row.original.paidAt ? `Paid: ${row.original.paidAt}` : `Due: ${row.original.dueDate}`}
+        </span>
+      ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: '',
       cell: ({ row }) => (
-        <div className="flex items-center gap-1.5">
-          {/* Quick View Receipt */}
+        <div className="flex items-center justify-end gap-1.5">
           <button
             onClick={() => navigate(`/finance/invoices/${row.original._id || row.original.invoiceNumber}`)}
             className="h-7 w-7 rounded-lg border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all shadow-xs shrink-0"
-            title="View 360° Invoice"
+            title="View Invoice"
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
-
-          {/* Print Button */}
           <button
             onClick={() => handlePrint(row.original.invoiceNumber)}
             className="h-7 w-7 rounded-lg border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all shadow-xs shrink-0"
@@ -203,44 +186,6 @@ export const ListPage: React.FC = () => {
           >
             <Printer className="h-3.5 w-3.5" />
           </button>
-
-          {/* More Options */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="h-7 w-7 rounded-lg border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all shadow-xs shrink-0"
-                title="More Options"
-              >
-                <MoreHorizontal className="h-3.5 w-3.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => navigate(`/finance/invoices/${row.original._id || row.original.invoiceNumber}`)}
-                className="gap-2 cursor-pointer"
-              >
-                <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Invoice Breakdown</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handlePrint(row.original.invoiceNumber)}
-                className="gap-2 cursor-pointer"
-              >
-                <Printer className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Print PDF Receipt</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  toast.success(`Payment receipt sent to ${row.original.memberEmail}`);
-                }}
-                className="gap-2 cursor-pointer text-primary"
-              >
-                <CreditCard className="h-3.5 w-3.5" />
-                <span>Resend Email Receipt</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       ),
     },
@@ -257,6 +202,15 @@ export const ListPage: React.FC = () => {
         subtitle="Manage member billing transactions, recurring subscriptions, point-of-sale invoices, and tax receipts."
         actions={
           <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={loadInvoices}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -283,7 +237,7 @@ export const ListPage: React.FC = () => {
         <MetricCard
           title="Total Gross Revenue"
           value={`$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          change="+18.4% this month"
+          change="GAAP Ledger"
           trend="up"
           timeframe="All processed"
           icon={<DollarSign className="h-5 w-5" />}
@@ -299,7 +253,7 @@ export const ListPage: React.FC = () => {
         <MetricCard
           title="Pending / Overdue"
           value={`${pendingCount}`}
-          change={pendingCount === 0 ? 'All healthy' : `${pendingCount} action required`}
+          change={pendingCount === 0 ? '0 Overdue' : `${pendingCount} action required`}
           trend={pendingCount === 0 ? 'neutral' : 'down'}
           timeframe="Outstanding receivables"
           icon={<FileText className="h-5 w-5" />}
@@ -323,7 +277,7 @@ export const ListPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Enterprise Data Table */}
+      {/* Data Table */}
       <DataTable
         columns={columns}
         data={invoices}

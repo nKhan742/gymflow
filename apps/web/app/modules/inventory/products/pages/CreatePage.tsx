@@ -7,11 +7,13 @@ import { Input } from '../../../../shared/components/ui/input';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { ImageUpload } from '../../../../shared/components/image-upload';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
+  const [image, setImage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +46,14 @@ export const CreatePage: React.FC = () => {
               <CardDescription>Fill out the parameters for this products.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <ImageUpload
+                label="Product Thumbnail Photo"
+                variant="thumbnail"
+                value={image}
+                onChange={setImage}
+                helperText="Upload product packaging or merchandise image (PNG, JPG, WebP)"
+              />
+
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-foreground">Products Title / Name</label>
                 <Input

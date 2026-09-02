@@ -1,13 +1,27 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IAttendanceAnalytics extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IAttendanceAnalyticsModel {
+  id: string;
+  _id?: string;
+  analysisTitle: string;
+  analysisPeriod: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  analysisDate: string;
+  totalTurnstileThroughput: number;
+  peakRushHourWindow: string;
+  peakFloorHeadcount: number;
+  avgWorkoutDurationMinutes: number;
+  studioClassCapacityUtilization: number;
+  biometricNfcScanSuccessRate: number;
+  operationsAnalyst: string;
+  analystAvatar?: string;
+  status: 'NORMAL_OPERATIONS' | 'PEAK_SURGE' | 'EQUIPMENT_LOCKOUT';
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IAttendanceAnalyticsFilters {
+export interface IAttendanceAnalyticsModelFilters {
   search?: string;
-  status?: StatusType;
+  analysisPeriod?: string;
+  status?: string;
+  branchId?: string;
 }

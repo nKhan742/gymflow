@@ -1,13 +1,31 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IMyProfile extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IMyProfileModel {
+  id: string;
+  _id?: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  jobTitle: string;
+  department: string;
+  avatarUrl?: string;
+  coverBannerUrl?: string;
+  employeeId: string;
+  securityRole: 'SUPER_ADMIN' | 'FACILITY_MANAGER' | 'HEAD_COACH' | 'FINANCE_DIRECTOR' | 'FRONT_DESK';
+  shiftSchedule: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  bio: string;
+  certifications: string[];
+  profileCompletionScore: number;
+  status: 'ACTIVE' | 'ON_LEAVE' | 'RESTRICTED';
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IMyProfileFilters {
+export interface IMyProfileModelFilters {
   search?: string;
-  status?: StatusType;
+  securityRole?: string;
+  status?: string;
+  branchId?: string;
 }

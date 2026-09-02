@@ -8,8 +8,8 @@ import { Mail, Lock, Sparkles, ArrowRight, Eye, EyeOff, ShieldCheck, UserCheck, 
 import { useAuthStore } from '../../../../core/store/authStore';
 
 export const ListPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@gymflow.io');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,11 +26,6 @@ export const ListPage: React.FC = () => {
     }
   };
 
-  const handleQuickFill = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('password123');
-  };
-
   return (
     <Card className="border border-border/80 shadow-2xl bg-card/95 backdrop-blur-sm rounded-2xl overflow-hidden">
       <CardHeader className="space-y-1.5 text-center pb-4">
@@ -38,72 +33,18 @@ export const ListPage: React.FC = () => {
           <Sparkles className="h-6 w-6" />
         </div>
         <CardTitle className="text-2xl font-bold tracking-tight">Sign in to GymFlow ERP</CardTitle>
-        <CardDescription>Enter your enterprise credentials or select a demo profile</CardDescription>
+        <CardDescription>Enter your email and password to access your gym workspace</CardDescription>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4 pt-2">
-          {/* Quick Fill Demo Roles */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Quick Demo Logins</label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin@gymflow.io')}
-                className={`p-2 rounded-xl border text-left transition-all ${
-                  email === 'admin@gymflow.io'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-muted/40 hover:bg-muted text-muted-foreground'
-                }`}
-              >
-                <div className="flex items-center gap-1 text-xs font-semibold">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Admin</span>
-                </div>
-                <p className="text-[10px] opacity-75 truncate mt-0.5">Super Admin</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFill('trainer@gymflow.io')}
-                className={`p-2 rounded-xl border text-left transition-all ${
-                  email === 'trainer@gymflow.io'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-muted/40 hover:bg-muted text-muted-foreground'
-                }`}
-              >
-                <div className="flex items-center gap-1 text-xs font-semibold">
-                  <Dumbbell className="h-3.5 w-3.5" />
-                  <span>Trainer</span>
-                </div>
-                <p className="text-[10px] opacity-75 truncate mt-0.5">Marcus B.</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFill('member@gymflow.io')}
-                className={`p-2 rounded-xl border text-left transition-all ${
-                  email === 'member@gymflow.io'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-muted/40 hover:bg-muted text-muted-foreground'
-                }`}
-              >
-                <div className="flex items-center gap-1 text-xs font-semibold">
-                  <UserCheck className="h-3.5 w-3.5" />
-                  <span>Member</span>
-                </div>
-                <p className="text-[10px] opacity-75 truncate mt-0.5">Sarah J.</p>
-              </button>
-            </div>
-          </div>
-
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">Email Address</label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@gymflow.io"
+              placeholder="name@company.com"
               icon={<Mail className="h-4 w-4" />}
               required
             />

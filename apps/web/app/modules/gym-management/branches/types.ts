@@ -1,13 +1,37 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IBranches extends IBaseEntity {
+export interface IBranch {
+  id: string;
+  _id?: string;
+  code: string;
   name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
-}
-
-export interface IBranchesFilters {
-  search?: string;
-  status?: StatusType;
+  tagline?: string;
+  image?: string;
+  phone?: string;
+  email?: string;
+  sqFt?: number;
+  capacity?: number;
+  currentOccupancy?: number;
+  memberCount?: number;
+  staffCount?: number;
+  turnstileCount?: number;
+  monthlyRevenue?: number;
+  address?: {
+    street?: string;
+    suite?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  manager?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+  operatingHours?: {
+    weekdays?: string;
+    saturday?: string;
+    sunday?: string;
+  };
+  amenities?: string[];
+  status?: string;
 }

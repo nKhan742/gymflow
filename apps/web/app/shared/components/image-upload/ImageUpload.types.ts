@@ -1,9 +1,14 @@
-import React from 'react';
-import { SxProps, Theme } from '@mui/material';
-
-export interface IImageUploadProps {
-  children?: React.ReactNode;
+export interface ImageUploadProps {
+  value?: string;
+  onChange: (value: string) => void;
+  label?: string;
+  helperText?: string;
+  variant?: 'avatar' | 'thumbnail' | 'banner' | 'card';
   className?: string;
-  sx?: SxProps<Theme>;
-  [key: string]: unknown;
+  disabled?: boolean;
+  required?: boolean;
+  maxSizeMb?: number;
 }
+
+export type IImageUploadProps = ImageUploadProps;
+

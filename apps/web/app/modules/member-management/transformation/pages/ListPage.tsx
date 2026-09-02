@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -83,7 +83,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/transformation', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/transformation', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export const ListPage: React.FC = () => {
 
       const name = memberNames[memberCode] || `Member #${memberCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/transformation', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/transformation', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -219,7 +219,7 @@ export const ListPage: React.FC = () => {
           </span>
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <Badge variant="outline" className="text-[9px] px-1 py-0 font-semibold">
-              {row.original.category.replace(/_/g, ' ')}
+              {row.original.category?.replace(/_/g, ' ') || 'TRANSFORMATION'}
             </Badge>
             <span>{row.original.durationMonths} Months Duration</span>
           </div>
@@ -477,7 +477,7 @@ export const ListPage: React.FC = () => {
 
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/60">
                   <span>Coached by: <strong className="text-foreground">{item.coachName}</strong></span>
-                  <Badge variant="outline" className="text-[9px] font-semibold">{item.category.replace(/_/g, ' ')}</Badge>
+                  <Badge variant="outline" className="text-[9px] font-semibold">{item.category?.replace(/_/g, ' ') || 'TRANSFORMATION'}</Badge>
                 </div>
               </CardContent>
 

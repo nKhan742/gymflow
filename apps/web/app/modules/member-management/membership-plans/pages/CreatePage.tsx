@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../../shared/components/ui/card';
@@ -85,7 +85,7 @@ export const CreatePage: React.FC = () => {
 
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/membership-plans', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/membership-plans', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

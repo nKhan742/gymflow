@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -77,7 +77,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/member-management/emergency-contacts', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/emergency-contacts', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export const ListPage: React.FC = () => {
 
       const name = memberNames[memberCode] || `Member #${memberCode}`;
 
-      const res = await fetch('http://localhost:5000/api/v1/member-management/emergency-contacts', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/member-management/emergency-contacts', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -267,7 +267,7 @@ export const ListPage: React.FC = () => {
           <Button
             size="sm"
             onClick={() => {
-              window.open(`https://wa.me/${row.original.phone.replace(/[^0-9]/g, '')}?text=Emergency%20Alert:%20GymFlow%20Safety%20Team%20regarding%20${encodeURIComponent(row.original.memberName)}`, '_blank');
+              window.open(`https://wa.me/${(row.original.phone || '').replace(/[^0-9]/g, '')}?text=Emergency%20Alert:%20GymFlow%20Safety%20Team%20regarding%20${encodeURIComponent(row.original.memberName)}`, '_blank');
               toast.success(`Opening WhatsApp SOS Dispatch for ${row.original.contactName}...`);
             }}
             className="h-7 px-2 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs"

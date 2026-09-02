@@ -1,13 +1,25 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IActivityLogs extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IActivityLogModel {
+  id: string;
+  _id?: string;
+  actorName: string;
+  actorEmail: string;
+  actorAvatarUrl?: string;
+  actorRole: string;
+  actionEvent: string;
+  moduleDomain: string;
+  httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  statusCode: number;
+  ipAddress: string;
+  deviceAgent: string;
+  locationCampus: string;
+  severity: 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+  timestamp: string;
+  metadataPayload?: string;
 }
 
-export interface IActivityLogsFilters {
+export interface IActivityLogModelFilters {
   search?: string;
-  status?: StatusType;
+  severity?: string;
+  moduleDomain?: string;
+  httpMethod?: string;
 }

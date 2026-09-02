@@ -1,13 +1,20 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface IHolidays extends IBaseEntity {
+export interface IHoliday {
+  id: string;
+  _id?: string;
   name: string;
   code?: string;
-  status: StatusType;
+  startDate: string;
+  endDate: string;
+  category: 'NATIONAL' | 'MAINTENANCE' | 'SPECIAL_EVENT' | 'EMERGENCY';
+  operationalMode: 'CLOSED' | 'REDUCED_HOURS' | 'SELF_SERVICE';
+  reducedHoursSchedule?: string;
+  classPolicy: 'AUTO_CANCEL' | 'RESCHEDULE' | 'KEEP_SCHEDULED';
+  ptPolicy: 'AUTO_CANCEL' | 'PERMITTED';
+  branchId?: string;
+  branchName?: string;
+  memberBroadcast: boolean;
+  status: 'active' | 'archived';
   description?: string;
-}
-
-export interface IHolidaysFilters {
-  search?: string;
-  status?: StatusType;
+  createdAt?: string;
+  updatedAt?: string;
 }

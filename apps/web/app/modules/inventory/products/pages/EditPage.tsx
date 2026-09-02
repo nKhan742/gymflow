@@ -7,12 +7,14 @@ import { Input } from '../../../../shared/components/ui/input';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { ImageUpload } from '../../../../shared/components/image-upload';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('Products Item Alpha');
+  const [image, setImage] = useState('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80');
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,14 @@ export const EditPage: React.FC = () => {
               <CardDescription>Make changes to this products record.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <ImageUpload
+                label="Product Thumbnail Photo"
+                variant="thumbnail"
+                value={image}
+                onChange={setImage}
+                helperText="Upload product packaging or merchandise image (PNG, JPG, WebP)"
+              />
+
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-foreground">Products Name</label>
                 <Input

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -65,7 +65,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/inventory/categories', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/categories', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
-      const res = await fetch('http://localhost:5000/api/v1/inventory/categories', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/categories', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -144,7 +144,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const catId = cat._id || cat.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/inventory/categories/${catId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/inventory/categories/${catId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

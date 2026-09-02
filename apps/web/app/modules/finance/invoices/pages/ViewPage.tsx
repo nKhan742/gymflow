@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { Card, CardContent } from '../../../../shared/components/ui/card';
 import { Button } from '../../../../shared/components/ui/button';
@@ -32,8 +32,18 @@ export const ViewPage: React.FC = () => {
   const fetchInvoice = async () => {
     setLoading(true);
     try {
+      const localInvoicesRaw = localStorage.getItem('gymflow_custom_invoices');
+      const localInvoices: any[] = localInvoicesRaw ? JSON.parse(localInvoicesRaw) : [];
+      const match = localInvoices.find((i) => i.id === id || i._id === id || i.invoiceNumber === id);
+
+      if (match) {
+        setInvoice(match);
+        setLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`http://localhost:5000/api/v1/finance/invoices/${id}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/invoices/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -50,27 +60,7 @@ export const ViewPage: React.FC = () => {
       }
     } catch {}
 
-    // Fallback
-    setInvoice({
-      invoiceNumber: id || 'INV-2026-8801',
-      memberId: 'GF-9284',
-      memberName: 'Sarah Jenkins',
-      memberEmail: 'sarah.jenkins@example.com',
-      items: [
-        { description: 'VIP Platinum All-Access Annual Pass', quantity: 1, unitPrice: 1499, total: 1499 },
-        { description: 'Locker Rental (Annual)', quantity: 1, unitPrice: 120, total: 120 },
-      ],
-      subtotal: 1619,
-      tax: 129,
-      discount: 100,
-      totalAmount: 1648,
-      currency: 'USD',
-      paymentMethod: 'CREDIT_CARD',
-      paymentStatus: 'PAID',
-      dueDate: new Date().toISOString(),
-      paidAt: new Date().toISOString(),
-      notes: 'Thank you for choosing GymFlow Enterprise. Access credentials active immediately.',
-    });
+    setInvoice(null);
     setLoading(false);
   };
 
@@ -78,190 +68,137 @@ export const ViewPage: React.FC = () => {
     window.print();
   };
 
-  if (loading || !invoice) {
+  if (loading) {
     return (
       <PageContainer>
-        <div className="py-20 text-center text-muted-foreground text-sm">
+        <div className="py-16 text-center text-muted-foreground text-sm">
           Loading invoice details...
         </div>
       </PageContainer>
     );
   }
 
-  const items = invoice.items || [
-    { description: 'VIP Platinum Membership', quantity: 1, unitPrice: invoice.totalAmount || 1499, total: invoice.totalAmount || 1499 },
-  ];
+  if (!invoice) {
+    return (
+      <PageContainer>
+        <div className="py-16 text-center space-y-4">
+          <p className="text-muted-foreground text-sm">Invoice not found or has been removed.</p>
+          <Button variant="outline" size="sm" onClick={() => navigate('/finance/invoices')}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Invoices
+          </Button>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-3 mb-6 print:hidden">
-        <Button variant="outline" size="sm" onClick={() => navigate('/finance/invoices')} className="gap-1.5">
+      <div className="flex items-center justify-between gap-4 mb-6 print:hidden">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2"
+          onClick={() => navigate('/finance/invoices')}
+        >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Invoices</span>
         </Button>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5">
-            <Printer className="h-4 w-4" />
-            <span>Print Receipt</span>
-          </Button>
           <Button
+            variant="outline"
             size="sm"
-            onClick={() => {
-              toast.success('Official PDF generated and sent to member email');
-            }}
-            className="gap-1.5 shadow-md shadow-primary/25"
+            className="gap-2"
+            onClick={handlePrint}
           >
-            <Download className="h-4 w-4" />
-            <span>Download PDF</span>
+            <Printer className="h-4 w-4" />
+            <span>Print Tax Receipt</span>
           </Button>
         </div>
       </div>
 
-      {/* Printable Digital Invoice Receipt */}
-      <div className="max-w-3xl mx-auto">
-        <Card className="border border-border/80 shadow-lg bg-card overflow-hidden">
-          {/* Header Banner */}
-          <div className="p-6 bg-gradient-to-r from-primary/10 via-purple-500/10 to-transparent border-b border-border/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-white font-bold shadow-md shadow-primary/30 shrink-0">
-                <Sparkles className="h-6 w-6" />
+      {/* Printable Invoice Container */}
+      <Card className="max-w-4xl mx-auto shadow-sm border border-border">
+        <CardContent className="p-8 space-y-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between gap-6 border-b border-border pb-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-6 w-6 text-primary" />
+                <h1 className="text-2xl font-bold text-foreground">GymFlow ERP</h1>
               </div>
-              <div>
-                <h1 className="text-xl font-extrabold tracking-tight text-foreground">GymFlow Enterprise</h1>
-                <p className="text-xs text-muted-foreground">Official Tax Invoice & Payment Receipt</p>
-              </div>
+              <p className="text-xs text-muted-foreground">Official Commercial Tax Invoice & Receipt</p>
             </div>
 
-            <div className="text-left sm:text-right">
-              <span className="font-mono text-sm font-bold text-primary block">
-                #{invoice.invoiceNumber}
-              </span>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge
-                  variant={
-                    invoice.paymentStatus === 'PAID'
-                      ? 'success'
-                      : invoice.paymentStatus === 'PENDING'
-                      ? 'warning'
-                      : 'destructive'
-                  }
-                  className="text-xs font-semibold uppercase"
-                >
-                  {invoice.paymentStatus}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(invoice.dueDate || invoice.paidAt || Date.now()).toLocaleDateString()}
-                </span>
-              </div>
+            <div className="text-left sm:text-right space-y-1">
+              <Badge variant={invoice.paymentStatus === 'PAID' ? 'success' : 'secondary'} className="text-xs font-bold">
+                {invoice.paymentStatus}
+              </Badge>
+              <h2 className="text-lg font-mono font-bold text-foreground">{invoice.invoiceNumber}</h2>
+              <p className="text-xs text-muted-foreground">Issued: {invoice.dueDate || new Date().toLocaleDateString()}</p>
             </div>
           </div>
 
-          <CardContent className="p-6 sm:p-8 space-y-6">
-            {/* Meta Grid (Billed To & Gym Details) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b border-border/60 text-xs">
-              <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                  Billed To
-                </span>
-                <p className="text-sm font-bold text-foreground">{invoice.memberName}</p>
-                <p className="text-muted-foreground">{invoice.memberEmail}</p>
-                <p className="text-muted-foreground font-mono mt-0.5">Member Code: {invoice.memberId || 'GF-9284'}</p>
-              </div>
-
-              <div className="sm:text-right">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                  Issued By
-                </span>
-                <p className="text-sm font-bold text-foreground">GymFlow Flagship HQ</p>
-                <p className="text-muted-foreground">742 Evergreen Fitness Blvd, Suite 400</p>
-                <p className="text-muted-foreground">Tax ID: US-EIN-992-48201</p>
-              </div>
+          {/* Billed To */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <span className="text-xs font-semibold uppercase text-muted-foreground">Billed To</span>
+              <p className="font-bold text-sm text-foreground">{invoice.memberName}</p>
+              <p className="text-xs text-muted-foreground font-mono">{invoice.memberEmail}</p>
             </div>
 
-            {/* Itemized Table */}
-            <div>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-3">
-                Itemized Summary
-              </span>
-              <div className="rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-muted/50 text-muted-foreground uppercase font-semibold border-b border-border">
-                    <tr>
-                      <th className="p-3">Description</th>
-                      <th className="p-3 text-center w-16">Qty</th>
-                      <th className="p-3 text-right w-24">Unit Price</th>
-                      <th className="p-3 text-right w-28">Total</th>
+            <div className="space-y-1 sm:text-right">
+              <span className="text-xs font-semibold uppercase text-muted-foreground">Payment Details</span>
+              <p className="text-xs font-medium text-foreground">Method: {invoice.paymentMethod}</p>
+              <p className="text-xs text-muted-foreground font-mono">Status: {invoice.paymentStatus}</p>
+            </div>
+          </div>
+
+          {/* Line Items Table */}
+          <div className="border border-border rounded-lg overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50 border-b border-border text-muted-foreground font-semibold">
+                <tr>
+                  <th className="p-3 text-left">Description</th>
+                  <th className="p-3 text-center">Qty</th>
+                  <th className="p-3 text-right">Unit Price</th>
+                  <th className="p-3 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {invoice.items && invoice.items.length > 0 ? (
+                  invoice.items.map((item: any, idx: number) => (
+                    <tr key={idx}>
+                      <td className="p-3 font-medium text-foreground">{item.description}</td>
+                      <td className="p-3 text-center font-mono">{item.quantity}</td>
+                      <td className="p-3 text-right font-mono">${Number(item.unitPrice || 0).toFixed(2)}</td>
+                      <td className="p-3 text-right font-mono font-bold">${Number(item.total || item.unitPrice * item.quantity || 0).toFixed(2)}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {items.map((item: any, idx: number) => (
-                      <tr key={idx} className="hover:bg-muted/20">
-                        <td className="p-3 font-medium text-foreground">{item.description}</td>
-                        <td className="p-3 text-center text-muted-foreground">{item.quantity || 1}</td>
-                        <td className="p-3 text-right font-mono text-muted-foreground">
-                          ${Number(item.unitPrice || item.total).toLocaleString()}
-                        </td>
-                        <td className="p-3 text-right font-mono font-bold text-foreground">
-                          ${Number(item.total || item.unitPrice).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Calculations Breakdown */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border text-xs max-w-sm">
-                <ShieldCheck className="h-6 w-6 text-emerald-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-foreground">Payment Settled Verified</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Processed via {invoice.paymentMethod || 'Credit Card'} • TLS 256-bit encrypted
-                  </p>
-                </div>
-              </div>
-
-              <div className="w-full sm:w-64 space-y-1.5 text-xs">
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span className="font-mono font-semibold text-foreground">
-                    ${Number(invoice.subtotal || invoice.totalAmount).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Tax (8% GST/VAT)</span>
-                  <span className="font-mono font-semibold text-foreground">
-                    +${Number(invoice.tax || 0).toLocaleString()}
-                  </span>
-                </div>
-                {Number(invoice.discount || 0) > 0 && (
-                  <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
-                    <span>Discount Applied</span>
-                    <span className="font-mono font-semibold">
-                      -${Number(invoice.discount).toLocaleString()}
-                    </span>
-                  </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="p-3 font-medium text-foreground">Subscription / Service Item</td>
+                    <td className="p-3 text-center font-mono">1</td>
+                    <td className="p-3 text-right font-mono">${Number(invoice.totalAmount || 0).toFixed(2)}</td>
+                    <td className="p-3 text-right font-mono font-bold">${Number(invoice.totalAmount || 0).toFixed(2)}</td>
+                  </tr>
                 )}
-                <div className="border-t border-border pt-2 flex items-center justify-between text-sm font-extrabold text-foreground">
-                  <span>Total Paid</span>
-                  <span className="font-mono text-primary text-base">
-                    ${Number(invoice.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Summary Total */}
+          <div className="flex justify-end pt-2">
+            <div className="w-64 space-y-2 text-xs">
+              <div className="flex justify-between font-bold text-sm border-t border-border pt-2">
+                <span>Total Amount:</span>
+                <span className="font-mono text-primary">${Number(invoice.totalAmount || 0).toFixed(2)}</span>
               </div>
             </div>
-
-            {/* Footer Notes */}
-            <div className="p-3.5 rounded-xl bg-muted/20 border border-dashed border-border text-center text-[11px] text-muted-foreground">
-              {invoice.notes || 'Thank you for choosing GymFlow Enterprise. For billing inquiries, contact billing@gymflow.io.'}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </PageContainer>
   );
 };

@@ -1,13 +1,29 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface ITrainerDashboard extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface IPtSessionItem {
+  id: string;
+  clientName: string;
+  clientAvatar?: string;
+  sessionTime: string;
+  focusArea: string;
+  status: 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  programPhase: string;
+  notes?: string;
 }
 
-export interface ITrainerDashboardFilters {
-  search?: string;
-  status?: StatusType;
+export interface IClientRosterItem {
+  id: string;
+  clientName: string;
+  clientAvatar?: string;
+  packageRemaining: number;
+  totalSessions: number;
+  goalProgressPercent: number;
+  lastWorkoutDate: string;
+  bodyFatChangePercent: number;
+}
+
+export interface ITrainerDashboardStats {
+  renderedSessionsThisMonth: number;
+  activeClientsCount: number;
+  monthlyCommissionEarned: number;
+  clientSatisfactionScore: number;
+  targetHoursRendered: number;
 }

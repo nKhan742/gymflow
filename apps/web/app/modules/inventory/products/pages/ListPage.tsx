@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -86,7 +86,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/inventory/products', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/products', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
-      const res = await fetch('http://localhost:5000/api/v1/inventory/products', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/inventory/products', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -196,7 +196,7 @@ export const ListPage: React.FC = () => {
       const additionalUnits = parseInt(restockQty) || 0;
       const newStock = (selectedProduct.stockQuantity || 0) + additionalUnits;
 
-      const res = await fetch(`http://localhost:5000/api/v1/inventory/products/${prodId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/inventory/products/${prodId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

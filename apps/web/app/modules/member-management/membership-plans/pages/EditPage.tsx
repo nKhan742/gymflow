@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -65,7 +65,7 @@ export const EditPage: React.FC = () => {
     setFetching(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`http://localhost:5000/api/v1/member-management/membership-plans/${id}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/member-management/membership-plans/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export const EditPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`http://localhost:5000/api/v1/member-management/membership-plans/${id}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/member-management/membership-plans/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

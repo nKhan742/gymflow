@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   THEME_MODE: 'gymflow_theme_mode',
   SIDEBAR_COLLAPSED: 'gymflow_sidebar_collapsed',
   ACTIVE_BRANCH: 'gymflow_active_branch',
+  APP_CURRENCY: 'gymflow_app_currency',
 } as const;

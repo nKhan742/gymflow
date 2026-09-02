@@ -23,6 +23,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
+import { PlanGateGuard } from '../../../../shared/components/plan/PlanGateGuard';
 
 interface IPOSProduct {
   id: string;
@@ -38,30 +39,14 @@ interface ICartItem {
   quantity: number;
 }
 
-const POS_PRODUCTS: IPOSProduct[] = [
-  { id: 'pos_1', name: '1-Day All-Access Pass', category: 'PASSES', price: 25, icon: '🎟️', stock: 999 },
-  { id: 'pos_2', name: '1-Week Guest Pass', category: 'PASSES', price: 65, icon: '🎫', stock: 999 },
-  { id: 'pos_3', name: 'Personal Training Drop-in', category: 'PASSES', price: 75, icon: '🏋️', stock: 50 },
-  { id: 'pos_4', name: 'Whey Isolate Protein (2lb)', category: 'SUPPLEMENTS', price: 54, icon: '🥛', stock: 24 },
-  { id: 'pos_5', name: 'Pre-Workout Energy (30 Servings)', category: 'SUPPLEMENTS', price: 39, icon: '⚡', stock: 18 },
-  { id: 'pos_6', name: 'BCAA Recovery Formula', category: 'SUPPLEMENTS', price: 29, icon: '🧪', stock: 30 },
-  { id: 'pos_7', name: 'GymFlow Microfiber Towel', category: 'MERCH', price: 18, icon: '🧖', stock: 45 },
-  { id: 'pos_8', name: 'Matte Black Shaker Bottle', category: 'MERCH', price: 15, icon: '🍶', stock: 60 },
-  { id: 'pos_9', name: 'GymFlow Performance Tee', category: 'MERCH', price: 32, icon: '👕', stock: 28 },
-  { id: 'pos_10', name: 'Electrolyte Sports Drink', category: 'DRINKS', price: 4.5, icon: '🥤', stock: 120 },
-  { id: 'pos_11', name: 'Cold-Pressed Protein Smoothie', category: 'DRINKS', price: 7.5, icon: '🧃', stock: 15 },
-  { id: 'pos_12', name: 'Alkaline Mineral Water (1L)', category: 'DRINKS', price: 3, icon: '💧', stock: 200 },
-];
+const POS_PRODUCTS: IPOSProduct[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [cart, setCart] = useState<ICartItem[]>([
-    { product: POS_PRODUCTS[0], quantity: 1 },
-    { product: POS_PRODUCTS[9], quantity: 2 },
-  ]);
-  const [customerName, setCustomerName] = useState<string>('Walk-in Customer');
+  const [cart, setCart] = useState<ICartItem[]>([]);
+  const [customerName, setCustomerName] = useState<string>('');
   const [discountCode, setDiscountCode] = useState<string>('');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -154,7 +139,7 @@ export const ListPage: React.FC = () => {
         notes: `POS Retail Sale • Cashier Register #1 • Method: ${paymentMethod}`,
       };
 
-      const res = await fetch('http://localhost:5000/api/v1/finance/invoices', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/invoices', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -186,7 +171,8 @@ export const ListPage: React.FC = () => {
   });
 
   return (
-    <PageContainer>
+    <PlanGateGuard featureKey="finance/pos" featureTitle="Point of Sale (POS) Billing" requiredTier="PROFESSIONAL">
+      <PageContainer>
       <PageHeader
         title="Point of Sale (POS) Register"
         subtitle="Process quick retail sales, guest passes, supplements, and gym merchandise."
@@ -416,5 +402,6 @@ export const ListPage: React.FC = () => {
         </div>
       </div>
     </PageContainer>
+    </PlanGateGuard>
   );
 };

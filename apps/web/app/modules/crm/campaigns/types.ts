@@ -1,13 +1,31 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
-
-export interface ICampaigns extends IBaseEntity {
+export interface ICampaign {
+  id: string;
+  _id?: string;
   name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+  code: string;
+  bannerUrl?: string;
+  channel: 'META_ADS' | 'GOOGLE_SEARCH' | 'WHATSAPP_BROADCAST' | 'EMAIL_NEWSLETTER' | 'IN_GYM_PROMO' | 'INFLUENCER_PARTNER';
+  targetAudience: string;
+  budgetTotal: number;
+  spendToDate: number;
+  startDate: string;
+  endDate: string;
+  leadsGenerated: number;
+  conversionsCount: number;
+  status: 'ACTIVE' | 'SCHEDULED' | 'PAUSED' | 'COMPLETED';
+  branchId?: string;
+  branchName?: string;
+  discountOffer?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ICampaignsFilters {
+export type ICampaigns = ICampaign;
+
+export interface ICampaignFilters {
   search?: string;
-  status?: StatusType;
+  channel?: string;
+  status?: string;
+  branchId?: string;
 }

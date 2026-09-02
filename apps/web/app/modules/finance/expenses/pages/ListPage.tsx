@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -84,7 +84,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('http://localhost:5000/api/v1/finance/expenses', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/expenses', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export const ListPage: React.FC = () => {
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
-      const res = await fetch('http://localhost:5000/api/v1/finance/expenses', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/finance/expenses', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -196,7 +196,7 @@ export const ListPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const expId = exp._id || exp.id;
 
-      const res = await fetch(`http://localhost:5000/api/v1/finance/expenses/${expId}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/finance/expenses/${expId}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -249,7 +249,7 @@ export const ListPage: React.FC = () => {
           </span>
           <div className="flex items-center gap-1.5">
             <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-semibold uppercase bg-muted/40 text-foreground whitespace-nowrap">
-              {row.original.category.replace(/_/g, ' ')}
+              {row.original.category?.replace(/_/g, ' ') || 'EXPENSE'}
             </Badge>
             <span className="text-[10px] text-muted-foreground truncate">{row.original.description}</span>
           </div>
@@ -278,7 +278,7 @@ export const ListPage: React.FC = () => {
       cell: ({ row }) => (
         <div className="space-y-0.5">
           <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-semibold whitespace-nowrap">
-            {row.original.paymentMethod.replace(/_/g, ' ')}
+            {row.original.paymentMethod?.replace(/_/g, ' ') || 'OTHER'}
           </Badge>
           <span className="text-[10px] text-muted-foreground block truncate">
             Rec: {row.original.recordedBy}

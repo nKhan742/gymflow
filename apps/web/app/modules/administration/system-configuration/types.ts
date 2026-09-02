@@ -1,13 +1,32 @@
-import { IBaseEntity, StatusType } from '@core/types/common.types';
+export interface IMicroserviceStatus {
+  serviceName: string;
+  serviceKey: string;
+  status: 'HEALTHY' | 'DEGRADED' | 'STANDBY' | 'STOPPED';
+  latencyMs: number;
+  instances: number;
+  uptime: string;
+}
 
-export interface ISystemConfiguration extends IBaseEntity {
-  name: string;
-  code?: string;
-  status: StatusType;
-  description?: string;
+export interface ISystemConfigurationModel {
+  id?: string;
+  _id?: string;
+  nodeEnv: 'PRODUCTION' | 'STAGING' | 'DISASTER_RECOVERY';
+  regionCluster: string;
+  s3StorageBucket: string;
+  cdnDistributionDomain: string;
+  databaseLatencyMs: number;
+  redisCacheHitRate: number;
+  serverUptimePercent: number;
+  activeWebsocketConnections: number;
+  memoryHeapUsagePercent: number;
+  cpuLoadPercent: number;
+  autoScaleReplicaMin: number;
+  autoScaleReplicaMax: number;
+  dbPoolConnections: number;
+  services: IMicroserviceStatus[];
 }
 
 export interface ISystemConfigurationFilters {
   search?: string;
-  status?: StatusType;
+  status?: string;
 }
