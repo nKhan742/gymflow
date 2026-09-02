@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -24,7 +24,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { ImageUpload } from '../../../../shared/components/image-upload';
 import { IBranch } from '../types';
-import { DEFAULT_BRANCHES } from '../../../../core/store/branchStore';
+import { useBranchStore, DEFAULT_BRANCHES } from '../../../../core/store/branchStore';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,9 +73,9 @@ export const EditPage: React.FC = () => {
   const loadBranch = async () => {
     setFetching(true);
     try {
-      const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
-      const localCustom: IBranch[] = localRaw ? JSON.parse(localRaw) : [];
-      const localMatch = localCustom.find((b) => b.id === id || b.code === id || (b as any)._id === id);
+      const cached = localStorage.getItem('gymflow_live_branches');
+      const liveList: IBranch[] = cached ? JSON.parse(cached) : DEFAULT_BRANCHES;
+      const localMatch = liveList.find((b) => b.id === id || b.code === id || (b as any)._id === id) || liveList[0];
 
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/branches/${id}`, {
@@ -195,6 +195,7 @@ export const EditPage: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
+      useBranchStore.getState().loadBranches();
       toast.success(`Gym Branch "${name}" updated successfully!`);
       navigate(`/gym-management/branches/${id}`);
     } catch {

@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -27,6 +27,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { ImageUpload } from '../../../../shared/components/image-upload';
 import { IBranch } from '../types';
+import { useBranchStore } from '../../../../core/store/branchStore';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -135,6 +136,7 @@ export const CreatePage: React.FC = () => {
       });
 
       if (res.ok) {
+        useBranchStore.getState().loadBranches();
         toast.success(`Gym Branch "${name}" onboarded successfully!`);
         navigate('/gym-management/branches');
       } else {

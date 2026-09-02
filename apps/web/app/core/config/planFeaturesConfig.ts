@@ -1,4 +1,4 @@
-﻿export type PlanTier = 'ESSENTIAL' | 'PROFESSIONAL' | 'ENTERPRISE';
+export type PlanTier = 'ESSENTIAL' | 'PROFESSIONAL' | 'ENTERPRISE';
 export type BillingCycle = 'MONTHLY' | 'ANNUAL';
 
 export interface IPlanPricing {
@@ -248,7 +248,7 @@ export const PLAN_DEFINITIONS: Record<PlanTier, IPlanDefinition> = {
  */
 export const FEATURE_TIER_REQUIREMENTS: Record<string, PlanTier> = {
   // Enterprise Exclusive Features
-  'gym-management/branches': 'ENTERPRISE',
+  'gym-management/branches/create': 'ENTERPRISE',
   'gym-management/floors-zones': 'ENTERPRISE',
   'gym-management/access-control': 'ENTERPRISE',
   'gym-management/partners': 'ENTERPRISE',

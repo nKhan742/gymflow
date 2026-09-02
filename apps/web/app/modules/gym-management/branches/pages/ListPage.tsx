@@ -36,11 +36,13 @@ import { toast } from 'sonner';
 import { IBranch } from '../types';
 import { useBranchStore, DEFAULT_BRANCHES } from '../../../../core/store/branchStore';
 import { useLoadingStore } from '../../../../core/store/loadingStore';
+import { usePlanStore } from '../../../../core/store/planStore';
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { branches, loadBranches, setActiveBranchId } = useBranchStore();
   const { startLoading, stopLoading } = useLoadingStore();
+  const { currentPlan, openUpgradeModal } = usePlanStore();
   const [branchList, setBranchList] = useState<IBranch[]>(() => {
     const cached = localStorage.getItem('gymflow_live_branches');
     if (cached) return JSON.parse(cached);
@@ -267,8 +269,7 @@ export const ListPage: React.FC = () => {
   const totalRevenue = branchList.reduce((acc, b) => acc + (b.monthlyRevenue || 0), 0);
 
   return (
-    <PlanGateGuard featureKey="gym-management/branches" featureTitle="Multi-Branch Network" requiredTier="ENTERPRISE">
-      <PageContainer>
+    <PageContainer>
       <PageHeader
         title="Multi-Gym & Branches Directory"
         subtitle="Centrally monitor, manage, and configure all physical gym facilities, floor spaces, and local branch managers across your brand network."
@@ -286,7 +287,13 @@ export const ListPage: React.FC = () => {
             <Button
               size="sm"
               className="gap-1.5 shadow-md shadow-primary/25"
-              onClick={() => navigate('/gym-management/branches/create')}
+              onClick={() => {
+                if (currentPlan !== 'ENTERPRISE' && branchList.length >= 1) {
+                  openUpgradeModal('Multi-Branch Network');
+                } else {
+                  navigate('/gym-management/branches/create');
+                }
+              }}
             >
               <Plus className="h-4 w-4" />
               <span>Onboard Gym Branch</span>
@@ -310,7 +317,7 @@ export const ListPage: React.FC = () => {
           value={`${totalSqFt.toLocaleString()} sq ft`}
           change="Athletic bays"
           trend="neutral"
-          timeframe="Across 4 locations"
+          timeframe="Facility footprint"
           icon={<Layers className="h-5 w-5" />}
         />
         <MetricCard
@@ -323,7 +330,7 @@ export const ListPage: React.FC = () => {
         />
         <MetricCard
           title="Monthly Network Revenue"
-          value={`$${(totalRevenue / 1000).toFixed(0)}k/mo`}
+          value={`₹${totalRevenue.toLocaleString()}/mo`}
           change="Run-rate"
           trend="up"
           timeframe="Consolidated Billing"
@@ -335,9 +342,9 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={branchList}
+        loading={loading}
         searchPlaceholder="Search by gym name, branch code, city, or manager..."
       />
     </PageContainer>
-    </PlanGateGuard>
   );
 };
