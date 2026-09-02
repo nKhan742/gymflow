@@ -20,6 +20,7 @@ import { analyticsDomainRoutes } from '../domains/analytics/routes.js';
 import { profileDomainRoutes } from '../domains/profile/routes.js';
 
 import mongoose from 'mongoose';
+import { DatabaseConnection } from '../database/connection.js';
 
 export const apiRouter = Router();
 
@@ -35,8 +36,28 @@ apiRouter.get('/health', (_req, res) => {
       status: dbStatus,
       readyState: dbState,
       host: mongoose.connection.host || null,
+      error: DatabaseConnection.lastError,
     },
   });
+});
+
+apiRouter.get('/health/db-test', async (_req, res) => {
+  try {
+    await DatabaseConnection.connect();
+    res.json({
+      success: true,
+      message: 'Connected to MongoDB Atlas!',
+      readyState: mongoose.connection.readyState,
+      host: mongoose.connection.host,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      error: err?.message || String(err),
+      name: err?.name,
+      reason: err?.reason?.message || null,
+    });
+  }
 });
 
 // Public Authentication Routes
