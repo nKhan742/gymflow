@@ -23,7 +23,7 @@ export interface IShiftManagementModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const shiftManagementSchema = new Schema<IShiftManagementModel>(
+export const shiftManagementSchema = new Schema<IShiftManagementModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

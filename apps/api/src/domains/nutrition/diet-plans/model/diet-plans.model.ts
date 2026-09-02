@@ -8,7 +8,7 @@ export interface IDietPlansModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const dietPlansSchema = new Schema<IDietPlansModel>(
+export const dietPlansSchema = new Schema<IDietPlansModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

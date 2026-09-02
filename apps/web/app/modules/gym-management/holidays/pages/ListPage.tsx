@@ -21,7 +21,82 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IHoliday } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
-export const DEFAULT_HOLIDAYS: IHoliday[] = [];
+const currentYear = new Date().getFullYear();
+
+export const DEFAULT_HOLIDAYS: IHoliday[] = [
+  {
+    id: 'HOL-NYD-01',
+    name: "New Year's Day Celebration",
+    code: 'HOL-NYD-01',
+    startDate: `${currentYear}-01-01`,
+    endDate: `${currentYear}-01-01`,
+    category: 'NATIONAL',
+    operationalMode: 'REDUCED_HOURS',
+    reducedHoursSchedule: '08:00 AM - 04:00 PM',
+    classPolicy: 'RESCHEDULE',
+    ptPolicy: 'PERMITTED',
+    memberBroadcast: true,
+    status: 'active',
+    description: "Special reduced hours for New Year's Day. Group classes rescheduled; open gym permitted.",
+  },
+  {
+    id: 'HOL-NAT-02',
+    name: 'National Independence Day Observance',
+    code: 'HOL-NAT-02',
+    startDate: `${currentYear}-07-04`,
+    endDate: `${currentYear}-07-04`,
+    category: 'NATIONAL',
+    operationalMode: 'CLOSED',
+    classPolicy: 'AUTO_CANCEL',
+    ptPolicy: 'AUTO_CANCEL',
+    memberBroadcast: true,
+    status: 'active',
+    description: 'Facility closed for National Independence Day. 24/7 RFID keyless access active for VIP tiers.',
+  },
+  {
+    id: 'HOL-MNT-03',
+    name: 'Annual Deep Clean & Equipment Servicing',
+    code: 'HOL-MNT-03',
+    startDate: `${currentYear}-09-15`,
+    endDate: `${currentYear}-09-16`,
+    category: 'MAINTENANCE',
+    operationalMode: 'CLOSED',
+    classPolicy: 'AUTO_CANCEL',
+    ptPolicy: 'AUTO_CANCEL',
+    memberBroadcast: true,
+    status: 'active',
+    description: 'Scheduled semi-annual deep sanitation, sauna maintenance, and machine motor calibration.',
+  },
+  {
+    id: 'HOL-THX-04',
+    name: 'Thanksgiving & Harvest Break',
+    code: 'HOL-THX-04',
+    startDate: `${currentYear}-11-26`,
+    endDate: `${currentYear}-11-27`,
+    category: 'NATIONAL',
+    operationalMode: 'REDUCED_HOURS',
+    reducedHoursSchedule: '07:00 AM - 01:00 PM',
+    classPolicy: 'RESCHEDULE',
+    ptPolicy: 'PERMITTED',
+    memberBroadcast: true,
+    status: 'active',
+    description: 'Morning holiday hours for Thanksgiving turkey workouts. Early facility shutdown at 1 PM.',
+  },
+  {
+    id: 'HOL-XMAS-05',
+    name: 'Winter Festive & Christmas Holiday',
+    code: 'HOL-XMAS-05',
+    startDate: `${currentYear}-12-25`,
+    endDate: `${currentYear}-12-25`,
+    category: 'NATIONAL',
+    operationalMode: 'CLOSED',
+    classPolicy: 'AUTO_CANCEL',
+    ptPolicy: 'AUTO_CANCEL',
+    memberBroadcast: true,
+    status: 'active',
+    description: 'Closed for Christmas celebration. Staff and coaches on paid company leave.',
+  },
+];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,14 +127,15 @@ export const ListPage: React.FC = () => {
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setHolidays([...localCustomItems, ...items]);
+        const merged = [...localCustomItems, ...items];
+        setHolidays(merged.length > 0 ? merged : DEFAULT_HOLIDAYS);
       } else {
-        setHolidays(localCustomItems);
+        setHolidays(localCustomItems.length > 0 ? localCustomItems : DEFAULT_HOLIDAYS);
       }
     } catch {
       const localCustomRaw = localStorage.getItem('gymflow_custom_gym_holidays');
       const localCustomItems: IHoliday[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
-      setHolidays(localCustomItems);
+      setHolidays(localCustomItems.length > 0 ? localCustomItems : DEFAULT_HOLIDAYS);
     } finally {
       setLoading(false);
     }

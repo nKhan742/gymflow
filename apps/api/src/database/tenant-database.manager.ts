@@ -7,6 +7,13 @@ import { departmentsSchema, IDepartmentsModel } from '../domains/gym/departments
 import { settingsSchema, ISettingsModel } from '../domains/administration/settings/model/settings.model.js';
 import { membersSchema, IMembersModel } from '../domains/members/members/model/members.model.js';
 import { staffSchema, IStaffModel } from '../domains/gym/staff/model/staff.model.js';
+import { rolesSchema, IRolesModel } from '../domains/administration/roles/model/roles.model.js';
+import { shiftManagementSchema, IShiftManagementModel } from '../domains/gym/shift-management/model/shift-management.model.js';
+import { holidaysSchema, IHolidaysModel } from '../domains/gym/holidays/model/holidays.model.js';
+import { exerciseCategoriesSchema, IExerciseCategoriesModel } from '../domains/fitness/exercise-categories/model/exercise-categories.model.js';
+import { workoutTemplatesSchema, IWorkoutTemplatesModel } from '../domains/fitness/workout-templates/model/workout-templates.model.js';
+import { mealLibrarySchema, IMealLibraryModel } from '../domains/nutrition/meal-library/model/meal-library.model.js';
+import { dietPlansSchema, IDietPlansModel } from '../domains/nutrition/diet-plans/model/diet-plans.model.js';
 
 export interface ITenantModels {
   Users: mongoose.Model<IUsersModel>;
@@ -17,6 +24,13 @@ export interface ITenantModels {
   Settings: mongoose.Model<ISettingsModel>;
   Members: mongoose.Model<IMembersModel>;
   Staff: mongoose.Model<IStaffModel>;
+  Roles: mongoose.Model<IRolesModel>;
+  Shifts: mongoose.Model<IShiftManagementModel>;
+  Holidays: mongoose.Model<IHolidaysModel>;
+  ExerciseCategories: mongoose.Model<IExerciseCategoriesModel>;
+  WorkoutTemplates: mongoose.Model<IWorkoutTemplatesModel>;
+  MealLibrary: mongoose.Model<IMealLibraryModel>;
+  DietPlans: mongoose.Model<IDietPlansModel>;
   connection: mongoose.Connection;
 }
 
@@ -79,6 +93,27 @@ export class TenantDatabaseManager {
     const Staff = (tenantConnection.models.Staff ||
       tenantConnection.model<IStaffModel>('Staff', staffSchema)) as mongoose.Model<IStaffModel>;
 
+    const Roles = (tenantConnection.models.Roles ||
+      tenantConnection.model<IRolesModel>('Roles', rolesSchema)) as mongoose.Model<IRolesModel>;
+
+    const Shifts = (tenantConnection.models.Shifts ||
+      tenantConnection.model<IShiftManagementModel>('Shifts', shiftManagementSchema)) as mongoose.Model<IShiftManagementModel>;
+
+    const Holidays = (tenantConnection.models.Holidays ||
+      tenantConnection.model<IHolidaysModel>('Holidays', holidaysSchema)) as mongoose.Model<IHolidaysModel>;
+
+    const ExerciseCategories = (tenantConnection.models.ExerciseCategories ||
+      tenantConnection.model<IExerciseCategoriesModel>('ExerciseCategories', exerciseCategoriesSchema)) as mongoose.Model<IExerciseCategoriesModel>;
+
+    const WorkoutTemplates = (tenantConnection.models.WorkoutTemplates ||
+      tenantConnection.model<IWorkoutTemplatesModel>('WorkoutTemplates', workoutTemplatesSchema)) as mongoose.Model<IWorkoutTemplatesModel>;
+
+    const MealLibrary = (tenantConnection.models.MealLibrary ||
+      tenantConnection.model<IMealLibraryModel>('MealLibrary', mealLibrarySchema)) as mongoose.Model<IMealLibraryModel>;
+
+    const DietPlans = (tenantConnection.models.DietPlans ||
+      tenantConnection.model<IDietPlansModel>('DietPlans', dietPlansSchema)) as mongoose.Model<IDietPlansModel>;
+
     return {
       Users,
       GymProfile,
@@ -88,6 +123,13 @@ export class TenantDatabaseManager {
       Settings,
       Members,
       Staff,
+      Roles,
+      Shifts,
+      Holidays,
+      ExerciseCategories,
+      WorkoutTemplates,
+      MealLibrary,
+      DietPlans,
       connection: tenantConnection,
     };
   }

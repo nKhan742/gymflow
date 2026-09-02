@@ -8,7 +8,7 @@ export interface IExerciseCategoriesModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const exerciseCategoriesSchema = new Schema<IExerciseCategoriesModel>(
+export const exerciseCategoriesSchema = new Schema<IExerciseCategoriesModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

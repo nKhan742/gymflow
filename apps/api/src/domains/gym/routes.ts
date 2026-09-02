@@ -16,6 +16,7 @@ router.use('/branches', branchesRoutes);
 router.use('/departments', departmentsRoutes);
 router.use('/staff', staffRoutes);
 router.use('/shift-management', shiftManagementRoutes);
+router.use('/shifts', shiftManagementRoutes);
 router.use('/working-hours', workingHoursRoutes);
 router.use('/holidays', holidaysRoutes);
 

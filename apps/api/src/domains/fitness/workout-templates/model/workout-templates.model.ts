@@ -8,7 +8,7 @@ export interface IWorkoutTemplatesModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const workoutTemplatesSchema = new Schema<IWorkoutTemplatesModel>(
+export const workoutTemplatesSchema = new Schema<IWorkoutTemplatesModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

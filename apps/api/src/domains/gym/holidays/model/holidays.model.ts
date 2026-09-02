@@ -19,7 +19,7 @@ export interface IHolidaysModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const holidaysSchema = new Schema<IHolidaysModel>(
+export const holidaysSchema = new Schema<IHolidaysModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

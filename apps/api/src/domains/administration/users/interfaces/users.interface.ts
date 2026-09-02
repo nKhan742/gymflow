@@ -16,6 +16,6 @@ export interface IUsers {
   avatarUrl?: string;
   isActive: boolean;
   status: any;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt: Date;
 }

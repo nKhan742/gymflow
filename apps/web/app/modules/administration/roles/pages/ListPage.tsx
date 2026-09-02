@@ -13,7 +13,80 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IRoleModel } from '../types';
 import { toast } from 'sonner';
 
-export const DEFAULT_ROLES: any[] = [];
+export const DEFAULT_ROLES: any[] = [
+  {
+    id: 'ROL-ADMIN',
+    roleName: 'Gym Administrator / Owner',
+    roleKey: 'ADMIN',
+    description: 'Master organizational control, financial records, staff provisioning, and billing oversight across all facility branches.',
+    hierarchyTier: 1,
+    isSystemRole: true,
+    assignedUsersCount: 1,
+    permissionModulesCount: 9,
+    permissionsList: ['*'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'ROL-MGR',
+    roleName: 'Branch General Manager',
+    roleKey: 'BRANCH_MANAGER',
+    description: 'Branch-level operational oversight, shift management, attendance logs, and staff assignments.',
+    hierarchyTier: 2,
+    isSystemRole: true,
+    assignedUsersCount: 0,
+    permissionModulesCount: 6,
+    permissionsList: ['gym:branches:view', 'gym:departments:view', 'gym:staff:view', 'members:members:view', 'scheduling:classes:view'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'ROL-TRN',
+    roleName: 'Fitness Coach & Personal Trainer',
+    roleKey: 'TRAINER',
+    description: 'Workout programming, personal training sessions, body assessments, and class instruction.',
+    hierarchyTier: 3,
+    isSystemRole: false,
+    assignedUsersCount: 0,
+    permissionModulesCount: 4,
+    permissionsList: ['fitness:workout-plans:view', 'fitness:fitness-assessment:view', 'members:members:view'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'ROL-REC',
+    roleName: 'Front Desk & Member Concierge',
+    roleKey: 'RECEPTIONIST',
+    description: 'Turnstile check-in, guest pass processing, member onboardings, and locker assignments.',
+    hierarchyTier: 3,
+    isSystemRole: false,
+    assignedUsersCount: 0,
+    permissionModulesCount: 3,
+    permissionsList: ['members:members:view', 'members:members:create', 'gym:branches:view'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'ROL-NUT',
+    roleName: 'Certified Nutritionist & Dietitian',
+    roleKey: 'NUTRITIONIST',
+    description: 'Macronutrient meal planning, dietary consultations, hydration tracking, and supplement guidance.',
+    hierarchyTier: 3,
+    isSystemRole: false,
+    assignedUsersCount: 0,
+    permissionModulesCount: 3,
+    permissionsList: ['nutrition:meal-library:view', 'nutrition:diet-plans:view', 'members:members:view'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'ROL-MBR',
+    roleName: 'Gym Member (Self-Service)',
+    roleKey: 'MEMBER',
+    description: 'Mobile app and portal access for workout logs, class bookings, subscription status, and billing history.',
+    hierarchyTier: 4,
+    isSystemRole: false,
+    assignedUsersCount: 0,
+    permissionModulesCount: 2,
+    permissionsList: ['profile:view', 'fitness:workout-plans:view', 'nutrition:diet-plans:view'],
+    status: 'ACTIVE',
+  },
+];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();

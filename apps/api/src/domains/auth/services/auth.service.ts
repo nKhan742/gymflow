@@ -5,6 +5,7 @@ import { UnauthorizedException, BadRequestException } from '../../../core/except
 import { UsersModel } from '../../administration/users/model/users.model.js';
 import { TenantDatabaseManager } from '../../../database/tenant-database.manager.js';
 import { DatabaseConnection } from '../../../database/connection.js';
+import { seedTenantDefaults } from '../../../database/tenant-seeder.js';
 
 export interface ILoginResult {
   user: {
@@ -243,31 +244,15 @@ export class AuthService {
       }),
     ]).catch(() => {});
 
-    // 9. Seed Core Departments inside the separate tenant database
-    await Promise.all([
-      tenantModels.Departments.create({
-        tenantId,
-        name: 'Front Desk & Operations',
-        code: `DEP-OPS-${randomSuffix}`,
-        category: 'OPERATIONS',
-        description: 'Member check-in, turnstile operations, and facility management.',
-        color: '#6366f1',
-        branchId: branchDoc._id.toString(),
-        branchName: branchDoc.name,
-        status: 'active',
-      }),
-      tenantModels.Departments.create({
-        tenantId,
-        name: 'Personal Training & Fitness',
-        code: `DEP-FIT-${randomSuffix}`,
-        category: 'FITNESS',
-        description: 'Certified personal trainers, group classes, and fitness assessments.',
-        color: '#10b981',
-        branchId: branchDoc._id.toString(),
-        branchName: branchDoc.name,
-        status: 'active',
-      }),
-    ]).catch(() => {});
+    // 9. Seed Comprehensive Predefined Roles, Departments, Shifts, Holidays, Fitness & Nutrition Defaults
+    await seedTenantDefaults(
+      tenantModels,
+      tenantId,
+      branchDoc,
+      String(randomSuffix),
+      currency || 'USD',
+      gymName
+    );
 
     // 10. Seed System Settings inside the separate tenant database
     await tenantModels.Settings.create({

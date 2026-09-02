@@ -8,7 +8,7 @@ export interface IMealLibraryModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const mealLibrarySchema = new Schema<IMealLibraryModel>(
+export const mealLibrarySchema = new Schema<IMealLibraryModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },
