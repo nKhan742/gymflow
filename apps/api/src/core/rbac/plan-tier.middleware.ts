@@ -16,9 +16,10 @@ export const requirePlanTier = (minRequiredTier: PlanTierLevel) => {
       return next(new UnauthorizedException('Authentication required'));
     }
 
-    // Fallback: SUPER_ADMIN gets ENTERPRISE access by default unless specified
+    // Fallback: SUPER_ADMIN and ADMIN get ENTERPRISE access by default unless specified
     const userTier: PlanTierLevel =
-      (user.planTier as PlanTierLevel) || (user.role === 'SUPER_ADMIN' ? 'ENTERPRISE' : 'ESSENTIAL');
+      (user.planTier as PlanTierLevel) ||
+      (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? 'ENTERPRISE' : 'ESSENTIAL');
 
     if (PLAN_HIERARCHY[userTier] < PLAN_HIERARCHY[minRequiredTier]) {
       return next(

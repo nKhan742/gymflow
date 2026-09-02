@@ -67,16 +67,17 @@ export const ListPage: React.FC = () => {
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setDepartments(items);
         if (items.length > 0) {
-          setDepartments(items);
           localStorage.removeItem('gymflow_custom_gym_departments');
-        } else {
-          setDepartments(localCustomItems);
         }
       } else {
+        const errJson = await res.json().catch(() => null);
+        console.warn('[Departments] Live fetch issue:', errJson?.message || res.statusText);
         setDepartments(localCustomItems);
       }
-    } catch {
+    } catch (err) {
+      console.warn('[Departments] Network error:', err);
       const localCustomRaw = localStorage.getItem('gymflow_custom_gym_departments');
       const localCustomItems: IDepartment[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
       setDepartments(localCustomItems);
