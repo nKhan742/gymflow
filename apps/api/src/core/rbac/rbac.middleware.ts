@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { ForbiddenException, UnauthorizedException } from '../exceptions/HttpException.js';
 
 export const requirePermission = (permission: string | string[]) => {
@@ -24,7 +24,6 @@ export const requirePermission = (permission: string | string[]) => {
     }
 
     const hasPerm = perms.some((p) => userPerms.has(p));
-
     if (!hasPerm) {
       return next(new ForbiddenException(`Missing required permission: ${perms.join(', ')}`));
     }

@@ -20,7 +20,8 @@ export type StaffDepartment =
   | 'RECEPTION'
   | 'MANAGEMENT'
   | 'OPERATIONS'
-  | 'WELLNESS';
+  | 'WELLNESS'
+  | string;
 
 export type ShiftType = 'MORNING' | 'EVENING' | 'NIGHT' | 'FLEXIBLE';
 
@@ -36,7 +37,7 @@ export interface IStaff extends Partial<IBaseEntity> {
   avatar?: string;
   bio?: string;
   role: StaffRole;
-  department: StaffDepartment;
+  department: string;
   specializations: string[];
   certifications: string[];
   shift: ShiftType;

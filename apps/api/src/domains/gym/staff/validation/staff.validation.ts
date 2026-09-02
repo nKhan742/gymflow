@@ -10,7 +10,7 @@ export const createStaffSchema = z.object({
   avatar: z.string().optional(),
   bio: z.string().optional(),
   role: z.enum(['TRAINER', 'HEAD_COACH', 'NUTRITIONIST', 'RECEPTIONIST', 'MANAGER', 'MAINTENANCE', 'GROUP_INSTRUCTOR']).default('TRAINER'),
-  department: z.enum(['FITNESS', 'RECEPTION', 'MANAGEMENT', 'OPERATIONS', 'WELLNESS']).default('FITNESS'),
+  department: z.string().optional().default('FITNESS'),
   specializations: z.array(z.string()).optional().default([]),
   certifications: z.array(z.string()).optional().default([]),
   shift: z.enum(['MORNING', 'EVENING', 'NIGHT', 'FLEXIBLE']).default('MORNING'),

@@ -180,6 +180,9 @@ export const CreatePage: React.FC = () => {
         certifications: certificationsInput.split(',').map((c) => c.trim()).filter(Boolean),
         workingDays: workingDaysInput.split(',').map((s) => s.trim()).filter(Boolean),
         bio,
+        branchName: assignedBranch || (branches[0]?.name) || 'Main Facility',
+        branchId: branches.find((b) => b.name === assignedBranch)?.id || branches[0]?.id || 'ALL',
+        rfidAccessCode,
         emergencyContact: {
           name: emergencyName || 'Primary Contact',
           relationship: emergencyRelation,

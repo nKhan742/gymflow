@@ -10,7 +10,7 @@ export interface CreateStaffDto {
   avatar?: string;
   bio?: string;
   role: 'TRAINER' | 'HEAD_COACH' | 'NUTRITIONIST' | 'RECEPTIONIST' | 'MANAGER' | 'MAINTENANCE' | 'GROUP_INSTRUCTOR';
-  department: 'FITNESS' | 'RECEPTION' | 'MANAGEMENT' | 'OPERATIONS' | 'WELLNESS';
+  department?: string;
   specializations?: string[];
   certifications?: string[];
   shift?: 'MORNING' | 'EVENING' | 'NIGHT' | 'FLEXIBLE';
