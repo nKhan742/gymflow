@@ -2,6 +2,7 @@ import { RoleType } from '../types/rbac.types';
 
 export const ROLES: Record<RoleType, RoleType> = {
   SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
   GYM_OWNER: 'GYM_OWNER',
   MANAGER: 'MANAGER',
   RECEPTIONIST: 'RECEPTIONIST',

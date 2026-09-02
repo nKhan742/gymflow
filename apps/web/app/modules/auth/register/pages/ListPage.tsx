@@ -114,9 +114,14 @@ export const ListPage: React.FC = () => {
 
       if (res.ok && resData?.success && resData?.data) {
         const { user, tokens, gymProfile, branch } = resData.data;
+        const registeredUser = {
+          ...user,
+          role: 'ADMIN',
+          roleName: 'Administrator',
+        };
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, tokens.accessToken);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
-        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(registeredUser));
 
         if (gymProfile) {
           localStorage.setItem('gymflow_custom_gym_profile', JSON.stringify(gymProfile));
@@ -153,7 +158,7 @@ export const ListPage: React.FC = () => {
           localStorage.setItem('gymflow_registered_tenants', JSON.stringify([newTenantRecord, ...filtered]));
         } catch {}
 
-        setAuth(user, tokens.accessToken, tokens.refreshToken);
+        setAuth(registeredUser, tokens.accessToken, tokens.refreshToken);
         setPlan(planTier, billingCycle);
         toast.success(`🎉 Welcome to GymFlow ERP, ${fullName}! Your database workspace has been initialized.`);
         navigate('/dashboard/admin-dashboard');
@@ -196,8 +201,8 @@ export const ListPage: React.FC = () => {
       lastName,
       fullName,
       phone,
-      role: 'SUPER_ADMIN',
-      roleName: 'Super Administrator',
+      role: 'ADMIN',
+      roleName: 'Administrator',
       department: 'Executive Leadership',
       branchName: campusName || `${gymName} Flagship Campus`,
       mfaEnabled: false,

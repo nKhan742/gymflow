@@ -263,7 +263,7 @@ export const AppLayout: React.FC = () => {
                 </div>
                 <div className="flex-1 truncate">
                   <p className="text-xs font-semibold text-foreground truncate">{user ? `${user.firstName} ${user.lastName}` : 'Admin'}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{user ? user.role : 'SUPER_ADMIN'}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user ? user.role : 'ADMIN'}</p>
                 </div>
               </button>
             </DropdownMenuTrigger>

@@ -1,5 +1,6 @@
 export type RoleType =
   | 'SUPER_ADMIN'
+  | 'ADMIN'
   | 'GYM_OWNER'
   | 'MANAGER'
   | 'RECEPTIONIST'

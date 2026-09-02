@@ -3,6 +3,7 @@ import { PERMISSIONS } from './permissions';
 
 export const ROLE_PERMISSIONS: Record<RoleType, PermissionType[]> = {
   SUPER_ADMIN: Object.values(PERMISSIONS),
+  ADMIN: Object.values(PERMISSIONS),
   GYM_OWNER: Object.values(PERMISSIONS),
   MANAGER: [
     PERMISSIONS.DASHBOARD_VIEW,

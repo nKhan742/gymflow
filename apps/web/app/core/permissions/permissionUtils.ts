@@ -7,7 +7,7 @@ export const hasPermission = (
   permission: PermissionType | PermissionType[]
 ): boolean => {
   if (!user) return false;
-  if (user.role === 'SUPER_ADMIN' || user.role === 'GYM_OWNER') return true;
+  if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'GYM_OWNER') return true;
 
   const rolePerms = ROLE_PERMISSIONS[user.role] || [];
   const allUserPerms = new Set([...rolePerms, ...(user.permissions || [])]);
@@ -24,7 +24,7 @@ export const hasAllPermissions = (
   permissions: PermissionType[]
 ): boolean => {
   if (!user) return false;
-  if (user.role === 'SUPER_ADMIN' || user.role === 'GYM_OWNER') return true;
+  if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'GYM_OWNER') return true;
 
   const rolePerms = ROLE_PERMISSIONS[user.role] || [];
   const allUserPerms = new Set([...rolePerms, ...(user.permissions || [])]);
