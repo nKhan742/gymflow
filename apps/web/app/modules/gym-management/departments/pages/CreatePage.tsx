@@ -21,13 +21,15 @@ import { IDepartment } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
 const CATEGORY_OPTIONS: ISelectOption[] = [
-  { value: 'FITNESS', label: 'Fitness & Personal Training' },
-  { value: 'RECEPTION', label: 'Front Desk & Guest Relations' },
-  { value: 'STUDIO', label: 'Group Fitness & Studio Programming' },
-  { value: 'WELLNESS', label: 'Nutrition & Recovery Spa' },
-  { value: 'OPERATIONS', label: 'Facility Operations & Maintenance' },
-  { value: 'SALES', label: 'Sales & Corporate Memberships' },
-  { value: 'MANAGEMENT', label: 'Executive Management' },
+  { value: 'FITNESS', label: '🏋️ Fitness & Personal Training' },
+  { value: 'RECEPTION', label: '🤝 Front Desk & Guest Relations' },
+  { value: 'CLEANING', label: '🧹 Cleaning & Facility Housekeeping' },
+  { value: 'STUDIO', label: '🧘 Group Fitness & Studio Programming' },
+  { value: 'WELLNESS', label: '🥗 Nutrition & Recovery Spa' },
+  { value: 'OPERATIONS', label: '🔧 Facility Operations & Maintenance' },
+  { value: 'SALES', label: '📈 Sales & Corporate Memberships' },
+  { value: 'MANAGEMENT', label: '💼 Executive Management' },
+  { value: 'CUSTOM', label: '✏️ Type Own Custom Category...' },
 ];
 
 const ICON_OPTIONS: ISelectOption[] = [
@@ -59,6 +61,7 @@ export const CreatePage: React.FC = () => {
   const [name, setName] = useState('');
   const [code, setCode] = useState(`DEP-${Math.floor(10 + Math.random() * 90)}`);
   const [category, setCategory] = useState('FITNESS');
+  const [customCategory, setCustomCategory] = useState('');
   const [icon, setIcon] = useState('Dumbbell');
   const [description, setDescription] = useState('');
 
@@ -146,11 +149,12 @@ export const CreatePage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const finalCategory = category === 'CUSTOM' ? (customCategory.trim() || 'Custom') : category;
       const payload: IDepartment = {
         id: `DEP-${Math.floor(100 + Math.random() * 900)}`,
         name,
         code,
-        category,
+        category: finalCategory,
         icon,
         description: description || 'Department operational division.',
         headOfDepartment: {
@@ -257,7 +261,10 @@ export const CreatePage: React.FC = () => {
                   <SelectBox
                     options={CATEGORY_OPTIONS}
                     value={category}
-                    onChange={setCategory}
+                    onChange={(val) => {
+                      setCategory(val);
+                      if (val !== 'CUSTOM') setCustomCategory('');
+                    }}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -269,6 +276,24 @@ export const CreatePage: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {category === 'CUSTOM' && (
+                <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                  <label className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                    <span>✏️ Type Custom Category Name *</span>
+                  </label>
+                  <Input
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    placeholder="e.g. Housekeeping, Swimming & Aquatics, Nutrition & Cafe..."
+                    required={category === 'CUSTOM'}
+                    autoFocus
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    This custom category will be assigned to this department and saved in your database.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">Mission & Functional Scope</label>
