@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -229,219 +229,237 @@ export const CreatePage: React.FC = () => {
         }
       />
 
-      <div className="max-w-4xl space-y-6 pt-6">
+      <div className="max-w-6xl w-full space-y-6 pt-6">
         {/* Quick Staff Import Banner */}
-        <Card className="border-primary/30 bg-primary/5 shadow-xs">
-          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5 sm:mt-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
             <div className="space-y-0.5">
-              <div className="text-xs font-bold text-primary flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span>Link from Onboarded Staff Member (Trainers / Front Desk)</span>
+              <div className="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>Link from Onboarded Staff Member</span>
+                <span className="text-[10px] font-medium text-primary bg-primary/15 px-2 py-0.5 rounded-full">Trainers / Front Desk</span>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Quickly generate login credentials for an existing trainer or employee with a single click.
               </p>
             </div>
+          </div>
 
-            <div className="w-full sm:w-72 shrink-0">
-              <Select value={selectedStaffId} onValueChange={handleSelectStaff}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder={loadingStaff ? "Loading staff roster..." : "— Choose Staff / Trainer —"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {staffList.map((s) => (
-                    <SelectItem key={s.id || s._id} value={s.id || s._id}>
-                      {s.name} ({s.role})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="w-full sm:w-80 shrink-0">
+            <Select value={selectedStaffId} onValueChange={handleSelectStaff}>
+              <SelectTrigger className="bg-background border-border/80 h-10 shadow-xs">
+                <SelectValue placeholder={loadingStaff ? "Loading staff roster..." : "— Choose Staff / Trainer —"} />
+              </SelectTrigger>
+              <SelectContent>
+                {staffList.map((s) => (
+                  <SelectItem key={s.id || s._id} value={s.id || s._id}>
+                    {s.name} ({s.role})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Identity & Photo Upload */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base flex items-center gap-2">
-                <UserCheck className="h-4 w-4 text-primary" />
-                User Identity & Portrait
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Upload verified headshot and specify full legal identity
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">User Profile Photo</label>
-                <ImageUpload
-                  value={avatarUrl}
-                  onChange={(url) => setAvatarUrl(url)}
-                  variant="avatar"
-                  helperText="Upload official square employee portrait (1:1)"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    Full Legal Name <span className="text-rose-500">*</span>
-                  </label>
-                  <Input
-                    placeholder="e.g. Marcus Vance"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    Corporate Email Address (Login Username) <span className="text-rose-500">*</span>
-                  </label>
-                  <Input
-                    type="email"
-                    placeholder="e.g. marcus.vance@gymflow.io"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Direct Phone Number</label>
-                  <Input
-                    placeholder="e.g. +1 (555) 345-6789"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Department / Division</label>
-                  <Input
-                    placeholder="e.g. Personal Training & Fitness"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* RBAC Role & Campus Scope */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Shield className="h-4 w-4 text-emerald-500" />
-                Role-Based Access Control (RBAC) & Scope
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Security Role Clearance</label>
-                  <Select value={role} onValueChange={(val) => setRole(val as IUserModel['role'])}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="TRAINER">🏋️ Trainer (Fitness Coach / Instructor)</SelectItem>
-                      <SelectItem value="RECEPTIONIST">🛎️ Front Desk / Receptionist</SelectItem>
-                      <SelectItem value="BRANCH_MANAGER">🏢 Branch General Manager</SelectItem>
-                      <SelectItem value="ADMIN">🛡️ Admin (Gym Administrator / Owner)</SelectItem>
-                      <SelectItem value="NUTRITIONIST">🥗 Nutritionist & Wellness Specialist</SelectItem>
-                      <SelectItem value="MEMBER">👤 Gym Member Portal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Primary Operational Branch</label>
-                  <Select value={branchId} onValueChange={setBranchId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {branchOptions.map((b) => (
-                        <SelectItem key={b.value} value={b.value}>
-                          {b.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Login Password & Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                      <Key className="w-3.5 h-3.5 text-primary" /> Initial Temporary Password <span className="text-rose-500">*</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={copyCredentials}
-                      className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
-                    >
-                      {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                      <span>{copied ? 'Copied!' : 'Copy Login'}</span>
-                    </button>
+          {/* Side-by-Side Responsive Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* LEFT CARD: Identity & Photo Upload */}
+            <Card className="shadow-xs border-border/80 flex flex-col justify-between">
+              <div>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-primary" />
+                    User Identity & Portrait
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Upload verified headshot and specify full legal identity
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-2">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground block">User Profile Photo</label>
+                    <ImageUpload
+                      value={avatarUrl}
+                      onChange={(url) => setAvatarUrl(url)}
+                      variant="avatar"
+                      helperText="Upload official square employee portrait (1:1)"
+                    />
                   </div>
-                  <Input
-                    value={initialPassword}
-                    onChange={(e) => setInitialPassword(e.target.value)}
-                    placeholder="password123"
-                    required
-                  />
-                  <p className="text-[10px] text-muted-foreground">
-                    User can log in at <code className="text-foreground font-mono">/auth/login</code> using this password and update it anytime.
-                  </p>
-                </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Account Lifecycle Status</label>
-                  <Select value={status} onValueChange={(val) => setStatus(val as IUserModel['status'])}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ACTIVE">🟢 Active Account (Immediate Access)</SelectItem>
-                      <SelectItem value="INVITED">✉️ Invited (Pending First Login)</SelectItem>
-                      <SelectItem value="SUSPENDED">🔴 Suspended / Locked</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">
+                        Full Legal Name <span className="text-rose-500">*</span>
+                      </label>
+                      <Input
+                        placeholder="e.g. Marcus Vance"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">
+                        Corporate Email (Login Username) <span className="text-rose-500">*</span>
+                      </label>
+                      <Input
+                        type="email"
+                        placeholder="e.g. marcus.vance@gymflow.io"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Direct Phone Number</label>
+                      <Input
+                        placeholder="e.g. +1 (555) 345-6789"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Department / Division</label>
+                      <Input
+                        placeholder="e.g. Personal Training & Fitness"
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 bg-muted/30 border border-border rounded-xl mt-2">
-                <div>
-                  <span className="text-xs font-semibold text-foreground block">Enforce 2FA Multi-Factor Authentication</span>
-                  <span className="text-[10px] text-muted-foreground">Requires TOTP or biometric hardware key at initial login</span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={mfaEnabled}
-                  onChange={(e) => setMfaEnabled(e.target.checked)}
-                  className="h-4 w-4 accent-primary cursor-pointer"
-                />
+              <div className="p-4 border-t border-border/60 bg-muted/10 text-xs text-muted-foreground flex items-center justify-between">
+                <span>Identity Verification:</span>
+                <span className="font-semibold text-foreground">{fullName ? 'Ready to Provision' : 'Awaiting Input'}</span>
               </div>
-            </CardContent>
+            </Card>
 
-            <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
-              <span className="text-xs text-muted-foreground">
-                Clearance: <strong className="text-emerald-600">{roleNameMap[role] || role}</strong>
-              </span>
-              <Button type="submit" disabled={loading} className="gap-1.5 shadow-sm">
-                <Save className="h-4 w-4" />
-                <span>{loading ? 'Creating Credentials...' : 'Save & Issue Credentials'}</span>
-              </Button>
-            </CardFooter>
-          </Card>
+            {/* RIGHT CARD: RBAC Role, Password & Campus Scope */}
+            <Card className="shadow-xs border-border/80 flex flex-col justify-between">
+              <div>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-emerald-500" />
+                    Role-Based Access Control (RBAC) & Scope
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Configure access privileges, assigned branch, and initial credentials
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Security Role Clearance</label>
+                      <Select value={role} onValueChange={(val) => setRole(val as IUserModel['role'])}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="TRAINER">🏋️ Trainer (Fitness Coach / Instructor)</SelectItem>
+                          <SelectItem value="RECEPTIONIST">🛎️ Front Desk / Receptionist</SelectItem>
+                          <SelectItem value="BRANCH_MANAGER">🏢 Branch General Manager</SelectItem>
+                          <SelectItem value="ADMIN">🛡️ Admin (Gym Administrator / Owner)</SelectItem>
+                          <SelectItem value="NUTRITIONIST">🥗 Nutritionist & Wellness Specialist</SelectItem>
+                          <SelectItem value="MEMBER">👤 Gym Member Portal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Primary Operational Branch</label>
+                      <Select value={branchId} onValueChange={setBranchId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Branch" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {branchOptions.map((b) => (
+                            <SelectItem key={b.value} value={b.value}>
+                              {b.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Login Password & Status */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Key className="w-3.5 h-3.5 text-primary" /> Initial Password <span className="text-rose-500">*</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={copyCredentials}
+                          className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
+                        >
+                          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                          <span>{copied ? 'Copied!' : 'Copy Login'}</span>
+                        </button>
+                      </div>
+                      <Input
+                        value={initialPassword}
+                        onChange={(e) => setInitialPassword(e.target.value)}
+                        placeholder="password123"
+                        required
+                      />
+                      <p className="text-[10px] text-muted-foreground">
+                        Default: <code className="text-foreground font-mono">password123</code> (can be changed anytime).
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Account Lifecycle Status</label>
+                      <Select value={status} onValueChange={(val) => setStatus(val as IUserModel['status'])}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">🟢 Active Account (Immediate Access)</SelectItem>
+                          <SelectItem value="INVITED">✉️ Invited (Pending First Login)</SelectItem>
+                          <SelectItem value="SUSPENDED">🔴 Suspended / Locked</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3.5 bg-muted/30 border border-border rounded-xl mt-2">
+                    <div>
+                      <span className="text-xs font-semibold text-foreground block">Enforce 2FA Multi-Factor Authentication</span>
+                      <span className="text-[10px] text-muted-foreground">Requires TOTP or biometric key at initial login</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={mfaEnabled}
+                      onChange={(e) => setMfaEnabled(e.target.checked)}
+                      className="h-4 w-4 accent-primary cursor-pointer"
+                    />
+                  </div>
+                </CardContent>
+              </div>
+
+              <CardFooter className="flex items-center justify-between border-t border-border/60 p-4 bg-muted/20">
+                <span className="text-xs text-muted-foreground">
+                  Clearance: <strong className="text-emerald-600">{roleNameMap[role] || role}</strong>
+                </span>
+                <Button type="submit" disabled={loading} className="gap-1.5 shadow-sm">
+                  <Save className="h-4 w-4" />
+                  <span>{loading ? 'Creating Credentials...' : 'Save & Issue Credentials'}</span>
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </form>
       </div>
     </PageContainer>
