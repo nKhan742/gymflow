@@ -85,10 +85,11 @@ export abstract class BaseRepository<T extends IBaseModel> implements IBaseRepos
     const activeModel = this.getModel(tenantId);
     return activeModel.findOne({ ...filter, isDeleted: false }).exec();
   }
-
   async find(filter: FilterQuery<T>, pagination: IPaginationOptions = {}): Promise<IPaginatedResult<T>> {
-    const page = Math.max(1, pagination.page || 1);
-    const limit = Math.max(1, Math.min(100, pagination.limit || 10));
+    const rawPage = Number(pagination.page);
+    const page = !isNaN(rawPage) && rawPage > 0 ? rawPage : 1;
+    const rawLimit = Number(pagination.limit);
+    const limit = !isNaN(rawLimit) && rawLimit > 0 ? Math.min(100, rawLimit) : 10;
     const skip = (page - 1) * limit;
     const sortField = pagination.sortBy || 'createdAt';
     const sortDirection = pagination.sortOrder === 'asc' ? 1 : -1;

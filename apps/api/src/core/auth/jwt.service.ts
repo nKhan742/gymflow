@@ -8,6 +8,7 @@ export interface IJwtPayload {
   tenantId: string;
   branchId?: string;
   permissions: string[];
+  planTier?: 'ESSENTIAL' | 'PROFESSIONAL' | 'ENTERPRISE';
 }
 
 export class JwtService {
