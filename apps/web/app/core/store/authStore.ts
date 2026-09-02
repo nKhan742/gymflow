@@ -44,6 +44,9 @@ export const useAuthStore = create<IAuthState>((set) => ({
 
       if (response.ok && resData.success && resData.data) {
         const { user, tokens } = resData.data;
+        if (user && user.role !== 'SUPER_ADMIN') {
+          localStorage.removeItem('gymflow_platform_admin_session');
+        }
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, tokens.accessToken);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
         localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
@@ -69,7 +72,7 @@ export const useAuthStore = create<IAuthState>((set) => ({
             email: matched.email,
             firstName: matched.fullName?.split(' ')[0] || 'Admin',
             lastName: matched.fullName?.split(' ')[1] || 'User',
-            role: matched.role || 'SUPER_ADMIN',
+            role: (matched.role as any) || 'ADMIN',
             permissions: [],
             isActive: true,
             createdAt: new Date().toISOString(),
@@ -106,7 +109,7 @@ export const useAuthStore = create<IAuthState>((set) => ({
           email: matched.email,
           firstName: matched.fullName?.split(' ')[0] || 'Admin',
           lastName: matched.fullName?.split(' ')[1] || 'User',
-          role: matched.role || 'SUPER_ADMIN',
+          role: (matched.role as any) || 'ADMIN',
           permissions: [],
           isActive: true,
           createdAt: new Date().toISOString(),
@@ -154,6 +157,9 @@ export const useAuthStore = create<IAuthState>((set) => ({
   },
 
   setAuth: (user, token, refreshToken) => {
+    if (user && (user.role as any) !== 'SUPER_ADMIN') {
+      localStorage.removeItem('gymflow_platform_admin_session');
+    }
     localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
     localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
     if (refreshToken) {
