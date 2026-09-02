@@ -42,6 +42,8 @@ export const ListPage: React.FC = () => {
   const { branches, loadBranches, setActiveBranchId } = useBranchStore();
   const { startLoading, stopLoading } = useLoadingStore();
   const [branchList, setBranchList] = useState<IBranch[]>(() => {
+    const cached = localStorage.getItem('gymflow_live_branches');
+    if (cached) return JSON.parse(cached);
     const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
     return localRaw ? JSON.parse(localRaw) : [];
   });
@@ -72,6 +74,14 @@ export const ListPage: React.FC = () => {
         if (items.length > 0) {
           setBranchList(items);
           localStorage.removeItem('gymflow_custom_gym_branches');
+          localStorage.setItem('gymflow_live_branches', JSON.stringify(items));
+          useBranchStore.setState({
+            branches: items,
+            branchOptions: items.map((b: any) => ({
+              value: b.name,
+              label: `🏢 ${b.name}`,
+            })),
+          });
         } else {
           setBranchList(localCustom);
         }

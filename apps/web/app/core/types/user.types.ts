@@ -11,6 +11,8 @@ export interface IUserProfile extends IBaseEntity {
   permissions: PermissionType[];
   branchId?: string;
   gymId?: string;
+  gymName?: string;
+  campusName?: string;
   isActive: boolean;
 }
 

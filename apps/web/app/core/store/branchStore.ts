@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface IBranchItem {
@@ -56,14 +56,24 @@ export interface IBranchState {
 }
 
 export const useBranchStore = create<IBranchState>((set, get) => {
+  const cached = localStorage.getItem('gymflow_live_branches');
   const customRaw = localStorage.getItem('gymflow_custom_gym_branches');
-  const initialBranches: IBranchItem[] = customRaw ? JSON.parse(customRaw) : [];
+  const initialBranches: IBranchItem[] = cached
+    ? JSON.parse(cached)
+    : customRaw
+    ? JSON.parse(customRaw)
+    : [];
+
+  const savedActive = localStorage.getItem('gymflow_active_branch');
+  const initialActiveId =
+    savedActive ||
+    (initialBranches.length > 0 ? (initialBranches[0].id || initialBranches[0]._id || 'ALL') : 'ALL');
 
   return {
-    activeBranchId: localStorage.getItem('gymflow_active_branch') || 'ALL',
+    activeBranchId: initialActiveId,
     branches: initialBranches,
     branchOptions: initialBranches.map((b) => ({
-      value: b.id || b._id || '',
+      value: b.name,
       label: `🏢 ${b.name}`,
     })),
 
@@ -74,19 +84,33 @@ export const useBranchStore = create<IBranchState>((set, get) => {
 
     getActiveBranch: () => {
       const { activeBranchId, branches } = get();
-      if (activeBranchId === 'ALL') return null;
-      return branches.find((b) => b.id === activeBranchId || b._id === activeBranchId) || null;
+      if (!activeBranchId || activeBranchId === 'ALL') {
+        return branches[0] || null;
+      }
+      return (
+        branches.find(
+          (b) =>
+            b.id === activeBranchId ||
+            b._id === activeBranchId ||
+            b.name?.toLowerCase() === activeBranchId.toLowerCase()
+        ) ||
+        branches[0] ||
+        null
+      );
     },
 
     loadBranches: async () => {
       try {
         const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        if (!token) return;
+
         const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/branches', {
           headers: {
-            Authorization: token ? `Bearer ${token}` : '',
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
+
         if (res.ok) {
           const json = await res.json();
           let loadedBranches: IBranchItem[] = [];
@@ -96,20 +120,29 @@ export const useBranchStore = create<IBranchState>((set, get) => {
             loadedBranches = json.data.items;
           }
 
-          const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
-          const localCustom: IBranchItem[] = localRaw ? JSON.parse(localRaw) : [];
-          const allBranches = loadedBranches.length > 0 ? loadedBranches : localCustom;
           if (loadedBranches.length > 0) {
+            localStorage.setItem('gymflow_live_branches', JSON.stringify(loadedBranches));
             localStorage.removeItem('gymflow_custom_gym_branches');
-          }
 
-          set({
-            branches: allBranches,
-            branchOptions: allBranches.map((b) => ({
-              value: b.id || b._id || '',
-              label: `🏢 ${b.name}`,
-            })),
-          });
+            const currentActive = get().activeBranchId;
+            const branchExists = loadedBranches.some(
+              (b) => b.id === currentActive || b._id === currentActive || b.name === currentActive
+            );
+            const nextActive = branchExists
+              ? currentActive
+              : (loadedBranches[0].id || loadedBranches[0]._id || 'ALL');
+
+            localStorage.setItem('gymflow_active_branch', nextActive);
+
+            set({
+              activeBranchId: nextActive,
+              branches: loadedBranches,
+              branchOptions: loadedBranches.map((b) => ({
+                value: b.name,
+                label: `🏢 ${b.name}`,
+              })),
+            });
+          }
         }
       } catch {}
     },

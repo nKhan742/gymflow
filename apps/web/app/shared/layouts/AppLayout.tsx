@@ -68,11 +68,16 @@ export const AppLayout: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { mode, toggleTheme } = useThemeStore();
   const { user, logout } = useAuthStore();
-  const { activeBranchId, branches, setActiveBranchId, getActiveBranch } = useBranchStore();
+  const { activeBranchId, branches, setActiveBranchId, getActiveBranch, loadBranches } = useBranchStore();
   const { currentPlan, hasAccess, openUpgradeModal, getRequiredPlan } = usePlanStore();
   const activeBranch = getActiveBranch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load live branches on mount so the active branch is always available
+  useEffect(() => {
+    loadBranches();
+  }, []);
 
   // Automatically keep only the active route's parent menu open
   useEffect(() => {
@@ -136,8 +141,11 @@ export const AppLayout: React.FC = () => {
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="truncate">
-              <span className="font-bold text-xs tracking-tight text-foreground block truncate">GymFlow ERP</span>
-              <span className="text-[9px] text-muted-foreground uppercase tracking-wider block font-semibold truncate">Enterprise SaaS</span>
+              <span className="font-bold text-xs tracking-tight text-foreground block truncate">{user?.gymName || 'GymFlow ERP'}</span>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider block font-semibold truncate flex items-center gap-1">
+                <MapPin className="h-2.5 w-2.5 text-primary shrink-0" />
+                <span>{activeBranch ? activeBranch.name : (branches.length > 0 ? branches[0].name : (user?.campusName || 'Main Campus'))}</span>
+              </span>
             </div>
           </div>
         </div>
@@ -314,8 +322,8 @@ export const AppLayout: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-muted/60 text-xs font-semibold transition-all shadow-2xs group max-w-[210px] sm:max-w-[240px]">
                   <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="truncate text-foreground">
-                    {activeBranch ? activeBranch.name : 'All Gym Locations (HQ)'}
+                  <span className="truncate text-foreground font-semibold">
+                    {activeBranch ? activeBranch.name : (branches.length > 0 ? branches[0].name : (user?.campusName || 'PD Vihar'))}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 group-hover:text-foreground" />
                 </button>
@@ -326,6 +334,53 @@ export const AppLayout: React.FC = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
+                {/* Individual Branches list */}
+                {branches.length === 0 ? (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      loadBranches();
+                      toast.info('Reloading branches from database...');
+                    }}
+                    className="flex items-center justify-between cursor-pointer text-xs py-2"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <div className="truncate">
+                        <div className="font-semibold text-foreground truncate">{user?.campusName || 'PD Vihar'}</div>
+                        <div className="text-[10px] text-muted-foreground">Primary Facility • Active</div>
+                      </div>
+                    </div>
+                    <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                  </DropdownMenuItem>
+                ) : (
+                  branches.map((b) => {
+                    const isSelected = activeBranchId === b.id || activeBranchId === b._id || activeBranchId === b.name;
+                    return (
+                      <DropdownMenuItem
+                        key={b.id || b._id}
+                        onClick={() => {
+                          setActiveBranchId(b.id || (b._id as string));
+                          toast.success(`Switched active branch to ${b.name}`);
+                        }}
+                        className="flex items-center justify-between cursor-pointer text-xs py-2"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <div className="truncate">
+                            <div className="font-semibold text-foreground truncate">{b.name}</div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {b.address?.city || 'Delhi'} • {b.code || 'BR-274'}
+                            </div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-primary shrink-0 ml-2" />}
+                      </DropdownMenuItem>
+                    );
+                  })
+                )}
+
+                <DropdownMenuSeparator />
+
                 {/* All Locations option */}
                 <DropdownMenuItem
                   onClick={() => {
@@ -337,38 +392,12 @@ export const AppLayout: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-indigo-500" />
                     <div>
-                      <div className="font-semibold text-foreground">All Gym Locations (Consolidated)</div>
+                      <div className="font-semibold text-foreground">All Locations (Consolidated)</div>
                       <div className="text-[10px] text-muted-foreground">Network-wide telemetry</div>
                     </div>
                   </div>
                   {activeBranchId === 'ALL' && <Check className="w-4 h-4 text-primary shrink-0" />}
                 </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-
-                {/* Individual Branches list */}
-                {branches.map((b) => {
-                  const isSelected = activeBranchId === b.id || activeBranchId === b._id;
-                  return (
-                    <DropdownMenuItem
-                      key={b.id || b._id}
-                      onClick={() => {
-                        setActiveBranchId(b.id || (b._id as string));
-                        toast.success(`Switched active branch to ${b.name}`);
-                      }}
-                      className="flex items-center justify-between cursor-pointer text-xs py-2"
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <div className="truncate">
-                          <div className="font-semibold text-foreground truncate">{b.name}</div>
-                          <div className="text-[10px] text-muted-foreground">{b.address?.city || 'San Francisco'} • {b.memberCount || 0} members</div>
-                        </div>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-primary shrink-0 ml-2" />}
-                    </DropdownMenuItem>
-                  );
-                })}
 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
