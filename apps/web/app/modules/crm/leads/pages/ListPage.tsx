@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -13,6 +13,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { useBranchStore } from '../../../../core/store/branchStore';
 import { ILead } from '../types';
 import { toast } from 'sonner';
+import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 export const DEFAULT_LEADS: any[] = [];
 
@@ -20,6 +21,8 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId } = useBranchStore();
   const [leads, setLeads] = useState<ILead[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { startLoading, stopLoading } = useLoadingStore();
   const [selectedStage, setSelectedStage] = useState<string>('ALL');
 
   useEffect(() => {
@@ -27,6 +30,8 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadLeads = async () => {
+    setLoading(true);
+    startLoading();
     try {
       const stored = localStorage.getItem('gymflow_custom_leads');
       const customLeads: ILead[] = stored ? JSON.parse(stored) : [];
@@ -69,6 +74,9 @@ export const ListPage: React.FC = () => {
         }
       }
       setLeads(combined);
+    } finally {
+      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -404,6 +412,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredData}
+        loading={loading}
         searchPlaceholder="Search leads by name, email, phone, sales rep..."
       />
     </PageContainer>

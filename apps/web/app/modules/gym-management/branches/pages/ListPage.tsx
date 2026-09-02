@@ -35,10 +35,12 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IBranch } from '../types';
 import { useBranchStore, DEFAULT_BRANCHES } from '../../../../core/store/branchStore';
+import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { branches, loadBranches, setActiveBranchId } = useBranchStore();
+  const { startLoading, stopLoading } = useLoadingStore();
   const [branchList, setBranchList] = useState<IBranch[]>(() => {
     const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
     return localRaw ? JSON.parse(localRaw) : [];
@@ -51,6 +53,7 @@ export const ListPage: React.FC = () => {
 
   const fetchBranches = async () => {
     setLoading(true);
+    startLoading();
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/branches', {
@@ -81,6 +84,7 @@ export const ListPage: React.FC = () => {
       setBranchList(localCustom);
     } finally {
       setLoading(false);
+      stopLoading();
     }
   };
 

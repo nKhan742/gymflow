@@ -34,11 +34,14 @@ import { memberApi, IMemberItem } from '../api/memberApi';
 import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { formatCurrency } from '../../../../core/helpers/formatters';
 import { toast } from 'sonner';
+import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 export const ListPage: React.FC = () => {
   const { currency } = useCurrencyStore();
   const [members, setMembers] = useState<IMemberItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [loading, setLoading] = useState(false);
+  const { startLoading, stopLoading } = useLoadingStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,8 +49,15 @@ export const ListPage: React.FC = () => {
   }, [statusFilter]);
 
   const loadMembers = async () => {
-    const data = await memberApi.getMembers({ status: statusFilter });
-    setMembers(data);
+    setLoading(true);
+    startLoading();
+    try {
+      const data = await memberApi.getMembers({ status: statusFilter });
+      setMembers(data);
+    } finally {
+      setLoading(false);
+      stopLoading();
+    }
   };
 
   const handleFastCheckIn = async (e: React.MouseEvent, member: IMemberItem) => {
@@ -376,6 +386,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={members}
+        loading={loading}
         searchPlaceholder="Search by name, email, member code #GF-..."
       />
     </PageContainer>

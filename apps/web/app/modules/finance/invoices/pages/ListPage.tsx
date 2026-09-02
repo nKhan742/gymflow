@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -51,11 +51,14 @@ interface IInvoiceItem {
   paidAt?: string;
 }
 
+import { useLoadingStore } from '../../../../core/store/loadingStore';
+
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<IInvoiceItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [loading, setLoading] = useState<boolean>(false);
+  const { startLoading, stopLoading } = useLoadingStore();
 
   useEffect(() => {
     loadInvoices();
@@ -63,6 +66,7 @@ export const ListPage: React.FC = () => {
 
   const loadInvoices = async () => {
     setLoading(true);
+    startLoading();
     try {
       const localInvoicesRaw = localStorage.getItem('gymflow_custom_invoices');
       const localInvoices: IInvoiceItem[] = localInvoicesRaw ? JSON.parse(localInvoicesRaw) : [];
@@ -90,6 +94,7 @@ export const ListPage: React.FC = () => {
       setInvoices(localInvoicesRaw ? JSON.parse(localInvoicesRaw) : []);
     } finally {
       setLoading(false);
+      stopLoading();
     }
   };
 
@@ -281,6 +286,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={invoices}
+        loading={loading}
         searchPlaceholder="Search invoices by #INV, member name, email..."
       />
     </PageContainer>

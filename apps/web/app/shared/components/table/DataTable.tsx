@@ -18,19 +18,24 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Download, Search, SlidersHorizontal } from 'lucide-react';
+import { Download, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { TableSkeleton } from '../feedback/DatabaseLoader';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey?: string;
   searchPlaceholder?: string;
+  loading?: boolean;
+  loadingMessage?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchPlaceholder = 'Search records...',
+  loading = false,
+  loadingMessage = 'Fetching records from live database...',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -95,6 +100,13 @@ export function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {loading && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20 animate-pulse">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              <span className="hidden sm:inline">Loading records...</span>
+            </div>
+          )}
+
           <Button variant="outline" size="sm" className="gap-1.5">
             <Download className="h-3.5 w-3.5" />
             <span>Export</span>
@@ -103,7 +115,13 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Professional Responsive Data Table with Clean Column Lines */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs">
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs relative">
+        {loading && (
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary/20 overflow-hidden z-20">
+            <div className="h-full bg-primary animate-pulse w-full" />
+          </div>
+        )}
+
         <div className="relative w-full overflow-x-auto">
           <table className="w-full caption-bottom text-sm border-collapse">
             <thead className="bg-muted/60 border-b border-border text-xs uppercase font-semibold text-muted-foreground">
@@ -129,41 +147,45 @@ export function DataTable<TData, TValue>({
               ))}
             </thead>
 
-            <tbody className="divide-y divide-border/60">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                    className="border-b border-border/60 transition-colors hover:bg-muted/30 data-[state=selected]:bg-muted"
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const customSize = cell.column.columnDef.size;
-                      const style = customSize && customSize !== 150 ? { width: `${customSize}px`, minWidth: `${customSize}px` } : undefined;
+            {loading ? (
+              <TableSkeleton rows={6} cols={columns.length} />
+            ) : (
+              <tbody className="divide-y divide-border/60">
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                      className="border-b border-border/60 transition-colors hover:bg-muted/30 data-[state=selected]:bg-muted"
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const customSize = cell.column.columnDef.size;
+                        const style = customSize && customSize !== 150 ? { width: `${customSize}px`, minWidth: `${customSize}px` } : undefined;
 
-                      return (
-                        <td
-                          key={cell.id}
-                          style={style}
-                          className="px-4 py-3.5 align-middle text-foreground border-r border-border/60 last:border-r-0"
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      );
-                    })}
+                        return (
+                          <td
+                            key={cell.id}
+                            style={style}
+                            className="px-4 py-3.5 align-middle text-foreground border-r border-border/60 last:border-r-0"
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="h-32 text-center text-muted-foreground text-sm"
+                    >
+                      No records found.
+                    </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="h-32 text-center text-muted-foreground text-sm"
-                  >
-                    No records found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
+                )}
+              </tbody>
+            )}
           </table>
         </div>
       </div>

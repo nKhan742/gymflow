@@ -41,6 +41,7 @@ import {
 import { SIDEBAR_MENU_CONFIG, ISidebarMenuItem } from '../../core/config/sidebarConfig';
 import { usePlanStore } from '../../core/store/planStore';
 import { PlanUpgradeModal } from '../components/plan/PlanUpgradeModal';
+import { TopProgressBar } from '../components/feedback/TopProgressBar';
 import { toast } from 'sonner';
 import { MapPin, Check, ChevronDown, Lock } from 'lucide-react';
 
@@ -111,6 +112,7 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
+      <TopProgressBar />
       <CommandPalette />
 
       {/* Mobile Drawer Overlay */}
