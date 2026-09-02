@@ -128,7 +128,6 @@ export class AuthService {
       isActive: true,
     });
 
-    // 7. Provision Super Administrator User in the separate tenant database
     // 7. Provision Administrator User in the separate tenant database
     const dbUser = await tenantModels.Users.create({
       tenantId,
@@ -138,7 +137,6 @@ export class AuthService {
       passwordHash,
       firstName,
       lastName,
-      role: 'SUPER_ADMIN',
       role: 'ADMIN',
       permissions: ['*'],
       branchId: branchDoc._id.toString(),
@@ -158,7 +156,6 @@ export class AuthService {
         passwordHash,
         firstName,
         lastName,
-        role: 'SUPER_ADMIN',
         role: 'ADMIN',
         permissions: ['*'],
         branchId: branchDoc._id.toString(),
