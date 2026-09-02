@@ -10,17 +10,24 @@ export class UsersService extends BaseService {
     super();
   }
 
-  async create(tenantId: string, dto: CreateUsersDto, createdBy?: string) {
+  async create(tenantId: string, dto: any, createdBy?: string) {
+    const fullNameParts = (dto.fullName || dto.name || '').trim().split(' ');
+    const firstName = dto.firstName || fullNameParts[0] || 'Admin';
+    const lastName = dto.lastName || fullNameParts.slice(1).join(' ') || 'User';
+
     const item = await this.repo.create({
       tenantId,
-      email: dto.email || 'user@gymflow.io',
-      passwordHash: dto.password || 'default_hash',
-      firstName: dto.firstName || 'User',
-      lastName: dto.lastName || 'Member',
-      role: (dto.role as any) || 'MEMBER',
-      permissions: dto.permissions || [],
+      name: dto.fullName || dto.name || `${firstName} ${lastName}`,
+      code: dto.code || `USR-${Math.floor(1000 + Math.random() * 9000)}`,
+      email: dto.email || `user.${Date.now()}@gymflow.io`,
+      passwordHash: dto.passwordHash || dto.password || 'default_hash_123',
+      firstName,
+      lastName,
+      role: (dto.role as any) || 'SUPER_ADMIN',
+      permissions: dto.permissions || ['*'],
       branchId: dto.branchId || 'branch_hq_01',
       phone: dto.phone,
+      avatar: dto.avatarUrl || dto.avatar,
       status: (dto.status as any) || 'active',
       isActive: true,
       createdBy,

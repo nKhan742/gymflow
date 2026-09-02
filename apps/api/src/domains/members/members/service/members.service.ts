@@ -1,183 +1,17 @@
-import { MembersRepository } from '../repository/members.repository.js';
 import { IMembersModel, MembersModel } from '../model/members.model.js';
-import { ConflictException } from '../../../../core/exceptions/HttpException.js';
+import { ConflictException, NotFoundException } from '../../../../core/exceptions/HttpException.js';
+import { TenantDatabaseManager } from '../../../../database/tenant-database.manager.js';
 
 export class MembersService {
-  private repository = new MembersRepository();
-
-  private async ensureSeedMembers() {
-    const count = await MembersModel.countDocuments({ isDeleted: false });
-    if (count < 6) {
-      const seeds = [
-        {
-          memberCode: 'GF-3109',
-          firstName: 'David',
-          lastName: 'Chen',
-          email: 'david.chen@example.com',
-          phone: '+1 (555) 891-2309',
-          gender: 'MALE',
-          dateOfBirth: '1992-06-18',
-          lockerNumber: 'L-204',
-          memberStatus: 'ACTIVE',
-          status: 'active',
-          membership: {
-            planId: 'plan_silver',
-            planName: 'Silver Monthly Recurring',
-            tier: 'SILVER_MONTHLY',
-            startDate: '2026-02-01T00:00:00.000Z',
-            endDate: '2026-09-01T00:00:00.000Z',
-            price: 89,
-            status: 'ACTIVE',
-            autoRenew: true,
-          },
-          assignedTrainer: {
-            trainerId: 'trn_003',
-            name: 'Marcus Thorne',
-            email: 'marcus.thorne@gymflow.io',
-          },
-          emergencyContact: {
-            name: 'Lily Chen',
-            relationship: 'Sister',
-            phone: '+1 (555) 891-9944',
-          },
-          stats: {
-            totalVisits: 84,
-            visitsThisMonth: 14,
-            streakDays: 3,
-            lastVisit: new Date().toISOString(),
-          },
-          tenantId: 'tenant_enterprise_01',
-          branchId: 'branch_hq_01',
-        },
-        {
-          memberCode: 'GF-9284',
-          firstName: 'Sarah',
-          lastName: 'Jenkins',
-          email: 'sarah.jenkins@example.com',
-          phone: '+1 (555) 234-5678',
-          gender: 'FEMALE',
-          dateOfBirth: '1995-04-12',
-          lockerNumber: 'L-104',
-          memberStatus: 'ACTIVE',
-          status: 'active',
-          membership: {
-            planId: 'plan_vip',
-            planName: 'VIP Platinum All-Access Annual',
-            tier: 'VIP_PLATINUM',
-            startDate: '2026-01-15T00:00:00.000Z',
-            endDate: '2027-01-15T00:00:00.000Z',
-            price: 1499,
-            status: 'ACTIVE',
-            autoRenew: true,
-          },
-          assignedTrainer: {
-            trainerId: 'trn_001',
-            name: 'Alex Vance',
-            email: 'alex.vance@gymflow.io',
-          },
-          emergencyContact: {
-            name: 'Robert Jenkins',
-            relationship: 'Spouse',
-            phone: '+1 (555) 839-2041',
-          },
-          stats: {
-            totalVisits: 142,
-            visitsThisMonth: 18,
-            streakDays: 4,
-            lastVisit: new Date().toISOString(),
-          },
-          tenantId: 'tenant_enterprise_01',
-          branchId: 'branch_hq_01',
-        },
-        {
-          memberCode: 'GF-4821',
-          firstName: 'Marcus',
-          lastName: 'Rodriguez',
-          email: 'marcus.rodriguez@example.com',
-          phone: '+1 (555) 392-8192',
-          gender: 'MALE',
-          dateOfBirth: '1988-11-23',
-          lockerNumber: 'L-312',
-          memberStatus: 'ACTIVE',
-          status: 'active',
-          membership: {
-            planId: 'plan_gold',
-            planName: 'Gold Annual All-Access',
-            tier: 'GOLD_ANNUAL',
-            startDate: '2025-08-20T00:00:00.000Z',
-            endDate: '2026-08-20T00:00:00.000Z',
-            price: 899,
-            status: 'ACTIVE',
-            autoRenew: false,
-          },
-          assignedTrainer: {
-            trainerId: 'trn_002',
-            name: 'Sarah Vance',
-            email: 'sarah.vance@gymflow.io',
-          },
-          emergencyContact: {
-            name: 'Elena Rodriguez',
-            relationship: 'Spouse',
-            phone: '+1 (555) 392-1100',
-          },
-          stats: {
-            totalVisits: 110,
-            visitsThisMonth: 12,
-            streakDays: 2,
-            lastVisit: new Date().toISOString(),
-          },
-          tenantId: 'tenant_enterprise_01',
-          branchId: 'branch_hq_01',
-        },
-        {
-          memberCode: 'GF-7712',
-          firstName: 'Emily',
-          lastName: 'Watson',
-          email: 'emily.watson@example.com',
-          phone: '+1 (555) 441-9982',
-          gender: 'FEMALE',
-          dateOfBirth: '1997-09-05',
-          lockerNumber: 'L-118',
-          memberStatus: 'ACTIVE',
-          status: 'active',
-          membership: {
-            planId: 'plan_vip',
-            planName: 'VIP Platinum All-Access Annual',
-            tier: 'VIP_PLATINUM',
-            startDate: '2025-09-10T00:00:00.000Z',
-            endDate: '2026-09-10T00:00:00.000Z',
-            price: 1499,
-            status: 'ACTIVE',
-            autoRenew: true,
-          },
-          assignedTrainer: {
-            trainerId: 'trn_004',
-            name: 'Elena Rostova',
-            email: 'elena.rostova@gymflow.io',
-          },
-          emergencyContact: {
-            name: 'Arthur Watson',
-            relationship: 'Father',
-            phone: '+1 (555) 441-0011',
-          },
-          stats: {
-            totalVisits: 98,
-            visitsThisMonth: 16,
-            streakDays: 5,
-            lastVisit: new Date().toISOString(),
-          },
-          tenantId: 'tenant_enterprise_01',
-          branchId: 'branch_hq_01',
-        },
-      ];
-
-      for (const s of seeds) {
-        const exists = await MembersModel.findOne({ memberCode: s.memberCode });
-        if (!exists) {
-          await MembersModel.create(s);
-        }
+  private getModel(tenantId?: string) {
+    if (tenantId) {
+      try {
+        return TenantDatabaseManager.getTenantModels(tenantId).Members;
+      } catch {
+        return MembersModel;
       }
     }
+    return MembersModel;
   }
 
   async getMembers(query: {
@@ -189,56 +23,97 @@ export class MembersService {
     page?: number;
     limit?: number;
   }) {
-    await this.ensureSeedMembers();
-    return this.repository.searchMembers(query);
+    const model = this.getModel(query.tenantId);
+    const filter: any = { isDeleted: false };
+    if (query.tenantId) {
+      filter.tenantId = query.tenantId;
+    }
+    if (query.status && query.status !== 'ALL') {
+      filter.memberStatus = query.status.toUpperCase();
+    }
+    if (query.tier && query.tier !== 'ALL') {
+      filter['membership.tier'] = query.tier;
+    }
+    if (query.branchId && query.branchId !== 'ALL') {
+      filter.branchId = query.branchId;
+    }
+    if (query.search) {
+      const s = query.search.trim();
+      filter.$or = [
+        { firstName: { $regex: s, $options: 'i' } },
+        { lastName: { $regex: s, $options: 'i' } },
+        { email: { $regex: s, $options: 'i' } },
+        { phone: { $regex: s, $options: 'i' } },
+        { memberCode: { $regex: s, $options: 'i' } },
+      ];
+    }
+
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 50);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      model.countDocuments(filter),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  async getMemberById(id: string) {
-    await this.ensureSeedMembers();
-    const found = await this.repository.findByCodeOrId(id);
-    if (found) return found;
-
-    const all = await this.repository.searchMembers({ limit: 1 });
-    return all.items[0] || null;
+  async getMemberById(id: string, tenantId?: string) {
+    const model = this.getModel(tenantId);
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+    const filter: any = {
+      isDeleted: false,
+      $or: [{ memberCode: id }, ...(isObjectId ? [{ _id: id }] : [])],
+    };
+    if (tenantId) filter.tenantId = tenantId;
+    const found = await model.findOne(filter).lean();
+    if (!found) {
+      throw new NotFoundException('Member not found');
+    }
+    return found;
   }
 
-  async createMember(data: any) {
+  async createMember(data: any, tenantId?: string) {
+    const targetTenantId = tenantId || data.tenantId;
+    const model = this.getModel(targetTenantId);
     const code = `GF-${Math.floor(1000 + Math.random() * 9000)}`;
     const newMemberData: any = {
-      tenantId: data.tenantId || 'tenant_enterprise_01',
-      branchId: data.branchId || 'branch_hq_01',
+      tenantId: targetTenantId,
+      branchId: data.branchId || 'main',
       firstName: data.firstName || 'New',
       lastName: data.lastName || 'Member',
-      email: (data.email || `member_${Date.now()}@example.com`).toLowerCase(),
+      email: (data.email || `member_${Date.now()}@example.com`).toLowerCase().trim(),
       phone: data.phone || '+1 (555) 000-0000',
       gender: data.gender || 'FEMALE',
       dateOfBirth: data.dateOfBirth || '1995-01-01',
+      avatar: data.avatar || '',
       memberCode: code,
       status: 'active',
       memberStatus: data.memberStatus || 'ACTIVE',
       membership: {
-        planId: data.membership?.planId || 'plan_gold',
-        planName: data.membership?.planName || 'Gold Annual Pass',
-        tier: data.membership?.tier || 'GOLD_ANNUAL',
+        planId: data.membership?.planId || 'plan_standard',
+        planName: data.membership?.planName || 'Standard Membership',
+        tier: data.membership?.tier || 'STANDARD',
         startDate: data.membership?.startDate || new Date().toISOString(),
-        endDate:
-          data.membership?.endDate ||
-          new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        price: data.membership?.price || 899,
+        endDate: data.membership?.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        price: data.membership?.price || 0,
         status: 'ACTIVE',
         autoRenew: true,
       },
-      assignedTrainer: data.assignedTrainer || {
-        trainerId: 'trn_001',
-        name: 'Alex Vance',
-        email: 'alex.vance@gymflow.io',
-      },
       emergencyContact: data.emergencyContact || {
         name: 'Emergency Contact',
-        relationship: 'Guardian',
-        phone: data.phone || '+1 (555) 000-0000',
+        relationship: 'Family',
+        phone: data.phone || '',
       },
-      lockerNumber: data.lockerNumber || `L-${Math.floor(100 + Math.random() * 900)}`,
+      lockerNumber: data.lockerNumber || '',
       stats: {
         totalVisits: 0,
         visitsThisMonth: 0,
@@ -246,55 +121,75 @@ export class MembersService {
       },
     };
 
-    try {
-      const existing = await this.repository.findByEmail(newMemberData.email);
-      if (existing) {
-        throw new ConflictException('A member with this email already exists.');
-      }
-      return await this.repository.create(newMemberData);
-    } catch (err: any) {
-      if (err instanceof ConflictException) throw err;
-      return await this.repository.create(newMemberData);
+    const existing = await model.findOne({ email: newMemberData.email, isDeleted: false });
+    if (existing) {
+      throw new ConflictException('A member with this email already exists.');
     }
+
+    return await model.create(newMemberData);
   }
 
-  async updateMember(id: string, data: any) {
-    const updated = await this.repository.updateByCodeOrId(id, data);
-    return updated || { id, ...data, updatedAt: new Date().toISOString() };
+  async updateMember(id: string, data: any, tenantId?: string) {
+    const model = this.getModel(tenantId);
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+    const filter: any = {
+      isDeleted: false,
+      $or: [{ memberCode: id }, ...(isObjectId ? [{ _id: id }] : [])],
+    };
+    if (tenantId) filter.tenantId = tenantId;
+    return await model.findOneAndUpdate(filter, { $set: data }, { new: true }).lean();
   }
 
-  async deleteMember(id: string) {
-    await this.repository.softDeleteByCodeOrId(id);
+  async deleteMember(id: string, tenantId?: string) {
+    const model = this.getModel(tenantId);
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+    const filter: any = {
+      $or: [{ memberCode: id }, ...(isObjectId ? [{ _id: id }] : [])],
+    };
+    if (tenantId) filter.tenantId = tenantId;
+    await model.findOneAndUpdate(filter, { $set: { isDeleted: true, status: 'inactive' } });
     return { id, deleted: true };
   }
 
-  async freezeMembership(id: string, _days = 30, _reason = 'User Request') {
-    return this.updateMember(id, {
-      memberStatus: 'FROZEN',
-      status: 'suspended',
-      'membership.status': 'FROZEN',
-    });
+  async freezeMembership(id: string, _days = 30, _reason = 'User Request', tenantId?: string) {
+    return this.updateMember(
+      id,
+      {
+        memberStatus: 'FROZEN',
+        status: 'suspended',
+        'membership.status': 'FROZEN',
+      },
+      tenantId
+    );
   }
 
-  async renewMembership(id: string, _durationMonths = 12) {
-    return this.updateMember(id, {
-      memberStatus: 'ACTIVE',
-      status: 'active',
-      'membership.status': 'ACTIVE',
-      'membership.endDate': new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-    });
+  async renewMembership(id: string, _durationMonths = 12, tenantId?: string) {
+    return this.updateMember(
+      id,
+      {
+        memberStatus: 'ACTIVE',
+        status: 'active',
+        'membership.status': 'ACTIVE',
+        'membership.endDate': new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      tenantId
+    );
   }
 
-  async recordCheckIn(id: string, method = 'BIOMETRIC') {
-    const member = await this.getMemberById(id);
+  async recordCheckIn(id: string, method = 'BIOMETRIC', tenantId?: string) {
+    const member = await this.getMemberById(id, tenantId);
     if (member) {
       const totalVisits = (member.stats?.totalVisits || 0) + 1;
       const visitsThisMonth = (member.stats?.visitsThisMonth || 0) + 1;
-      await this.updateMember(id, {
-        'stats.totalVisits': totalVisits,
-        'stats.visitsThisMonth': visitsThisMonth,
-        'stats.lastVisit': new Date().toISOString(),
-      });
+      await this.updateMember(
+        id,
+        {
+          'stats.totalVisits': totalVisits,
+          'stats.visitsThisMonth': visitsThisMonth,
+          'stats.lastVisit': new Date().toISOString(),
+        },
+        tenantId
+      );
     }
 
     return {

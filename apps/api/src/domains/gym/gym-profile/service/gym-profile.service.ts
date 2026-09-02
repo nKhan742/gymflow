@@ -11,19 +11,29 @@ export class GymProfileService extends BaseService {
   }
 
   async create(tenantId: string, dto: CreateGymProfileDto, createdBy?: string) {
+    const { _id, id: _tempId, ...cleanDto } = dto as any;
+    const existing = await this.repo.findOne({ tenantId });
+    if (existing) {
+      const updated = await this.repo.updateById(existing.id || (existing as any)._id, {
+        ...cleanDto,
+        updatedBy: createdBy,
+      }, tenantId);
+      return GymProfileMapper.toDTO(updated || existing);
+    }
+
     const item = await this.repo.create({
       tenantId,
-      name: dto.name,
-      code: dto.code,
-      description: dto.description,
-      status: (dto.status as any) || 'active',
+      ...cleanDto,
       createdBy,
     });
     return GymProfileMapper.toDTO(item);
   }
 
   async findById(id: string, tenantId: string) {
-    const item = await this.repo.findById(id, tenantId);
+    let item = await this.repo.findById(id, tenantId);
+    if (!item && (id === 'default' || id === 'GF-MAIN')) {
+      item = await this.repo.findOne({ tenantId });
+    }
     if (!item) throw new NotFoundException('GymProfile record not found');
     return GymProfileMapper.toDTO(item);
   }
@@ -37,9 +47,21 @@ export class GymProfileService extends BaseService {
   }
 
   async update(id: string, tenantId: string, dto: UpdateGymProfileDto, updatedBy?: string) {
-    const item = await this.repo.updateById(id, { ...dto, updatedBy }, tenantId);
-    if (!item) throw new NotFoundException('GymProfile record not found');
-    return GymProfileMapper.toDTO(item);
+    const { _id, id: _tempId, ...cleanDto } = dto as any;
+    let item = await this.repo.updateById(id, { ...cleanDto, updatedBy }, tenantId);
+    if (!item) {
+      const existing = await this.repo.findOne({ tenantId });
+      if (existing) {
+        item = await this.repo.updateById(existing.id || (existing as any)._id, { ...cleanDto, updatedBy }, tenantId);
+      } else {
+        item = await this.repo.create({
+          tenantId,
+          ...cleanDto,
+          createdBy: updatedBy,
+        });
+      }
+    }
+    return GymProfileMapper.toDTO(item!);
   }
 
   async delete(id: string, tenantId: string, deletedBy?: string) {

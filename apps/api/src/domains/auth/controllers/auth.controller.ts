@@ -5,9 +5,18 @@ import { BaseResponse } from '../../../shared/base/BaseResponse.js';
 export class AuthController {
   private authService = new AuthService();
 
+  register = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
+    try {
+      const result = await this.authService.register(req.body || {});
+      res.status(201).json(BaseResponse.success(result, 'Organization and administrator account registered successfully.'));
+    } catch (error: any) {
+      res.status(error.statusCode || 400).json(BaseResponse.error(error.message || 'Registration failed.'));
+    }
+  };
+
   login = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const { email, password } = req.body;
+      const { email, password } = req.body || {};
       if (!email || !password) {
         res.status(400).json(BaseResponse.error('Email and password are required.'));
         return;
@@ -39,7 +48,7 @@ export class AuthController {
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { refreshToken } = req.body;
+      const { refreshToken } = req.body || {};
       if (!refreshToken) {
         res.status(400).json(BaseResponse.error('Refresh token is required.'));
         return;
@@ -51,4 +60,3 @@ export class AuthController {
     }
   };
 }
-

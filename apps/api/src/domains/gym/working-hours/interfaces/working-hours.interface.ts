@@ -1,13 +1,22 @@
-import { StatusType } from '../../../../database/base.model.js';
+import { IDaySchedule } from '../model/working-hours.model.js';
 
 export interface IWorkingHours {
-  id: string;
-  tenantId: string;
-  branchId?: string;
+  id?: string;
+  tenantId?: string;
   name: string;
-  code?: string;
+  code: string;
+  zoneType: 'MAIN_GYM' | 'SPA_RECOVERY' | 'SWIMMING_POOL' | 'STUDIO_ROOM' | 'SMOOTHIE_BAR' | 'CHILDCARE';
+  is24x7: boolean;
+  weeklySchedule: IDaySchedule[];
+  peakHoursStart?: string;
+  peakHoursEnd?: string;
+  maxCapacity?: number;
+  maintenanceWindow?: string;
+  branchId?: string;
+  branchName?: string;
+  status: 'active' | 'inactive';
   description?: string;
-  status: StatusType;
-  createdAt: Date;
-  updatedAt: Date;
+  metadata?: Record<string, unknown>;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

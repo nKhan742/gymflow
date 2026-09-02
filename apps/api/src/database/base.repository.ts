@@ -1,5 +1,6 @@
 import { Model, FilterQuery, UpdateQuery, Types } from 'mongoose';
 import { IBaseModel } from './base.model.js';
+import { TenantDatabaseManager } from './tenant-database.manager.js';
 
 export interface IPaginationOptions {
   page?: number;
@@ -29,18 +30,60 @@ export interface IBaseRepository<T extends IBaseModel> {
 export abstract class BaseRepository<T extends IBaseModel> implements IBaseRepository<T> {
   constructor(protected readonly model: Model<T>) {}
 
+  protected getModel(tenantId?: string): Model<T> {
+    if (!tenantId || tenantId === 'tenant_enterprise_01' || tenantId === 'gymflow_erp') {
+      return this.model;
+    }
+    try {
+      const cleanDbName = tenantId.startsWith('tenant_gymflow_')
+        ? tenantId.replace(/^tenant_/, '')
+        : tenantId.startsWith('tenant_')
+        ? `gymflow_db_${tenantId.replace(/^tenant_/, '')}`
+        : tenantId;
+
+      const tenantConn = TenantDatabaseManager.getTenantDb(cleanDbName);
+      const modelName = this.model.modelName;
+      if (tenantConn.models[modelName]) {
+        return tenantConn.models[modelName] as Model<T>;
+      }
+      return tenantConn.model<T>(modelName, this.model.schema) as Model<T>;
+    } catch {
+      return this.model;
+    }
+  }
+
   async create(data: Partial<T>): Promise<T> {
-    return this.model.create(data);
+    const activeModel = this.getModel((data as any)?.tenantId);
+    return activeModel.create(data);
   }
 
   async findById(id: string | Types.ObjectId, tenantId?: string): Promise<T | null> {
-    const query: FilterQuery<T> = { _id: id, isDeleted: false } as FilterQuery<T>;
-    if (tenantId) (query as any).tenantId = tenantId;
-    return this.model.findOne(query).exec();
+    try {
+      const activeModel = this.getModel(tenantId);
+      const isObjectId = typeof id === 'string' ? Types.ObjectId.isValid(id) : true;
+      const query: FilterQuery<T> = (isObjectId
+        ? { _id: id, isDeleted: false }
+        : { $or: [{ code: id }, { id: id }, { slug: id }], isDeleted: false }
+      ) as FilterQuery<T>;
+      if (tenantId) (query as any).tenantId = tenantId;
+      const doc = await activeModel.findOne(query).exec();
+      if (doc) return doc;
+
+      if (typeof id === 'string' && isObjectId) {
+        const codeQuery = { $or: [{ code: id }, { id: id }], isDeleted: false } as FilterQuery<T>;
+        if (tenantId) (codeQuery as any).tenantId = tenantId;
+        return await activeModel.findOne(codeQuery).exec();
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   async findOne(filter: FilterQuery<T>): Promise<T | null> {
-    return this.model.findOne({ ...filter, isDeleted: false }).exec();
+    const tenantId = (filter as any)?.tenantId;
+    const activeModel = this.getModel(tenantId);
+    return activeModel.findOne({ ...filter, isDeleted: false }).exec();
   }
 
   async find(filter: FilterQuery<T>, pagination: IPaginationOptions = {}): Promise<IPaginatedResult<T>> {
@@ -50,74 +93,19 @@ export abstract class BaseRepository<T extends IBaseModel> implements IBaseRepos
     const sortField = pagination.sortBy || 'createdAt';
     const sortDirection = pagination.sortOrder === 'asc' ? 1 : -1;
 
+    const tenantId = (filter as any)?.tenantId;
+    const activeModel = this.getModel(tenantId);
     const queryFilter = { ...filter, isDeleted: false };
 
     let [items, total] = await Promise.all([
-      this.model
+      activeModel
         .find(queryFilter)
         .sort({ [sortField]: sortDirection })
         .skip(skip)
         .limit(limit)
         .exec(),
-      this.model.countDocuments(queryFilter).exec(),
+      activeModel.countDocuments(queryFilter).exec(),
     ]);
-
-    // Auto-seed initial realistic database records if collection is empty
-    if (total === 0 && !queryFilter.name && !queryFilter.code) {
-      try {
-        const modelName = this.model.modelName;
-        const tenantId = (queryFilter as any).tenantId || 'tenant_enterprise_01';
-        const initialSeeds: any[] = [
-          {
-            tenantId,
-            name: `${modelName} Alpha Record`,
-            code: `${modelName.substring(0, 3).toUpperCase()}-101`,
-            description: `Primary active configuration for ${modelName} operations`,
-            status: 'active',
-          },
-          {
-            tenantId,
-            name: `${modelName} Beta Record`,
-            code: `${modelName.substring(0, 3).toUpperCase()}-102`,
-            description: `Secondary operational dataset for ${modelName}`,
-            status: 'active',
-          },
-          {
-            tenantId,
-            name: `${modelName} Gamma Record`,
-            code: `${modelName.substring(0, 3).toUpperCase()}-103`,
-            description: `Standard facility asset and workflow for ${modelName}`,
-            status: 'active',
-          },
-          {
-            tenantId,
-            name: `${modelName} Delta Record`,
-            code: `${modelName.substring(0, 3).toUpperCase()}-104`,
-            description: `Enterprise resource management item for ${modelName}`,
-            status: 'active',
-          },
-          {
-            tenantId,
-            name: `${modelName} Epsilon Record`,
-            code: `${modelName.substring(0, 3).toUpperCase()}-105`,
-            description: `Automated scheduled record for ${modelName}`,
-            status: 'inactive',
-          },
-        ];
-
-        await this.model.create(initialSeeds);
-
-        items = await this.model
-          .find(queryFilter)
-          .sort({ [sortField]: sortDirection })
-          .skip(skip)
-          .limit(limit)
-          .exec();
-        total = await this.model.countDocuments(queryFilter).exec();
-      } catch {
-        // Safe fallback if model has custom schema constraints
-      }
-    }
 
     return {
       items,
@@ -129,22 +117,49 @@ export abstract class BaseRepository<T extends IBaseModel> implements IBaseRepos
   }
 
   async updateById(id: string | Types.ObjectId, update: UpdateQuery<T>, tenantId?: string): Promise<T | null> {
-    const query: FilterQuery<T> = { _id: id, isDeleted: false } as FilterQuery<T>;
-    if (tenantId) (query as any).tenantId = tenantId;
-    return this.model.findOneAndUpdate(query, update, { new: true }).exec();
+    try {
+      const activeModel = this.getModel(tenantId);
+      const isObjectId = typeof id === 'string' ? Types.ObjectId.isValid(id) : true;
+      const query: FilterQuery<T> = (isObjectId
+        ? { _id: id, isDeleted: false }
+        : { $or: [{ code: id }, { id: id }], isDeleted: false }
+      ) as FilterQuery<T>;
+      if (tenantId) (query as any).tenantId = tenantId;
+      return await activeModel.findOneAndUpdate(query, update, { new: true }).exec();
+    } catch {
+      return null;
+    }
   }
 
   async softDelete(id: string | Types.ObjectId, deletedBy?: string, tenantId?: string): Promise<boolean> {
-    const query: FilterQuery<T> = { _id: id, isDeleted: false } as FilterQuery<T>;
-    if (tenantId) (query as any).tenantId = tenantId;
-    const res = await this.model.findOneAndUpdate(query, { isDeleted: true, deletedBy, status: 'archived' }).exec();
-    return !!res;
+    try {
+      const activeModel = this.getModel(tenantId);
+      const isObjectId = typeof id === 'string' ? Types.ObjectId.isValid(id) : true;
+      const query: FilterQuery<T> = (isObjectId
+        ? { _id: id, isDeleted: false }
+        : { $or: [{ code: id }, { id: id }], isDeleted: false }
+      ) as FilterQuery<T>;
+      if (tenantId) (query as any).tenantId = tenantId;
+      const res = await activeModel.findOneAndUpdate(query, { isDeleted: true, deletedBy, status: 'archived' }).exec();
+      return !!res;
+    } catch {
+      return false;
+    }
   }
 
   async hardDelete(id: string | Types.ObjectId, tenantId?: string): Promise<boolean> {
-    const query: FilterQuery<T> = { _id: id } as FilterQuery<T>;
-    if (tenantId) (query as any).tenantId = tenantId;
-    const res = await this.model.deleteOne(query).exec();
-    return res.deletedCount > 0;
+    try {
+      const activeModel = this.getModel(tenantId);
+      const isObjectId = typeof id === 'string' ? Types.ObjectId.isValid(id) : true;
+      const query: FilterQuery<T> = (isObjectId
+        ? { _id: id }
+        : { $or: [{ code: id }, { id: id }] }
+      ) as FilterQuery<T>;
+      if (tenantId) (query as any).tenantId = tenantId;
+      const res = await activeModel.deleteOne(query).exec();
+      return (res.deletedCount || 0) > 0;
+    } catch {
+      return false;
+    }
   }
 }

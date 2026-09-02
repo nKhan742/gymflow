@@ -13,11 +13,7 @@ export class BranchesService extends BaseService {
   async create(tenantId: string, dto: CreateBranchesDto, createdBy?: string) {
     const item = await this.repo.create({
       tenantId,
-      name: dto.name,
-      code: dto.code,
-      description: dto.description,
-      status: (dto.status as any) || 'active',
-      createdBy,
+      ...(dto as any),
     });
     return BranchesMapper.toDTO(item);
   }
@@ -37,9 +33,8 @@ export class BranchesService extends BaseService {
   }
 
   async update(id: string, tenantId: string, dto: UpdateBranchesDto, updatedBy?: string) {
-    const item = await this.repo.updateById(id, { ...dto, updatedBy }, tenantId);
+    const item = await this.repo.updateById(id, { ...(dto as any), updatedBy }, tenantId);
     if (!item) throw new NotFoundException('Branches record not found');
-    return BranchesMapper.toDTO(item);
   }
 
   async delete(id: string, tenantId: string, deletedBy?: string) {

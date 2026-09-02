@@ -8,7 +8,7 @@ export interface ISettingsModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const settingsSchema = new Schema<ISettingsModel>(
+export const settingsSchema = new Schema<ISettingsModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

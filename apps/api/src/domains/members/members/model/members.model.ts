@@ -110,3 +110,4 @@ const membersSchema = new Schema<IMembersModel>(
 );
 
 export const MembersModel = model<IMembersModel>('Members', membersSchema);
+export { membersSchema };

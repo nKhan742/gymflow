@@ -7,7 +7,8 @@ export class MembersController {
 
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this.service.getMembers(req.query);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.getMembers({ ...req.query, tenantId });
       res.status(200).json(BaseResponse.success(result, 'Members retrieved successfully.'));
     } catch (error) {
       next(error);
@@ -17,7 +18,8 @@ export class MembersController {
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const result = await this.service.getMemberById(id);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.getMemberById(id, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Member profile retrieved successfully.'));
     } catch (error) {
       next(error);
@@ -26,7 +28,8 @@ export class MembersController {
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this.service.createMember(req.body);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.createMember(req.body, tenantId);
       res.status(201).json(BaseResponse.success(result, 'Member created successfully.'));
     } catch (error) {
       next(error);
@@ -36,7 +39,8 @@ export class MembersController {
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const result = await this.service.updateMember(id, req.body);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.updateMember(id, req.body, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Member updated successfully.'));
     } catch (error) {
       next(error);
@@ -46,7 +50,8 @@ export class MembersController {
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const result = await this.service.deleteMember(id);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.deleteMember(id, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Member removed successfully.'));
     } catch (error) {
       next(error);
@@ -57,7 +62,8 @@ export class MembersController {
     try {
       const { id } = req.params;
       const { days, reason } = req.body;
-      const result = await this.service.freezeMembership(id, days, reason);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.freezeMembership(id, days, reason, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Membership frozen successfully.'));
     } catch (error) {
       next(error);
@@ -68,7 +74,8 @@ export class MembersController {
     try {
       const { id } = req.params;
       const { durationMonths } = req.body;
-      const result = await this.service.renewMembership(id, durationMonths);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.renewMembership(id, durationMonths, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Membership renewed successfully.'));
     } catch (error) {
       next(error);
@@ -79,7 +86,8 @@ export class MembersController {
     try {
       const { id } = req.params;
       const { method } = req.body;
-      const result = await this.service.recordCheckIn(id, method);
+      const tenantId = (req as any).user?.tenantId;
+      const result = await this.service.recordCheckIn(id, method, tenantId);
       res.status(200).json(BaseResponse.success(result, 'Attendance check-in verified.'));
     } catch (error) {
       next(error);

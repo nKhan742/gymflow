@@ -13,10 +13,7 @@ export class DepartmentsService extends BaseService {
   async create(tenantId: string, dto: CreateDepartmentsDto, createdBy?: string) {
     const item = await this.repo.create({
       tenantId,
-      name: dto.name,
-      code: dto.code,
-      description: dto.description,
-      status: (dto.status as any) || 'active',
+      ...(dto as any),
       createdBy,
     });
     return DepartmentsMapper.toDTO(item);
@@ -37,7 +34,7 @@ export class DepartmentsService extends BaseService {
   }
 
   async update(id: string, tenantId: string, dto: UpdateDepartmentsDto, updatedBy?: string) {
-    const item = await this.repo.updateById(id, { ...dto, updatedBy }, tenantId);
+    const item = await this.repo.updateById(id, { ...(dto as any), updatedBy }, tenantId);
     if (!item) throw new NotFoundException('Departments record not found');
     return DepartmentsMapper.toDTO(item);
   }

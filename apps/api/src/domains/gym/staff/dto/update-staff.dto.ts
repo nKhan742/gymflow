@@ -1,6 +1,3 @@
-export interface UpdateStaffDto {
-  name?: string;
-  code?: string;
-  description?: string;
-  status?: string;
-}
+import { CreateStaffDto } from './create-staff.dto.js';
+
+export type UpdateStaffDto = Partial<CreateStaffDto>;

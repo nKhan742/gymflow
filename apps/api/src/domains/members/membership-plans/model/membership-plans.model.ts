@@ -19,7 +19,7 @@ export interface IMembershipPlansModel extends IBaseModel {
   metadata?: Record<string, unknown>;
 }
 
-const membershipPlansSchema = new Schema<IMembershipPlansModel>(
+export const membershipPlansSchema = new Schema<IMembershipPlansModel>(
   {
     ...(baseModelSchemaFields as any),
     name: { type: String, required: true, index: true },

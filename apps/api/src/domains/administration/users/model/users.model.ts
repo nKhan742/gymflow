@@ -2,6 +2,8 @@ import { Schema, model } from 'mongoose';
 import { IBaseModel, baseModelSchemaFields, baseSchemaOptions, StatusType } from '../../../../database/base.model.js';
 
 export interface IUsersModel extends IBaseModel {
+  name?: string;
+  code?: string;
   email: string;
   passwordHash: string;
   firstName: string;
@@ -15,9 +17,11 @@ export interface IUsersModel extends IBaseModel {
   status: StatusType;
 }
 
-const usersSchema = new Schema<IUsersModel>(
+export const usersSchema = new Schema<IUsersModel>(
   {
     ...(baseModelSchemaFields as any),
+    name: { type: String },
+    code: { type: String },
     email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     firstName: { type: String, required: true },
