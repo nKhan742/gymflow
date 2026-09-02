@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 import { JwtService, IJwtPayload } from '../../../core/auth/jwt.service.js';
 import { UnauthorizedException, BadRequestException } from '../../../core/exceptions/HttpException.js';
 import { UsersModel } from '../../administration/users/model/users.model.js';
 import { TenantDatabaseManager } from '../../../database/tenant-database.manager.js';
+import { DatabaseConnection } from '../../../database/connection.js';
 
 export interface ILoginResult {
   user: {
@@ -44,6 +46,7 @@ export interface IRegisterDto {
 
 export class AuthService {
   async register(dto: IRegisterDto): Promise<ILoginResult> {
+    await DatabaseConnection.connect();
     const { fullName, email, phone, password, gymName, campusName, city, currency } = dto;
 
     if (!email || !password || !gymName) {
@@ -302,6 +305,7 @@ export class AuthService {
   }
 
   async login(email: string, pass: string): Promise<ILoginResult> {
+    await DatabaseConnection.connect();
     const normalizedEmail = email.toLowerCase().trim();
 
     try {
