@@ -19,14 +19,23 @@ import { reportsDomainRoutes } from '../domains/reports/routes.js';
 import { analyticsDomainRoutes } from '../domains/analytics/routes.js';
 import { profileDomainRoutes } from '../domains/profile/routes.js';
 
+import mongoose from 'mongoose';
+
 export const apiRouter = Router();
 
 // Health Check
 apiRouter.get('/health', (_req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    database: {
+      status: dbStatus,
+      readyState: dbState,
+      host: mongoose.connection.host || null,
+    },
   });
 });
 
