@@ -56,65 +56,7 @@ import { useBranchStore } from '../../../../core/store/branchStore';
 import { usePlatformAuthStore } from '../../../../core/store/platformAuthStore';
 import { IGymTenant, TenantPlanTier, TenantSubscriptionStatus } from '../types';
 
-const INITIAL_TENANTS: IGymTenant[] = [
-  {
-    id: 'TNT-001',
-    gymName: 'The Next Level Fitness',
-    campusName: 'PD Vihar',
-    ownerName: 'Ahmad',
-    email: 'ahmad@gmail.com',
-    phone: '8595725491',
-    password: 'password123',
-    planTier: 'ESSENTIAL',
-    billingCycle: 'MONTHLY',
-    subscriptionStatus: 'ACTIVE',
-    memberCount: 142,
-    staffCount: 18,
-    branchCount: 1,
-    monthlyFee: 1500,
-    joinedDate: '2026-09-02',
-    nextBillingDate: '2026-10-02',
-    databaseName: 'gymflow_db_the_next_level_fitness',
-  },
-  {
-    id: 'TNT-002',
-    gymName: 'Iron & Grit Athletic Club',
-    campusName: 'Connaught Place',
-    ownerName: 'Vikram Rajput',
-    email: 'vikram@irongrit.in',
-    phone: '9845011234',
-    password: 'password123',
-    planTier: 'PROFESSIONAL',
-    billingCycle: 'ANNUAL',
-    subscriptionStatus: 'ACTIVE',
-    memberCount: 380,
-    staffCount: 24,
-    branchCount: 2,
-    monthlyFee: 2083, // 25,000 / 12
-    joinedDate: '2026-08-15',
-    nextBillingDate: '2027-08-15',
-    databaseName: 'gymflow_db_iron_grit_athletics',
-  },
-  {
-    id: 'TNT-003',
-    gymName: 'Apex Performance Center',
-    campusName: 'Aerocity Flagship',
-    ownerName: 'Dr. Ananya Iyer',
-    email: 'ananya@apexfit.io',
-    phone: '9711233490',
-    password: 'password123',
-    planTier: 'ENTERPRISE',
-    billingCycle: 'MONTHLY',
-    subscriptionStatus: 'ACTIVE',
-    memberCount: 820,
-    staffCount: 45,
-    branchCount: 3,
-    monthlyFee: 4500,
-    joinedDate: '2026-07-01',
-    nextBillingDate: '2026-09-28',
-    databaseName: 'gymflow_db_apex_performance',
-  },
-];
+const INITIAL_TENANTS: IGymTenant[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -123,16 +65,33 @@ export const ListPage: React.FC = () => {
   const { loadBranches } = useBranchStore();
   const { platformUser, logoutPlatform } = usePlatformAuthStore();
 
-  const [tenants, setTenants] = useState<IGymTenant[]>(() => {
-    const saved = localStorage.getItem('gymflow_registered_tenants');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch {}
+  const [tenants, setTenants] = useState<IGymTenant[]>([]);
+  const [loadingLive, setLoadingLive] = useState(true);
+  const [clusterHost, setClusterHost] = useState<string>('MongoDB Atlas Cluster');
+
+  const fetchLiveTenants = async () => {
+    setLoadingLive(true);
+    try {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/platform/tenants');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setTenants(json.data);
+          localStorage.setItem('gymflow_registered_tenants', JSON.stringify(json.data));
+          if (json.meta?.cluster) setClusterHost(json.meta.cluster);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load tenants from live cluster:', err);
+    } finally {
+      setLoadingLive(false);
     }
-    return INITIAL_TENANTS;
-  });
+  };
+
+  useEffect(() => {
+    fetchLiveTenants();
+  }, []);
 
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
   const [selectedTierFilter, setSelectedTierFilter] = useState<string>('ALL');
@@ -168,6 +127,7 @@ export const ListPage: React.FC = () => {
 
   // Change Subscription Status (Play, Pause, Stop)
   const handleUpdateStatus = (tenantId: string, newStatus: TenantSubscriptionStatus) => {
+    const targetTenant = tenants.find((t) => t.id === tenantId);
     const updated = tenants.map((t) => {
       if (t.id === tenantId) {
         return { ...t, subscriptionStatus: newStatus };
@@ -176,12 +136,20 @@ export const ListPage: React.FC = () => {
     });
     saveTenants(updated);
 
+    if (targetTenant?.databaseName) {
+      fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/platform/tenants/${targetTenant.databaseName}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      }).catch(() => {});
+    }
+
     if (newStatus === 'ACTIVE') {
-      toast.success(`🟢 Subscription for ${tenants.find((t) => t.id === tenantId)?.gymName} resumed (Active)!`);
+      toast.success(`🟢 Subscription for ${targetTenant?.gymName} resumed (Active)!`);
     } else if (newStatus === 'PAUSED') {
-      toast.warning(`⏸️ Subscription for ${tenants.find((t) => t.id === tenantId)?.gymName} paused! Billing frozen.`);
+      toast.warning(`⏸️ Subscription for ${targetTenant?.gymName} paused! Billing frozen.`);
     } else {
-      toast.error(`⏹️ Subscription for ${tenants.find((t) => t.id === tenantId)?.gymName} stopped! Access suspended.`);
+      toast.error(`⏹️ Subscription for ${targetTenant?.gymName} stopped! Access suspended.`);
     }
   };
 
@@ -549,15 +517,15 @@ export const ListPage: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 cursor-pointer"
+              disabled={loadingLive}
               onClick={() => {
-                const saved = localStorage.getItem('gymflow_registered_tenants');
-                if (saved) setTenants(JSON.parse(saved));
-                toast.success('Tenant directory refreshed!');
+                fetchLiveTenants();
+                toast.info('Querying MongoDB Atlas cluster...');
               }}
             >
-              <RefreshCw className="h-3.5 w-3.5" />
-              <span>Refresh</span>
+              <RefreshCw className={`h-3.5 w-3.5 ${loadingLive ? 'animate-spin' : ''}`} />
+              <span>{loadingLive ? 'Syncing...' : 'Sync MongoDB Atlas'}</span>
             </Button>
 
             <Button
@@ -692,6 +660,41 @@ export const ListPage: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Empty State when 0 gyms exist on the MongoDB cluster */}
+      {tenants.length === 0 && !loadingLive && (
+        <div className="p-10 rounded-3xl border-2 border-dashed border-border/80 bg-card/60 text-center space-y-4 my-2">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
+            <Building2 className="h-8 w-8" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="text-lg font-bold text-foreground">No Gym Tenants in MongoDB Atlas</h3>
+            <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              Your MongoDB Atlas cluster is completely clean. When a new gym signs up through the public portal at <strong>/auth/register</strong>, their dedicated multi-tenant database (<code>gymflow_db_...</code>) will be dynamically created and displayed here in real-time.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              size="sm"
+              onClick={() => navigate('/auth/register')}
+              className="gap-2 font-bold text-xs shadow-md shadow-primary/20 cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Register First Gym Facility (/auth/register)</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loadingLive}
+              onClick={() => fetchLiveTenants()}
+              className="gap-2 text-xs cursor-pointer"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loadingLive ? 'animate-spin' : ''}`} />
+              <span>Check MongoDB Cluster</span>
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Main Tenant Table */}
       <DataTable

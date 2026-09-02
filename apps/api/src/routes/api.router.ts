@@ -18,6 +18,7 @@ import { communicationDomainRoutes } from '../domains/communication/routes.js';
 import { reportsDomainRoutes } from '../domains/reports/routes.js';
 import { analyticsDomainRoutes } from '../domains/analytics/routes.js';
 import { profileDomainRoutes } from '../domains/profile/routes.js';
+import { platformDomainRoutes } from '../domains/platform/routes.js';
 
 import mongoose from 'mongoose';
 import { DatabaseConnection } from '../database/connection.js';
@@ -62,6 +63,9 @@ apiRouter.get('/health/db-test', async (_req, res) => {
 
 // Public Authentication Routes
 apiRouter.use('/auth', authDomainRoutes);
+
+// Platform Super Admin Control Plane Routes
+apiRouter.use('/platform', platformDomainRoutes);
 
 // Protected Domain Routes
 apiRouter.use(authMiddleware);
