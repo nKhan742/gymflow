@@ -126,6 +126,33 @@ export const ListPage: React.FC = () => {
           localStorage.setItem(STORAGE_KEYS.ACTIVE_BRANCH, branch.id || branch._id || branch.code);
         }
 
+        // Record into platform tenants directory for Super Admin Dashboard
+        try {
+          const rawTenants = localStorage.getItem('gymflow_registered_tenants');
+          const currentList = rawTenants ? JSON.parse(rawTenants) : [];
+          const newTenantRecord = {
+            id: `TNT-${Math.floor(100 + Math.random() * 900)}`,
+            gymName,
+            campusName: campusName || `${gymName} Main Campus`,
+            ownerName: fullName,
+            email,
+            phone: phone || '',
+            password,
+            planTier,
+            billingCycle,
+            subscriptionStatus: 'ACTIVE',
+            memberCount: 0,
+            staffCount: 1,
+            branchCount: 1,
+            monthlyFee: planTier === 'ENTERPRISE' ? 4500 : planTier === 'PROFESSIONAL' ? 2500 : 1500,
+            joinedDate: new Date().toISOString().split('T')[0],
+            nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            databaseName: `gymflow_db_${gymName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+          };
+          const filtered = currentList.filter((t: any) => t.email !== email);
+          localStorage.setItem('gymflow_registered_tenants', JSON.stringify([newTenantRecord, ...filtered]));
+        } catch {}
+
         setAuth(user, tokens.accessToken, tokens.refreshToken);
         setPlan(planTier, billingCycle);
         toast.success(`🎉 Welcome to GymFlow ERP, ${fullName}! Your database workspace has been initialized.`);

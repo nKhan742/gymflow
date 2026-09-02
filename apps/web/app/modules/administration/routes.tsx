@@ -6,8 +6,10 @@ import { activityLogsRoutes } from './activity-logs/routes';
 import { auditLogsRoutes } from './audit-logs/routes';
 import { settingsRoutes } from './settings/routes';
 import { systemConfigurationRoutes } from './system-configuration/routes';
+import { platformTenantsRoutes } from './platform-tenants/routes';
 
 export const administrationRoutes: RouteObject[] = [
+  ...platformTenantsRoutes,
   ...usersRoutes,
   ...rolesRoutes,
   ...permissionsRoutes,

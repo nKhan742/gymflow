@@ -97,6 +97,12 @@ export const SIDEBAR_MENU_CONFIG: ISidebarMenuItem[] = [
     permission: 'administration:view',
     children: [
       {
+        id: 'administration-platform-tenants',
+        title: 'Platform Tenants & Subscriptions',
+        path: '/administration/platform-tenants',
+        permission: 'administration:users:view',
+      },
+      {
         id: 'administration-users',
         title: 'Users',
         path: '/administration/users',
