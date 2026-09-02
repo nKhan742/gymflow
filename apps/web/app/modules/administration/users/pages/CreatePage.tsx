@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -6,8 +6,8 @@ import { Button } from '../../../../shared/components/ui/button';
 import { Input } from '../../../../shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../shared/components/ui/select';
 import { ImageUpload } from '../../../../shared/components/image-upload';
-import { ArrowLeft, Save, UserCheck, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Save, UserCheck, Shield, Key, Copy, Check, Sparkles } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useBranchStore } from '../../../../core/store/branchStore';
 import { IUserModel } from '../types';
@@ -15,32 +15,131 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { branchOptions } = useBranchStore();
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Staff import state
+  const [staffList, setStaffList] = useState<any[]>([]);
+  const [selectedStaffId, setSelectedStaffId] = useState<string>('');
+  const [loadingStaff, setLoadingStaff] = useState(false);
 
   // Form State
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
-  const [role, setRole] = useState<IUserModel['role']>('FACILITY_ADMIN');
-  const [department, setDepartment] = useState('Operations & Management');
+  const [role, setRole] = useState<IUserModel['role']>('TRAINER');
+  const [department, setDepartment] = useState('Personal Training & Fitness');
   const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
-  const [mfaEnabled, setMfaEnabled] = useState(true);
+  const [mfaEnabled, setMfaEnabled] = useState(false);
   const [status, setStatus] = useState<IUserModel['status']>('ACTIVE');
-  const [initialPassword, setInitialPassword] = useState('GymFlow@2026!');
+  const [initialPassword, setInitialPassword] = useState('password123');
 
-  const roleNameMap: Record<IUserModel['role'], string> = {
-    ADMIN: 'Administrator',
-    SUPER_ADMIN: 'Super Administrator (Global)',
-    FACILITY_ADMIN: 'Facility Administrator',
-    BRANCH_MANAGER: 'Branch General Manager',
-    STAFF_USER: 'Staff Operator / Concierge',
-    AUDITOR: 'Compliance & Financial Auditor',
+  const roleNameMap: Record<string, string> = {
+    ADMIN: '🛡️ Gym Administrator (Full Management)',
+    BRANCH_MANAGER: '🏢 Branch General Manager',
+    TRAINER: '🏋️ Trainer (Fitness Coach / Instructor)',
+    RECEPTIONIST: '🛎️ Front Desk / Receptionist',
+    NUTRITIONIST: '🥗 Nutritionist & Wellness Specialist',
+    MEMBER: '👤 Gym Member Portal',
+  };
+
+  useEffect(() => {
+    loadStaffList();
+  }, []);
+
+  const loadStaffList = async () => {
+    setLoadingStaff(true);
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/staff', {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setStaffList(items);
+
+        // Check if staffId or email query parameter was provided in URL
+        const paramStaffId = searchParams.get('staffId');
+        const paramEmail = searchParams.get('email');
+        if (paramStaffId || paramEmail) {
+          const match = items.find((s: any) => (s.id || s._id) === paramStaffId || s.email === paramEmail);
+          if (match) {
+            applyStaffData(match);
+          }
+        }
+      }
+    } catch {
+      // Ignore network errors on staff lookup
+    } finally {
+      setLoadingStaff(false);
+    }
+  };
+
+  const applyStaffData = (staff: any) => {
+    setSelectedStaffId(staff.id || staff._id);
+    const name = staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim();
+    setFullName(name);
+    setEmail(staff.email || '');
+    setPhone(staff.phone || '');
+    if (staff.avatar) setAvatarUrl(staff.avatar);
+    if (staff.department) setDepartment(staff.department);
+    if (staff.branchId) setBranchId(staff.branchId);
+
+    // Map staff role to system RBAC role
+    if (staff.role === 'TRAINER' || staff.role === 'HEAD_COACH' || staff.role === 'GROUP_INSTRUCTOR') {
+      setRole('TRAINER');
+      setDepartment(staff.department || 'Personal Training & Fitness');
+    } else if (staff.role === 'RECEPTIONIST') {
+      setRole('RECEPTIONIST');
+      setDepartment(staff.department || 'Front Desk & Operations');
+    } else if (staff.role === 'MANAGER') {
+      setRole('BRANCH_MANAGER');
+      setDepartment(staff.department || 'Operations & Management');
+    } else if (staff.role === 'NUTRITIONIST') {
+      setRole('NUTRITIONIST');
+      setDepartment(staff.department || 'Nutrition & Recovery');
+    } else {
+      setRole('TRAINER');
+    }
+
+    toast.info(`Imported profile for ${name}. Credentials and role configured.`);
+  };
+
+  const handleSelectStaff = (staffId: string) => {
+    setSelectedStaffId(staffId);
+    if (!staffId) return;
+    const staff = staffList.find((s) => (s.id || s._id) === staffId);
+    if (staff) {
+      applyStaffData(staff);
+    }
+  };
+
+  const copyCredentials = () => {
+    if (!email) {
+      toast.error('Please specify an email address first.');
+      return;
+    }
+    const text = `GymFlow ERP Login Credentials:\nPortal: ${window.location.origin}/auth/login\nEmail: ${email}\nPassword: ${initialPassword}\nRole: ${roleNameMap[role] || role}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success('Credentials copied to clipboard!');
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!fullName.trim() || !email.trim()) {
+      toast.error('Please provide full name and a valid corporate email.');
+      return;
+    }
+
     setLoading(true);
 
     const newId = `USR-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -50,11 +149,11 @@ export const CreatePage: React.FC = () => {
       id: newId,
       _id: newId,
       fullName,
-      email,
+      email: email.toLowerCase().trim(),
       phone,
       avatarUrl: avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       role,
-      roleName: roleNameMap[role],
+      roleName: roleNameMap[role] || role,
       department,
       branchId,
       branchName: selectedBranch?.label?.replace('🏢 ', '') || 'Main Facility',
@@ -62,7 +161,7 @@ export const CreatePage: React.FC = () => {
       lastLoginAt: 'Invited (Pending First Sign-In)',
       ipAddress: 'Awaiting Authentication',
       status,
-      securityScore: mfaEnabled ? 95 : 70,
+      securityScore: mfaEnabled ? 95 : 85,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -73,19 +172,45 @@ export const CreatePage: React.FC = () => {
       localStorage.setItem('gymflow_custom_admin_users', JSON.stringify([newUser, ...existing]));
 
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/users', {
+      const apiPayload = {
+        fullName,
+        firstName: fullName.trim().split(' ')[0] || 'Staff',
+        lastName: fullName.trim().split(' ').slice(1).join(' ') || 'User',
+        email: email.toLowerCase().trim(),
+        phone,
+        avatar: avatarUrl,
+        avatarUrl,
+        role,
+        roleName: roleNameMap[role] || role,
+        department,
+        branchId,
+        branchName: selectedBranch?.label?.replace('🏢 ', '') || 'Main Facility',
+        password: initialPassword || 'password123',
+        status: typeof status === 'string' ? status.toLowerCase() : 'active',
+        mfaEnabled,
+      };
+
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/users', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newUser),
-      }).catch(() => {});
+        body: JSON.stringify(apiPayload),
+      });
 
-      toast.success(`User account for "${fullName}" created successfully!`);
-      navigate('/administration/users');
+      const resJson = await res.json().catch(() => null);
+
+      if (res.ok && resJson?.success) {
+        toast.success(`🎉 User credentials for "${fullName}" created successfully! Login: ${email} | Password: ${initialPassword}`);
+        navigate('/administration/users');
+        return;
+      } else {
+        const errMsg = resJson?.message || 'Failed to create user on backend';
+        toast.error(errMsg);
+      }
     } catch {
-      toast.error('Failed to create user');
+      toast.error('Network error while provisioning user account');
     } finally {
       setLoading(false);
     }
@@ -95,7 +220,7 @@ export const CreatePage: React.FC = () => {
     <PageContainer>
       <PageHeader
         title="Onboard New System User"
-        subtitle="Provision enterprise account credentials, security clearance roles, multi-branch scope, and 2FA policies."
+        subtitle="Provision login credentials, RBAC security clearance, facility scope, and staff profile linking."
         actions={
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/administration/users')}>
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -104,7 +229,37 @@ export const CreatePage: React.FC = () => {
         }
       />
 
-      <div className="max-w-4xl">
+      <div className="max-w-4xl space-y-6">
+        {/* Quick Staff Import Banner */}
+        <Card className="border-primary/30 bg-primary/5 shadow-xs">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <div className="text-xs font-bold text-primary flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span>Link from Onboarded Staff Member (Trainers / Front Desk)</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Quickly generate login credentials for an existing trainer or employee with a single click.
+              </p>
+            </div>
+
+            <div className="w-full sm:w-72 shrink-0">
+              <Select value={selectedStaffId} onValueChange={handleSelectStaff}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder={loadingStaff ? "Loading staff roster..." : "— Choose Staff / Trainer —"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {staffList.map((s) => (
+                    <SelectItem key={s.id || s._id} value={s.id || s._id}>
+                      {s.name} ({s.role})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Identity & Photo Upload */}
           <Card>
@@ -134,7 +289,7 @@ export const CreatePage: React.FC = () => {
                     Full Legal Name <span className="text-rose-500">*</span>
                   </label>
                   <Input
-                    placeholder="e.g. Marcus Vance, CSCS"
+                    placeholder="e.g. Marcus Vance"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -143,11 +298,11 @@ export const CreatePage: React.FC = () => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
-                    Corporate Email Address <span className="text-rose-500">*</span>
+                    Corporate Email Address (Login Username) <span className="text-rose-500">*</span>
                   </label>
                   <Input
                     type="email"
-                    placeholder="e.g. m.vance@gymflow.io"
+                    placeholder="e.g. marcus.vance@gymflow.io"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -194,12 +349,12 @@ export const CreatePage: React.FC = () => {
                       <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ADMIN">🛡️ Admin (Facility Leadership)</SelectItem>
-                      <SelectItem value="SUPER_ADMIN">👑 Super Admin (Full Global Network)</SelectItem>
-                      <SelectItem value="FACILITY_ADMIN">🏛️ Facility Administrator</SelectItem>
+                      <SelectItem value="TRAINER">🏋️ Trainer (Fitness Coach / Instructor)</SelectItem>
+                      <SelectItem value="RECEPTIONIST">🛎️ Front Desk / Receptionist</SelectItem>
                       <SelectItem value="BRANCH_MANAGER">🏢 Branch General Manager</SelectItem>
-                      <SelectItem value="STAFF_USER">🚪 Staff Operator / Concierge</SelectItem>
-                      <SelectItem value="AUDITOR">⚖️ Compliance & Financial Auditor</SelectItem>
+                      <SelectItem value="ADMIN">🛡️ Admin (Gym Administrator / Owner)</SelectItem>
+                      <SelectItem value="NUTRITIONIST">🥗 Nutritionist & Wellness Specialist</SelectItem>
+                      <SelectItem value="MEMBER">👤 Gym Member Portal</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -221,14 +376,31 @@ export const CreatePage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Login Password & Status */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Initial Temporary Password</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Key className="w-3.5 h-3.5 text-primary" /> Initial Temporary Password <span className="text-rose-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={copyCredentials}
+                      className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
+                    >
+                      {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                      <span>{copied ? 'Copied!' : 'Copy Login'}</span>
+                    </button>
+                  </div>
                   <Input
                     value={initialPassword}
                     onChange={(e) => setInitialPassword(e.target.value)}
+                    placeholder="password123"
                     required
                   />
+                  <p className="text-[10px] text-muted-foreground">
+                    User can log in at <code className="text-foreground font-mono">/auth/login</code> using this password and update it anytime.
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -238,8 +410,8 @@ export const CreatePage: React.FC = () => {
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">🟢 Active Account</SelectItem>
-                      <SelectItem value="INVITED">✉️ Invited (Pending Activation)</SelectItem>
+                      <SelectItem value="ACTIVE">🟢 Active Account (Immediate Access)</SelectItem>
+                      <SelectItem value="INVITED">✉️ Invited (Pending First Login)</SelectItem>
                       <SelectItem value="SUSPENDED">🔴 Suspended / Locked</SelectItem>
                     </SelectContent>
                   </Select>
@@ -262,11 +434,11 @@ export const CreatePage: React.FC = () => {
 
             <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
               <span className="text-xs text-muted-foreground">
-                Provisioning Protocol: <strong className="text-emerald-600">Strict Zero-Trust RBAC</strong>
+                Clearance: <strong className="text-emerald-600">{roleNameMap[role] || role}</strong>
               </span>
-              <Button type="submit" loading={loading} className="gap-1.5 shadow-sm">
+              <Button type="submit" disabled={loading} className="gap-1.5 shadow-sm">
                 <Save className="h-4 w-4" />
-                <span>Save & Provision Account</span>
+                <span>{loading ? 'Creating Credentials...' : 'Save & Issue Credentials'}</span>
               </Button>
             </CardFooter>
           </Card>

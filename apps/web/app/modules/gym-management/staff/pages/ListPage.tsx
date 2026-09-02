@@ -28,6 +28,7 @@ import {
   Trash2,
   MapPin,
   Building2,
+  Key,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
@@ -282,6 +283,14 @@ export const ListPage: React.FC = () => {
                 >
                   <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Edit Details</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate(`/administration/users/create?staffId=${staffId}`)}
+                  className="gap-2 cursor-pointer text-primary font-medium"
+                >
+                  <Key className="h-3.5 w-3.5" />
+                  <span>Issue Login Credentials</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

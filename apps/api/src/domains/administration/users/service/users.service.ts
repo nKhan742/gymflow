@@ -4,6 +4,7 @@ import { CreateUsersDto, UpdateUsersDto } from '../dto/index.js';
 import { UsersMapper } from '../mapper/users.mapper.js';
 import { NotFoundException } from '../../../../core/exceptions/HttpException.js';
 import { IPaginationOptions } from '../../../../database/base.repository.js';
+import bcrypt from 'bcrypt';
 
 export class UsersService extends BaseService {
   constructor(private readonly repo: IUsersRepository = new UsersRepository()) {
@@ -12,23 +13,41 @@ export class UsersService extends BaseService {
 
   async create(tenantId: string, dto: any, createdBy?: string) {
     const fullNameParts = (dto.fullName || dto.name || '').trim().split(' ');
-    const firstName = dto.firstName || fullNameParts[0] || 'Admin';
+    const firstName = dto.firstName || fullNameParts[0] || 'Staff';
     const lastName = dto.lastName || fullNameParts.slice(1).join(' ') || 'User';
+
+    const plainPassword = dto.password || 'password123';
+    const passwordHash = dto.passwordHash || (await bcrypt.hash(plainPassword, 10));
+    const role = (dto.role as any) || 'TRAINER';
+
+    // Role-based default permissions
+    let defaultPermissions: string[] = ['*'];
+    if (role === 'TRAINER') {
+      defaultPermissions = ['members:members:view', 'gym:staff:view', 'gym:departments:view', 'gym:dashboard:view'];
+    } else if (role === 'RECEPTIONIST') {
+      defaultPermissions = ['members:members:view', 'members:members:create', 'members:members:update', 'gym:branches:view', 'gym:dashboard:view'];
+    } else if (role === 'BRANCH_MANAGER') {
+      defaultPermissions = ['gym:branches:view', 'gym:staff:view', 'gym:departments:view', 'members:members:view', 'members:members:create', 'members:members:update', 'gym:dashboard:view'];
+    } else if (role === 'NUTRITIONIST') {
+      defaultPermissions = ['members:members:view', 'gym:dashboard:view'];
+    } else if (role === 'MEMBER') {
+      defaultPermissions = ['profile:view'];
+    }
 
     const item = await this.repo.create({
       tenantId,
       name: dto.fullName || dto.name || `${firstName} ${lastName}`,
       code: dto.code || `USR-${Math.floor(1000 + Math.random() * 9000)}`,
-      email: dto.email || `user.${Date.now()}@gymflow.io`,
-      passwordHash: dto.passwordHash || dto.password || 'default_hash_123',
+      email: (dto.email || `user.${Date.now()}@gymflow.io`).toLowerCase().trim(),
+      passwordHash,
       firstName,
       lastName,
-      role: (dto.role as any) || 'SUPER_ADMIN',
-      permissions: dto.permissions || ['*'],
+      role,
+      permissions: dto.permissions || defaultPermissions,
       branchId: dto.branchId || 'branch_hq_01',
-      phone: dto.phone,
-      avatar: dto.avatarUrl || dto.avatar,
-      status: (dto.status as any) || 'active',
+      phone: dto.phone || '',
+      avatar: dto.avatarUrl || dto.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      status: typeof dto.status === 'string' ? (dto.status.toLowerCase() as any) : 'active',
       isActive: true,
       createdBy,
     });

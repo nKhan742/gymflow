@@ -29,7 +29,7 @@ export const usersSchema = new Schema<IUsersModel>(
     role: {
       type: String,
       enum: ['SUPER_ADMIN', 'ADMIN', 'BRANCH_MANAGER', 'TRAINER', 'RECEPTIONIST', 'NUTRITIONIST', 'MEMBER'],
-      default: 'SUPER_ADMIN',
+      default: 'ADMIN',
       index: true,
     },
     permissions: [{ type: String }],

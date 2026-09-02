@@ -571,7 +571,7 @@ export const ViewPage: React.FC = () => {
               />
               <div>
                 <div className="font-bold text-foreground">{staffToRemove.name}</div>
-                <div className="text-muted-foreground">{staffToRemove.role} • {staffToRemove.shift} Shift</div>
+                <div className="text-muted-foreground">{staffToRemove.role} • {staffToRemove.rate}</div>
               </div>
             </div>
           )}

@@ -21,7 +21,7 @@ export const createUsersSchema = z.object({
   ipAddress: z.string().optional(),
   code: z.string().optional(),
   description: z.string().optional(),
-  status: z.enum(['active', 'inactive', 'pending', 'suspended', 'archived', 'draft']).optional().default('active'),
+  status: z.string().optional().default('active'),
   password: z.string().optional(),
   passwordHash: z.string().optional(),
   permissions: z.array(z.string()).optional(),

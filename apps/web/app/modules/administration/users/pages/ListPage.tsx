@@ -54,11 +54,13 @@ export const ListPage: React.FC = () => {
           combined.push(item);
         }
       }
-      setUsers(combined);
+      // Never show SUPER_ADMIN to tenant staff/admins
+      const gymUsers = combined.filter((u) => u.role !== 'SUPER_ADMIN');
+      setUsers(gymUsers);
     } catch {
       const stored = localStorage.getItem('gymflow_custom_admin_users');
       const customList: IUserModel[] = stored ? JSON.parse(stored) : [];
-      setUsers(customList);
+      setUsers(customList.filter((u) => u.role !== 'SUPER_ADMIN'));
     }
   };
 
@@ -121,20 +123,22 @@ export const ListPage: React.FC = () => {
         const role = row.original.role;
         return (
           <Badge
-            variant={role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'default' : role === 'FACILITY_ADMIN' ? 'success' : 'outline'}
+            variant={role === 'ADMIN' ? 'default' : role === 'BRANCH_MANAGER' ? 'secondary' : role === 'TRAINER' ? 'info' : 'outline'}
             className="text-[9px] font-bold"
           >
             {role === 'ADMIN'
               ? '🛡️ ADMIN'
-              : role === 'SUPER_ADMIN'
-              ? '👑 SUPER ADMIN'
-              : role === 'FACILITY_ADMIN'
-              ? '🏛️ FACILITY ADMIN'
               : role === 'BRANCH_MANAGER'
               ? '🏢 BRANCH MGR'
-              : role === 'AUDITOR'
-              ? '⚖️ AUDITOR'
-              : '🚪 STAFF'}
+              : role === 'TRAINER'
+              ? '🏋️ TRAINER'
+              : role === 'RECEPTIONIST'
+              ? '🛎️ RECEPTION'
+              : role === 'NUTRITIONIST'
+              ? '🥗 NUTRITION'
+              : role === 'MEMBER'
+              ? '👤 MEMBER'
+              : role}
           </Badge>
         );
       },

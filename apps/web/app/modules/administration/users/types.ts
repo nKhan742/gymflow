@@ -1,3 +1,14 @@
+export type GymUserRole =
+  | 'ADMIN'
+  | 'BRANCH_MANAGER'
+  | 'TRAINER'
+  | 'RECEPTIONIST'
+  | 'NUTRITIONIST'
+  | 'MEMBER'
+  | 'SUPER_ADMIN'
+  | 'FACILITY_ADMIN'
+  | string;
+
 export interface IUserModel {
   id: string;
   _id?: string;
@@ -5,7 +16,7 @@ export interface IUserModel {
   email: string;
   avatarUrl?: string;
   phone: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'FACILITY_ADMIN' | 'BRANCH_MANAGER' | 'STAFF_USER' | 'AUDITOR';
+  role: GymUserRole;
   roleName: string;
   department: string;
   branchId?: string;
@@ -13,7 +24,7 @@ export interface IUserModel {
   mfaEnabled: boolean;
   lastLoginAt: string;
   ipAddress: string;
-  status: 'ACTIVE' | 'SUSPENDED' | 'INVITED';
+  status: 'ACTIVE' | 'SUSPENDED' | 'INVITED' | string;
   securityScore: number;
   createdAt: string;
   updatedAt: string;

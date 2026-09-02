@@ -50,6 +50,7 @@ import {
   FileCheck,
   Check,
   AlertCircle,
+  Key,
 } from 'lucide-react';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
@@ -277,6 +278,16 @@ export const ViewPage: React.FC = () => {
           >
             <Fingerprint className="w-4 h-4" />
             <span>{isClockedIn ? 'Clocked In (05:56 AM)' : 'Clock In Now'}</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/administration/users/create?staffId=${staff.id || staff._id}`)}
+            className="gap-1.5 shadow-xs border-primary/30 text-primary hover:bg-primary/10"
+          >
+            <Key className="h-3.5 w-3.5" />
+            <span>Issue Login Account</span>
           </Button>
 
           <Button
