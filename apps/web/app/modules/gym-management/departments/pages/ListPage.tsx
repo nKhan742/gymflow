@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -31,6 +31,7 @@ import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { formatCurrency } from '../../../../core/helpers/formatters';
 import { IDepartment } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
+import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 export const DEFAULT_DEPARTMENTS: IDepartment[] = [];
 
@@ -38,6 +39,7 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { currency } = useCurrencyStore();
   const { activeBranchId, getActiveBranch } = useBranchStore();
+  const { startLoading, stopLoading } = useLoadingStore();
   const activeBranch = getActiveBranch();
 
   const [departments, setDepartments] = useState<IDepartment[]>([]);
@@ -49,6 +51,7 @@ export const ListPage: React.FC = () => {
 
   const loadDepartments = async () => {
     setLoading(true);
+    startLoading();
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/departments', {
@@ -64,7 +67,12 @@ export const ListPage: React.FC = () => {
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setDepartments([...localCustomItems, ...items]);
+        if (items.length > 0) {
+          setDepartments(items);
+          localStorage.removeItem('gymflow_custom_gym_departments');
+        } else {
+          setDepartments(localCustomItems);
+        }
       } else {
         setDepartments(localCustomItems);
       }
@@ -74,6 +82,7 @@ export const ListPage: React.FC = () => {
       setDepartments(localCustomItems);
     } finally {
       setLoading(false);
+      stopLoading();
     }
   };
 
@@ -246,6 +255,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={departments}
+        loading={loading}
         searchPlaceholder="Search departments by name, code, manager, or category..."
       />
     </PageContainer>

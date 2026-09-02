@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -37,6 +37,7 @@ import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { formatCurrency } from '../../../../core/helpers/formatters';
 import { IStaff, StaffRole } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
+import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 const ALL_STAFF_DATA: IStaff[] = [];
 
@@ -44,9 +45,11 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { currency } = useCurrencyStore();
   const { activeBranchId, getActiveBranch } = useBranchStore();
+  const { startLoading, stopLoading } = useLoadingStore();
   const activeBranch = getActiveBranch();
 
   const [staffList, setStaffList] = useState<IStaff[]>([]);
+  const [loading, setLoading] = useState(false);
   const [departmentFilter, setDepartmentFilter] = useState<string>('ALL');
 
   useEffect(() => {
@@ -54,6 +57,8 @@ export const ListPage: React.FC = () => {
   }, [departmentFilter, activeBranchId]);
 
   const loadStaff = async () => {
+    setLoading(true);
+    startLoading();
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const url =
@@ -75,7 +80,12 @@ export const ListPage: React.FC = () => {
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        data = [...localCustomItems, ...items];
+        if (items.length > 0) {
+          data = items;
+          localStorage.removeItem('gymflow_custom_gym_staff');
+        } else {
+          data = localCustomItems;
+        }
       }
 
       // Filter by active branch selected in top nav
@@ -92,6 +102,9 @@ export const ListPage: React.FC = () => {
       const localCustomRaw = localStorage.getItem('gymflow_custom_gym_staff');
       const localCustomItems: IStaff[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
       setStaffList(localCustomItems);
+    } finally {
+      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -381,6 +394,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={staffList}
+        loading={loading}
         searchPlaceholder="Search by name, email, role, or staff ID..."
       />
     </PageContainer>

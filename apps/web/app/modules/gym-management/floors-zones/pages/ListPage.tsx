@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { PlanGateGuard } from '../../../../shared/components/plan/PlanGateGuard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../../shared/components/ui/card';
 import { Button } from '../../../../shared/components/ui/button';
@@ -39,81 +39,13 @@ interface IFloor {
   zones: IZone[];
 }
 
-const INITIAL_FLOORS: IFloor[] = [
-  {
-    id: 'FL-01',
-    floorNumber: 1,
-    name: 'Ground Floor: Strength & Power Zone',
-    description: 'Heavy plate-loaded machines, Olympic power racks, and Recovery Spa.',
-    maxCapacity: 120,
-    currentOccupancy: 78,
-    zones: [
-      {
-        id: 'ZN-01',
-        name: 'Olympic Free Weights & Platforms',
-        category: 'STRENGTH',
-        capacity: 50,
-        currentOccupancy: 38,
-        assignedTrainers: ['Marcus Brody', 'Vikram S.'],
-      },
-      {
-        id: 'ZN-02',
-        name: 'Selectorized Machine Circuit',
-        category: 'STRENGTH',
-        capacity: 45,
-        currentOccupancy: 28,
-        assignedTrainers: ['Aman Verma'],
-      },
-      {
-        id: 'ZN-03',
-        name: 'Cryotherapy & Recovery Lounge',
-        category: 'SPA_RECOVERY',
-        capacity: 25,
-        currentOccupancy: 12,
-        assignedTrainers: ['Dr. Ananya'],
-      },
-    ],
-  },
-  {
-    id: 'FL-02',
-    floorNumber: 2,
-    name: 'Floor 2: High-Intensity Cardio & Studio',
-    description: 'Treadmills, Assault bikes, Rowing ergometers, and Aerobics studio.',
-    maxCapacity: 100,
-    currentOccupancy: 54,
-    zones: [
-      {
-        id: 'ZN-04',
-        name: 'Cardio Mezzanine',
-        category: 'CARDIO',
-        capacity: 50,
-        currentOccupancy: 32,
-        assignedTrainers: ['Sarah Jenkins'],
-      },
-      {
-        id: 'ZN-05',
-        name: 'CrossFit & Functional Turf',
-        category: 'CROSSFIT',
-        capacity: 30,
-        currentOccupancy: 16,
-        assignedTrainers: ['Coach Rohan'],
-      },
-      {
-        id: 'ZN-06',
-        name: 'Spinning & Aerobics Studio',
-        category: 'GROUP_STUDIO',
-        capacity: 20,
-        currentOccupancy: 6,
-        assignedTrainers: ['Elena Rostova'],
-      },
-    ],
-  },
-];
-
 export const ListPage: React.FC = () => {
-  const [floors, setFloors] = useState<IFloor[]>(INITIAL_FLOORS);
+  const [floors, setFloors] = useState<IFloor[]>(() => {
+    const saved = localStorage.getItem('gymflow_custom_floors');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isAddZoneOpen, setIsAddZoneOpen] = useState(false);
-  const [selectedFloorId, setSelectedFloorId] = useState('FL-01');
+  const [selectedFloorId, setSelectedFloorId] = useState(floors[0]?.id || 'FL-01');
 
   // New Zone State
   const [zoneName, setZoneName] = useState('');
@@ -123,7 +55,7 @@ export const ListPage: React.FC = () => {
 
   const totalCapacity = floors.reduce((acc, f) => acc + f.maxCapacity, 0);
   const totalOccupancy = floors.reduce((acc, f) => acc + f.currentOccupancy, 0);
-  const overallPercent = Math.round((totalOccupancy / totalCapacity) * 100);
+  const overallPercent = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0;
 
   const handleAddZone = (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,8 +73,21 @@ export const ListPage: React.FC = () => {
       assignedTrainers: trainer ? [trainer] : ['Head Trainer'],
     };
 
-    setFloors(
-      floors.map((f) =>
+    let updatedFloors: IFloor[] = [];
+    if (floors.length === 0) {
+      updatedFloors = [
+        {
+          id: 'FL-01',
+          floorNumber: 1,
+          name: 'Main Gym Floor',
+          description: 'Primary athletic training zone',
+          maxCapacity: Number(capacity),
+          currentOccupancy: 0,
+          zones: [newZone],
+        },
+      ];
+    } else {
+      updatedFloors = floors.map((f) =>
         f.id === selectedFloorId
           ? {
               ...f,
@@ -150,9 +95,11 @@ export const ListPage: React.FC = () => {
               zones: [...f.zones, newZone],
             }
           : f
-      )
-    );
+      );
+    }
 
+    setFloors(updatedFloors);
+    localStorage.setItem('gymflow_custom_floors', JSON.stringify(updatedFloors));
     setIsAddZoneOpen(false);
     toast.success(`Zone '${zoneName}' created successfully!`);
     setZoneName('');

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { PlanGateGuard } from '../../../../shared/components/plan/PlanGateGuard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../../shared/components/ui/card';
 import { Button } from '../../../../shared/components/ui/button';
@@ -45,85 +45,15 @@ interface IAccessLog {
   reason?: string;
 }
 
-const INITIAL_DEVICES: IHardwareDevice[] = [
-  {
-    id: 'DEV-01',
-    name: 'Main Turnstile Gate 1 (Tripod)',
-    type: 'ESSL_TURNSTILE',
-    ipAddress: '192.168.1.120',
-    port: 4370,
-    location: 'Ground Floor Lobby',
-    gateNumber: 1,
-    status: 'ONLINE',
-    lastPing: '2 mins ago',
-  },
-  {
-    id: 'DEV-02',
-    name: 'Turnstile Gate 2 (VIP / Wheelchair)',
-    type: 'ZKTECO_INBIO',
-    ipAddress: '192.168.1.121',
-    port: 4370,
-    location: 'Ground Floor Lobby',
-    gateNumber: 2,
-    status: 'ONLINE',
-    lastPing: 'Just now',
-  },
-  {
-    id: 'DEV-03',
-    name: 'Floor 2 Mezzanine Biometric Scanner',
-    type: 'BIOMETRIC_READER',
-    ipAddress: '192.168.1.130',
-    port: 5005,
-    location: 'Floor 2 Entry Gate',
-    gateNumber: 3,
-    status: 'ONLINE',
-    lastPing: '1 min ago',
-  },
-];
-
-const INITIAL_LOGS: IAccessLog[] = [
-  {
-    id: 'LOG-101',
-    timestamp: '10:42:15 AM',
-    memberName: 'Dev Patel',
-    memberCode: 'MEM-0042',
-    method: 'BIOMETRIC',
-    gate: 'Turnstile Gate 1',
-    result: 'ACCESS_GRANTED',
-  },
-  {
-    id: 'LOG-102',
-    timestamp: '10:38:50 AM',
-    memberName: 'Pooja Hegde',
-    memberCode: 'MEM-0089',
-    method: 'QR_CODE',
-    gate: 'Turnstile Gate 2',
-    result: 'ACCESS_GRANTED',
-  },
-  {
-    id: 'LOG-103',
-    timestamp: '10:35:12 AM',
-    memberName: 'Karan Mehra',
-    memberCode: 'MEM-0012',
-    method: 'RFID',
-    gate: 'Turnstile Gate 1',
-    result: 'ACCESS_DENIED',
-    reason: 'Membership Expired (Plan expired 3 days ago)',
-  },
-  {
-    id: 'LOG-104',
-    timestamp: '10:29:44 AM',
-    memberName: 'Sara Ali',
-    memberCode: 'MEM-0120',
-    method: 'BIOMETRIC',
-    gate: 'Floor 2 Entry Gate',
-    result: 'ACCESS_GRANTED',
-  },
-];
-
 export const ListPage: React.FC = () => {
-  const [devices, setDevices] = useState<IHardwareDevice[]>(INITIAL_DEVICES);
-  const [logs, setLogs] = useState<IAccessLog[]>(INITIAL_LOGS);
+  const [devices, setDevices] = useState<IHardwareDevice[]>(() => {
+    const saved = localStorage.getItem('gymflow_custom_access_devices');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [logs, setLogs] = useState<IAccessLog[]>(() => {
+    const saved = localStorage.getItem('gymflow_custom_access_logs');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   // New Device Form
@@ -178,7 +108,9 @@ export const ListPage: React.FC = () => {
       lastPing: 'Just now',
     };
 
-    setDevices([...devices, newDev]);
+    const updated = [...devices, newDev];
+    setDevices(updated);
+    localStorage.setItem('gymflow_custom_access_devices', JSON.stringify(updated));
     setIsAddOpen(false);
     toast.success(`Controller '${name}' linked successfully!`);
     setName('');

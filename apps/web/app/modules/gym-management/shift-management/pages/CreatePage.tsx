@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -20,16 +20,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IShift } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
-
-const DEPARTMENT_OPTIONS: ISelectOption[] = [
-  { value: 'Fitness & PT', label: '🏋️ Fitness & Personal Training' },
-  { value: 'Front Desk & Guest Relations', label: '🤝 Front Desk & Guest Relations' },
-  { value: 'Group Fitness & Studio', label: '✨ Group Fitness & Studio' },
-  { value: 'Nutrition & Spa', label: '🥗 Nutrition & Recovery Spa' },
-  { value: 'Facility Operations', label: '🔧 Facility Operations & Maintenance' },
-  { value: 'Sales & Corporate', label: '📈 Sales & Corporate Memberships' },
-  { value: 'All Departments', label: '🌐 All Departments / Floating' },
-];
+import { useDepartmentStore } from '../../../../core/store/departmentStore';
 
 const COLOR_OPTIONS: ISelectOption[] = [
   { value: '#3B82F6', label: '🔵 Royal Blue (Morning)' },
@@ -45,7 +36,12 @@ const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
+  const { departmentOptions, loadDepartments, isLoading: loadingDepartments } = useDepartmentStore();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
 
   // Section 1: Shift Identity & Timing
   const [name, setName] = useState('');
@@ -55,7 +51,14 @@ export const CreatePage: React.FC = () => {
   const [breakDurationMins, setBreakDurationMins] = useState('60');
 
   // Section 2: Department & Headcount
-  const [departmentName, setDepartmentName] = useState('Fitness & PT');
+  const [departmentName, setDepartmentName] = useState('');
+
+  useEffect(() => {
+    if (!departmentName && departmentOptions.length > 0) {
+      setDepartmentName(departmentOptions[0].value);
+    }
+  }, [departmentOptions]);
+
   const [minHeadcount, setMinHeadcount] = useState('3');
   const [color, setColor] = useState('#3B82F6');
   const [description, setDescription] = useState('');
@@ -254,8 +257,9 @@ export const CreatePage: React.FC = () => {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">Assigned Department</label>
                 <SelectBox
-                  options={DEPARTMENT_OPTIONS}
+                  options={departmentOptions}
                   value={departmentName}
+                  placeholder={loadingDepartments ? 'Loading database departments...' : departmentOptions.length === 0 ? 'No departments in DB' : 'Select Department'}
                   onChange={setDepartmentName}
                 />
               </div>

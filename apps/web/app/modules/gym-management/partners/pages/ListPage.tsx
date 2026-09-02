@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { PlanGateGuard } from '../../../../shared/components/plan/PlanGateGuard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../../shared/components/ui/card';
 import { Button } from '../../../../shared/components/ui/button';
@@ -36,53 +36,11 @@ interface IGymPartner {
   status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
 }
 
-const INITIAL_PARTNERS: IGymPartner[] = [
-  {
-    id: 'PTR-001',
-    name: 'TechCorp India Wellness Program',
-    type: 'CORPORATE',
-    contactPerson: 'Rahul Sharma',
-    email: 'wellness@techcorp.in',
-    phone: '+91 98201 44521',
-    commissionRate: 15,
-    membersReferred: 48,
-    totalRevenueGenerated: 720000,
-    totalCommissionPaid: 90000,
-    pendingSettlement: 18000,
-    status: 'ACTIVE',
-  },
-  {
-    id: 'PTR-002',
-    name: 'Coach Vikram Athletics Club',
-    type: 'SPORTS_ACADEMY',
-    contactPerson: 'Vikram Rajput',
-    email: 'vikram@athleticsclub.com',
-    phone: '+91 98450 11234',
-    commissionRate: 20,
-    membersReferred: 32,
-    totalRevenueGenerated: 480000,
-    totalCommissionPaid: 80000,
-    pendingSettlement: 16000,
-    status: 'ACTIVE',
-  },
-  {
-    id: 'PTR-003',
-    name: 'FitLife Physio & Rehabilitation',
-    type: 'PHYSIO',
-    contactPerson: 'Dr. Ananya Iyer',
-    email: 'ananya@fitlifephysio.in',
-    phone: '+91 97112 33490',
-    commissionRate: 12,
-    membersReferred: 19,
-    totalRevenueGenerated: 285000,
-    totalCommissionPaid: 25000,
-    pendingSettlement: 9200,
-    status: 'ACTIVE',
-  },
-];
-
 export const ListPage: React.FC = () => {
-  const [partners, setPartners] = useState<IGymPartner[]>(INITIAL_PARTNERS);
+  const [partners, setPartners] = useState<IGymPartner[]>(() => {
+    const saved = localStorage.getItem('gymflow_custom_partners');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -120,7 +78,9 @@ export const ListPage: React.FC = () => {
       status: 'ACTIVE',
     };
 
-    setPartners([...partners, newPartner]);
+    const updated = [...partners, newPartner];
+    setPartners(updated);
+    localStorage.setItem('gymflow_custom_partners', JSON.stringify(updated));
     setIsAddOpen(false);
     toast.success(`Partner '${name}' created successfully!`);
     setName('');

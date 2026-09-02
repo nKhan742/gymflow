@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -35,7 +35,9 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { ImageUpload } from '../../../../shared/components/image-upload';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../../../../core/store/currencyStore';
-import { StaffRole, StaffDepartment, ShiftType } from '../types';
+import { useDepartmentStore } from '../../../../core/store/departmentStore';
+import { useBranchStore } from '../../../../core/store/branchStore';
+import { StaffRole, ShiftType } from '../types';
 
 const ROLE_OPTIONS: ISelectOption[] = [
   { value: 'TRAINER', label: 'Personal Trainer', icon: <Dumbbell className="w-3.5 h-3.5 text-primary" />, badge: 'Fitness' },
@@ -47,26 +49,11 @@ const ROLE_OPTIONS: ISelectOption[] = [
   { value: 'MAINTENANCE', label: 'Facility Maintenance & Tech', icon: <Clock className="w-3.5 h-3.5 text-muted-foreground" />, badge: 'Ops' },
 ];
 
-const DEPARTMENT_OPTIONS: ISelectOption[] = [
-  { value: 'FITNESS', label: 'Fitness & Training Dept', icon: <Dumbbell className="w-3.5 h-3.5 text-primary" /> },
-  { value: 'RECEPTION', label: 'Front Desk & Guest Services', icon: <ShieldCheck className="w-3.5 h-3.5 text-purple-500" /> },
-  { value: 'WELLNESS', label: 'Wellness, Spa & Nutrition', icon: <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> },
-  { value: 'MANAGEMENT', label: 'Club Management & Executive', icon: <Briefcase className="w-3.5 h-3.5 text-indigo-500" /> },
-  { value: 'OPERATIONS', label: 'Facility Operations & Maintenance', icon: <Clock className="w-3.5 h-3.5 text-muted-foreground" /> },
-];
-
 const SHIFT_OPTIONS: ISelectOption[] = [
   { value: 'MORNING', label: 'Morning Shift (6:00 AM – 2:00 PM)', icon: <Sun className="w-3.5 h-3.5 text-amber-500" /> },
   { value: 'EVENING', label: 'Evening Shift (2:00 PM – 10:00 PM)', icon: <Sunset className="w-3.5 h-3.5 text-orange-500" /> },
   { value: 'NIGHT', label: 'Night Shift (10:00 PM – 6:00 AM)', icon: <Moon className="w-3.5 h-3.5 text-indigo-400" /> },
   { value: 'FLEXIBLE', label: 'Flexible / On-Call Hours', icon: <Clock className="w-3.5 h-3.5 text-blue-500" /> },
-];
-
-const GYM_BRANCH_OPTIONS: ISelectOption[] = [
-  { value: 'Downtown Flagship', label: 'Downtown Flagship • Main Campus', icon: <Building2 className="w-3.5 h-3.5 text-primary" /> },
-  { value: 'Westside Performance Club', label: 'Westside Performance Club • Strength Bay', icon: <Building2 className="w-3.5 h-3.5 text-indigo-500" /> },
-  { value: 'Uptown Wellness Center', label: 'Uptown Wellness Center & Spa', icon: <Building2 className="w-3.5 h-3.5 text-emerald-500" /> },
-  { value: 'Eastside Combat Gym', label: 'Eastside Boxing & Combat Facility', icon: <Building2 className="w-3.5 h-3.5 text-amber-500" /> },
 ];
 
 const PAYOUT_FREQUENCY_OPTIONS: ISelectOption[] = [
@@ -90,6 +77,14 @@ export const CreatePage: React.FC = () => {
   const currencySymbol = SUPPORTED_CURRENCIES[currency]?.symbol || '$';
   const [loading, setLoading] = useState(false);
 
+  const { departmentOptions, loadDepartments, isLoading: loadingDepartments } = useDepartmentStore();
+  const { branches, loadBranches, branchOptions } = useBranchStore();
+
+  useEffect(() => {
+    loadDepartments();
+    loadBranches();
+  }, []);
+
   // Section 1: Personal & Identity
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -101,10 +96,24 @@ export const CreatePage: React.FC = () => {
 
   // Section 2: Role, Department, Shift & Location
   const [role, setRole] = useState<StaffRole>('TRAINER');
-  const [department, setDepartment] = useState<StaffDepartment>('FITNESS');
+  const [department, setDepartment] = useState<string>('');
   const [shift, setShift] = useState<ShiftType>('MORNING');
-  const [assignedBranch, setAssignedBranch] = useState('Downtown Flagship');
+  const [assignedBranch, setAssignedBranch] = useState<string>('');
   const [rfidAccessCode, setRfidAccessCode] = useState(`RFID-${Math.floor(10000 + Math.random() * 90000)}`);
+
+  useEffect(() => {
+    if (!department && departmentOptions.length > 0) {
+      setDepartment(departmentOptions[0].value);
+    }
+  }, [departmentOptions]);
+
+  useEffect(() => {
+    if (!assignedBranch && branchOptions.length > 0) {
+      setAssignedBranch(branchOptions[0].value);
+    } else if (!assignedBranch && branches.length > 0) {
+      setAssignedBranch(branches[0].name);
+    }
+  }, [branchOptions, branches]);
 
   // Section 3: Compensation & Payroll
   const [hourlyRate, setHourlyRate] = useState('65');
@@ -341,9 +350,10 @@ export const CreatePage: React.FC = () => {
                 />
                 <SelectBox
                   label="Assigned Department *"
-                  options={DEPARTMENT_OPTIONS}
+                  options={departmentOptions}
                   value={department}
-                  onChange={(val) => setDepartment(val as StaffDepartment)}
+                  placeholder={loadingDepartments ? 'Loading database departments...' : departmentOptions.length === 0 ? 'No departments in DB' : 'Select Department'}
+                  onChange={(val) => setDepartment(val)}
                 />
               </div>
 
@@ -356,8 +366,9 @@ export const CreatePage: React.FC = () => {
                 />
                 <SelectBox
                   label="Assigned Gym Facility Branch *"
-                  options={GYM_BRANCH_OPTIONS}
+                  options={branchOptions.length > 0 ? branchOptions : branches.map((b) => ({ value: b.name, label: `🏢 ${b.name}` }))}
                   value={assignedBranch}
+                  placeholder={branches.length === 0 ? 'Loading branches from DB...' : 'Select Branch'}
                   onChange={(val) => setAssignedBranch(val)}
                 />
               </div>
