@@ -22,10 +22,22 @@ import { reportsRoutes } from '../modules/reports/routes';
 import { analyticsRoutes } from '../modules/analytics/routes';
 import { profileRoutes } from '../modules/profile/routes';
 
+const PlatformLoginPage = React.lazy(() =>
+  import('../modules/auth/platform-login/PlatformLoginPage').then((m) => ({ default: m.PlatformLoginPage }))
+);
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <Navigate to="/dashboard/admin-dashboard" replace />,
+  },
+  {
+    path: '/platform-admin/login',
+    element: <PlatformLoginPage />,
+  },
+  {
+    path: '/platform-login',
+    element: <Navigate to="/platform-admin/login" replace />,
   },
   {
     path: '/auth',

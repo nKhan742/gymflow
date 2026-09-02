@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import { IUserProfile } from '../types/user.types';
 import { toast } from 'sonner';

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
@@ -46,12 +46,14 @@ import {
   Activity,
   UserCheck,
   Search,
+  LogOut,
 } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../../../core/store/authStore';
 import { usePlanStore } from '../../../../core/store/planStore';
 import { useBranchStore } from '../../../../core/store/branchStore';
+import { usePlatformAuthStore } from '../../../../core/store/platformAuthStore';
 import { IGymTenant, TenantPlanTier, TenantSubscriptionStatus } from '../types';
 
 const INITIAL_TENANTS: IGymTenant[] = [
@@ -119,6 +121,7 @@ export const ListPage: React.FC = () => {
   const { login } = useAuthStore();
   const { setPlan } = usePlanStore();
   const { loadBranches } = useBranchStore();
+  const { platformUser, logoutPlatform } = usePlatformAuthStore();
 
   const [tenants, setTenants] = useState<IGymTenant[]>(() => {
     const saved = localStorage.getItem('gymflow_registered_tenants');
@@ -565,9 +568,57 @@ export const ListPage: React.FC = () => {
               <Plus className="h-4 w-4" />
               <span>Register New Gym Tenant</span>
             </Button>
+
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1.5 shadow-xs cursor-pointer"
+              onClick={() => {
+                logoutPlatform();
+                toast.info('Signed out of Platform Root Console.');
+                navigate('/platform-admin/login');
+              }}
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Lock Console</span>
+            </Button>
           </>
         }
       />
+
+      {/* Root Admin Active Session Banner */}
+      <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-indigo-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-white text-sm">Active Root Console Session</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold border border-emerald-500/30">
+                PRIMARY DB ROOT
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs">
+              Authenticated as <strong className="text-white">{platformUser?.email || 'platform@gymflow.io'}</strong> • Primary MongoDB Atlas Instance
+            </p>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            logoutPlatform();
+            toast.info('Root session terminated.');
+            navigate('/platform-admin/login');
+          }}
+          className="gap-1.5 text-xs border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-200 cursor-pointer"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span>Exit Root Session</span>
+        </Button>
+      </div>
 
       {/* Platform Owner KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

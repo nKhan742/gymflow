@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface IDepartmentItem {

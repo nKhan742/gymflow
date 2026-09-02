@@ -375,11 +375,12 @@ export class AuthService {
           firstName: defaultUser.firstName,
           lastName: defaultUser.lastName,
           role: defaultUser.role,
-          tenantId: defaultUser.tenantId,
+          tenantId: defaultUser.tenantId || 'primary_platform',
           dbName: 'gymflow_erp',
-          branchId: defaultUser.branchId,
+          branchId: defaultUser.branchId || 'branch_platform_hq',
           permissions: defaultUser.permissions || ['*'],
           isActive: defaultUser.isActive,
+          isPlatformAdmin: defaultUser.email === 'platform@gymflow.io' || defaultUser.email === 'admin@gymflow.io' || defaultUser.tenantId === 'primary_platform',
         };
 
         const payload: IJwtPayload = {
@@ -409,6 +410,18 @@ export class AuthService {
 
     // 3. Fallback accounts
     const defaultAccounts: Record<string, any> = {
+      'platform@gymflow.io': {
+        id: 'usr_platform_owner_root',
+        email: 'platform@gymflow.io',
+        firstName: 'Platform',
+        lastName: 'Owner',
+        role: 'SUPER_ADMIN',
+        tenantId: 'primary_platform',
+        branchId: 'branch_platform_hq',
+        permissions: ['*'],
+        isActive: true,
+        isPlatformAdmin: true,
+      },
       'admin@gymflow.io': {
         id: 'usr_enterprise_super_admin',
         email: 'admin@gymflow.io',
@@ -419,6 +432,7 @@ export class AuthService {
         branchId: 'branch_hq_01',
         permissions: ['*'],
         isActive: true,
+        isPlatformAdmin: true,
       },
       'trainer@gymflow.io': {
         id: 'usr_enterprise_trainer',

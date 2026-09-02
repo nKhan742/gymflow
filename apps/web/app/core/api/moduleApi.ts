@@ -1,4 +1,4 @@
-﻿import { STORAGE_KEYS } from '../constants/storageKeys';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface IDbRecord {
   id: string;

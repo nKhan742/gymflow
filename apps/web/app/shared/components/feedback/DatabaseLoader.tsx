@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Loader2, Database, Sparkles } from 'lucide-react';
 
 interface DatabaseLoaderProps {

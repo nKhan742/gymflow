@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useLoadingStore } from '../../../core/store/loadingStore';
 
 export const TopProgressBar: React.FC = () => {

@@ -1,4 +1,4 @@
-﻿export type TenantPlanTier = 'ESSENTIAL' | 'PROFESSIONAL' | 'ENTERPRISE';
+export type TenantPlanTier = 'ESSENTIAL' | 'PROFESSIONAL' | 'ENTERPRISE';
 export type TenantBillingCycle = 'MONTHLY' | 'ANNUAL';
 export type TenantSubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'STOPPED';
 
