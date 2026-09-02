@@ -57,7 +57,7 @@ export const CreatePage: React.FC = () => {
       preferredTimeSlot,
       assignedAgent,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

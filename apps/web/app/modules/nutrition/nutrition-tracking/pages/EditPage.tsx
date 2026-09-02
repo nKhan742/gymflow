@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       coachFeedback,
       reviewedByCoachName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'Main Facility',
       status: 'active',
     };
 

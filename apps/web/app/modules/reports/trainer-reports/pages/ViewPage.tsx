@@ -70,7 +70,7 @@ export const ViewPage: React.FC = () => {
       facilityNetShare: 2560,
       auditedBy: 'Dmitri Volkov (Head of Training)',
       status: 'APPROVED_FOR_PAYROLL',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -245,7 +245,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Report ID: <strong>{report.id || report._id}</strong></div>
-                <div>Campus: <strong>{report.branchName || 'PD Vihar'}</strong></div>
+                <div>Campus: <strong>{report.branchName || 'Main Facility'}</strong></div>
               </div>
             </div>
           </CardContent>

@@ -83,7 +83,7 @@ export const EditPage: React.FC = () => {
       dueDate: '2026-08-29',
       dueTime: '14:00 PM',
       status: 'IN_PROGRESS',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       checklist: [
         { id: '1', text: 'Prepare corporate membership proposal deck', done: true },
         { id: '2', text: 'Reserve private conference room for presentation', done: true },
@@ -143,7 +143,7 @@ export const EditPage: React.FC = () => {
       dueTime,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       checklist,
       notes,
       updatedAt: new Date().toISOString(),

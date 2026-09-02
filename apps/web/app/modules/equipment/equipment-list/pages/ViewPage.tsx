@@ -68,7 +68,7 @@ export const ViewPage: React.FC = () => {
       status: 'OPERATIONAL',
       condition: 'EXCELLENT',
       zoneName: 'Free Weights Floor',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       lastServiceDate: '2026-07-10',
       nextServiceDate: '2026-10-10',
       notes: 'Premium knurled bar hooks, safety spotter arms, band pegs calibrated monthly.',
@@ -264,7 +264,7 @@ export const ViewPage: React.FC = () => {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/40 border border-border/60">
               <span className="text-xs text-muted-foreground">Assigned Facility Campus:</span>
-              <span className="text-xs font-bold text-foreground">{equipment.branchName || 'PD Vihar'}</span>
+              <span className="text-xs font-bold text-foreground">{equipment.branchName || 'Main Facility'}</span>
             </div>
             <div className="flex justify-between items-center p-2.5 rounded-lg bg-muted/40 border border-border/60">
               <span className="text-xs text-muted-foreground">Gym Training Zone:</span>

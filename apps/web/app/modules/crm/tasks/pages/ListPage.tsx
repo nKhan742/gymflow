@@ -186,7 +186,7 @@ export const ListPage: React.FC = () => {
             <Calendar className="h-3 w-3 text-muted-foreground" /> {row.original.dueDate}
           </span>
           <span className="text-[10px] text-muted-foreground block">
-            {row.original.branchName || 'PD Vihar'}
+            {row.original.branchName || 'Main Facility'}
           </span>
         </div>
       ),

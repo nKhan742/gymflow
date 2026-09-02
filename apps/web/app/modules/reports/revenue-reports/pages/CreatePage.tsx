@@ -63,7 +63,7 @@ export const CreatePage: React.FC = () => {
       auditorAvatar: auditorAvatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

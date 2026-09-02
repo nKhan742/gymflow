@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       hourlyRate: 85,
       availabilityStatus: 'AVAILABLE',
       assignedZone: 'Free Weights Floor & Platform Bay',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       notes: 'Specializes in Olympic barbell lifts and hypertrophy periodization.',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -136,7 +136,7 @@ export const EditPage: React.FC = () => {
       availabilityStatus,
       assignedZone,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       updatedAt: new Date().toISOString(),
     };

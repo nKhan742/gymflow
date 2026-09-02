@@ -67,7 +67,7 @@ export const ViewPage: React.FC = () => {
       smsSegments: 2,
       estimatedCost: 42.6,
       scheduledAt: '2026-08-25 09:00',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });

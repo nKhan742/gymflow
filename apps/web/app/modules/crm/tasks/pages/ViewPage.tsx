@@ -64,7 +64,7 @@ export const ViewPage: React.FC = () => {
       dueDate: '2026-08-29',
       dueTime: '14:00 PM',
       status: 'IN_PROGRESS',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       checklist: [
         { id: '1', text: 'Prepare corporate membership proposal deck', done: true },
         { id: '2', text: 'Reserve private conference room for presentation', done: true },
@@ -201,7 +201,7 @@ export const ViewPage: React.FC = () => {
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5 text-emerald-500" /> {task.branchName || 'PD Vihar'}
+                    <Building2 className="w-3.5 h-3.5 text-emerald-500" /> {task.branchName || 'Main Facility'}
                   </span>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export const ViewPage: React.FC = () => {
             <User className="w-4 h-4 text-blue-500" />
           </div>
           <p className="text-sm font-bold text-foreground mt-1">{task.assignedTo}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{task.branchName || 'PD Vihar'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{task.branchName || 'Main Facility'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

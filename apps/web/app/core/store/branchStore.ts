@@ -44,10 +44,10 @@ export const DEFAULT_BRANCHES: IBranchItem[] = [
     id: '6a97eeff54ea155f8cc023cb',
     _id: '6a97eeff54ea155f8cc023cb',
     code: 'BR-274',
-    name: 'PD Vihar',
+    name: 'Main Facility',
     tagline: 'Flagship Headquarters & Performance Center',
-    phone: '8595725491',
-    email: 'ahmad@gmail.com',
+    phone: '',
+    email: '',
     sqFt: 20000,
     capacity: 450,
     address: {

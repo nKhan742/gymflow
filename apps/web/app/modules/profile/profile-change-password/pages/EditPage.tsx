@@ -83,11 +83,11 @@ export const EditPage: React.FC = () => {
       mfaMethod: 'AUTHENTICATOR_APP',
       activeSessionCount: 2,
       ipAddressLastLogin: '192.168.1.142 (Encrypted TLS v1.3)',
-      sessionDevice: 'Chrome on MacOS (PD Vihar)',
+      sessionDevice: 'Chrome on MacOS (Main Facility)',
       forceRotationDays: 90,
       securityHealthScore: 100,
       status: 'COMPLIANT',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -126,7 +126,7 @@ export const EditPage: React.FC = () => {
       forceRotationDays,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

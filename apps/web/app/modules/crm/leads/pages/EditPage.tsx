@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       estimatedLtv: 2388,
       preferredTimeSlot: 'EVENING_PEAK',
       assignedAgent: 'Alex Vance',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       notes: 'Interested in VIP Platinum membership with 1-on-1 personal training.',
       createdAt: '2026-08-27T10:00:00.000Z',
       updatedAt: '2026-08-27T10:00:00.000Z',
@@ -132,7 +132,7 @@ export const EditPage: React.FC = () => {
       preferredTimeSlot,
       assignedAgent,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       updatedAt: new Date().toISOString(),
     };

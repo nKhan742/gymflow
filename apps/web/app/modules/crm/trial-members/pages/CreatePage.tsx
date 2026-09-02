@@ -73,7 +73,7 @@ export const CreatePage: React.FC = () => {
       checkInCount: 0,
       sponsorTrainer,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       status: 'ACTIVE',
       amenitiesIncluded: ['Gym Floor', 'Locker Room', 'Group Studio', 'Recovery Lounge'],
       notes,

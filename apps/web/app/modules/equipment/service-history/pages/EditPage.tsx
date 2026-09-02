@@ -103,7 +103,7 @@ export const EditPage: React.FC = () => {
       conditionAfterService: 'EXCELLENT',
       warrantyClaimed: false,
       technicianNotes: 'Platform wood recoated with anti-slip grip; J-cups replaced with fresh UHMW liners.',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-07-10T10:00:00.000Z',
       updatedAt: '2026-07-10T10:00:00.000Z',
     });
@@ -166,7 +166,7 @@ export const EditPage: React.FC = () => {
       warrantyClaimed,
       technicianNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       timezone: 'America/New_York (EST - UTC-5)',
       dateFormat: 'MM/DD/YYYY',
       status: 'ACTIVE',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -131,7 +131,7 @@ export const EditPage: React.FC = () => {
       dateFormat,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

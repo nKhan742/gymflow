@@ -70,7 +70,7 @@ export const ViewPage: React.FC = () => {
       auditedBy: 'Julian Vance, Chief Financial Officer',
       auditorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
       status: 'BOARD_APPROVED',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -253,7 +253,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Statement ID: <strong>{report.id || report._id}</strong></div>
-                <div>Campus: <strong>{report.branchName || 'PD Vihar'}</strong></div>
+                <div>Campus: <strong>{report.branchName || 'Main Facility'}</strong></div>
               </div>
             </div>
           </CardContent>

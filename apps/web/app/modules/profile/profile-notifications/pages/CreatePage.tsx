@@ -69,7 +69,7 @@ export const CreatePage: React.FC = () => {
       enabledChannelsCount,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

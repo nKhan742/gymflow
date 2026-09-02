@@ -51,7 +51,7 @@ export const CreatePage: React.FC = () => {
       purpose,
       hostStaff,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       waiverSigned,
       status: 'CHECKED_IN',
       notes,

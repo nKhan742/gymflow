@@ -67,7 +67,7 @@ export const CreatePage: React.FC = () => {
       dueTime,
       status: 'PENDING',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       checklist,
       notes,
       createdAt: new Date().toISOString(),

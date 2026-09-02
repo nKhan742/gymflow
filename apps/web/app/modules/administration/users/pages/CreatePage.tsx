@@ -57,7 +57,7 @@ export const CreatePage: React.FC = () => {
       roleName: roleNameMap[role],
       department,
       branchId,
-      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'Main Facility',
       mfaEnabled,
       lastLoginAt: 'Invited (Pending First Sign-In)',
       ipAddress: 'Awaiting Authentication',

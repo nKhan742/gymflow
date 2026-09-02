@@ -71,7 +71,7 @@ export const ViewPage: React.FC = () => {
       messagesSent: 2840,
       readRate: 97.4,
       responseRate: 44.8,
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });

@@ -55,7 +55,7 @@ export const CreatePage: React.FC = () => {
       bookedCount: Number(bookedCount) || 0,
       status: 'SCHEDULED',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       description,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -311,7 +311,7 @@ export const CreatePage: React.FC = () => {
 
             <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
               <span className="text-xs text-muted-foreground">
-                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'PD Vihar'}</strong>
+                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'Main Facility'}</strong>
               </span>
               <div className="flex gap-2.5">
                 <Button variant="outline" type="button" onClick={() => navigate('/scheduling/calendar')}>

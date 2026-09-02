@@ -55,7 +55,7 @@ export const CreatePage: React.FC = () => {
       analystAvatar: analystAvatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

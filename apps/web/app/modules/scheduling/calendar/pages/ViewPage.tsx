@@ -69,7 +69,7 @@ export const ViewPage: React.FC = () => {
       bookedCount: 22,
       color: '#6366F1',
       status: 'SCHEDULED',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       description: 'High-intensity interval training focusing on functional power, kettlebells, and sprint drills.',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -183,7 +183,7 @@ export const ViewPage: React.FC = () => {
                   >
                     {event.status?.replace(/_/g, ' ')}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">• {event.branchName || 'PD Vihar'}</span>
+                  <span className="text-xs text-muted-foreground">• {event.branchName || 'Main Facility'}</span>
                 </div>
                 <h2 className="text-xl font-bold text-foreground">{event.eventTitle}</h2>
                 <p className="text-xs text-muted-foreground">
@@ -232,7 +232,7 @@ export const ViewPage: React.FC = () => {
             <MapPin className="w-4 h-4 text-rose-500" />
           </div>
           <p className="text-xs font-bold text-foreground mt-1 truncate">{event.zoneName}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{event.branchName || 'PD Vihar'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{event.branchName || 'Main Facility'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

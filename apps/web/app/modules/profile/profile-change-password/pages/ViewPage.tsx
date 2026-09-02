@@ -65,11 +65,11 @@ export const ViewPage: React.FC = () => {
       mfaMethod: 'AUTHENTICATOR_APP',
       activeSessionCount: 2,
       ipAddressLastLogin: '192.168.1.142 (Encrypted TLS v1.3)',
-      sessionDevice: 'Chrome on MacOS (PD Vihar)',
+      sessionDevice: 'Chrome on MacOS (Main Facility)',
       forceRotationDays: 90,
       securityHealthScore: 100,
       status: 'COMPLIANT',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -94,7 +94,7 @@ export const ViewPage: React.FC = () => {
     <PageContainer>
       <PageHeader
         title={`Security Audit: ${credential.accountHolderName}`}
-        subtitle={`${credential.accountEmail} • Policy Status: ${credential.status} • Scope: ${credential.branchName || 'PD Vihar'}`}
+        subtitle={`${credential.accountEmail} • Policy Status: ${credential.status} • Scope: ${credential.branchName || 'Main Facility'}`}
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/profile/profile-change-password')}>
@@ -246,7 +246,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Security ID: <strong>{credential.id || credential._id}</strong></div>
-                <div>Campus Scope: <strong>{credential.branchName || 'PD Vihar'}</strong></div>
+                <div>Campus Scope: <strong>{credential.branchName || 'Main Facility'}</strong></div>
               </div>
             </div>
           </CardContent>

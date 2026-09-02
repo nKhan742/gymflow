@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       smsSegments: 2,
       estimatedCost: 42.6,
       scheduledAt: '2026-08-25T09:00',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -123,7 +123,7 @@ export const EditPage: React.FC = () => {
       estimatedCost: parseFloat(estimatedCost),
       scheduledAt,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

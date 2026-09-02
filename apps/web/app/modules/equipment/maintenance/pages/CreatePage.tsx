@@ -87,7 +87,7 @@ export const CreatePage: React.FC = () => {
       checklist: checklists,
       resolutionNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

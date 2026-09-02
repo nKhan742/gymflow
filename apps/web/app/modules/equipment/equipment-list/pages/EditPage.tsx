@@ -89,7 +89,7 @@ export const EditPage: React.FC = () => {
       status: 'OPERATIONAL',
       condition: 'EXCELLENT',
       zoneName: 'Free Weights Floor',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       lastServiceDate: '2026-07-10',
       nextServiceDate: '2026-10-10',
       notes: 'Premium knurled bar hooks, safety spotter arms, band pegs calibrated monthly.',
@@ -136,7 +136,7 @@ export const EditPage: React.FC = () => {
       condition,
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       updatedAt: new Date().toISOString(),
     };

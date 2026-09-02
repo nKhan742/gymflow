@@ -67,7 +67,7 @@ export const CreatePage: React.FC = () => {
       readRate: 94.2,
       responseRate: 38.6,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

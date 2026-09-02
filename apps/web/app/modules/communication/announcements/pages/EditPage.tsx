@@ -83,7 +83,7 @@ export const EditPage: React.FC = () => {
       expiryDate: '2026-09-10',
       authorName: 'Executive Management',
       authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       viewsCount: 3840,
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -121,7 +121,7 @@ export const EditPage: React.FC = () => {
       expiryDate,
       authorName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

@@ -27,7 +27,7 @@ export const CreatePage: React.FC = () => {
   const [statusCode, setStatusCode] = useState(200);
   const [ipAddress, setIpAddress] = useState('192.168.1.142 (Downtown LAN)');
   const [deviceAgent, setDeviceAgent] = useState('Chrome 128 / macOS Sequoia 15.0');
-  const [locationCampus, setLocationCampus] = useState('PD Vihar');
+  const [locationCampus, setLocationCampus] = useState('Main Facility');
   const [severity, setSeverity] = useState<IActivityLogModel['severity']>('INFO');
   const [metadataPayload, setMetadataPayload] = useState('{\n  "action": "policy_enforce",\n  "target": "all_campuses",\n  "tls": "TLS_1_3"\n}');
 

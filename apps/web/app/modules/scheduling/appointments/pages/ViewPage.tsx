@@ -70,7 +70,7 @@ export const ViewPage: React.FC = () => {
       paymentStatus: 'PAID',
       status: 'CONFIRMED',
       zoneName: 'Free Weights Platform Bay',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       clientGoals: 'Overhead squat barbell mobility, posterior chain hypertrophy.',
       coachNotes: 'Warmup sets with PVC pipe before heavy sets.',
       createdAt: '2026-08-25T08:00:00.000Z',
@@ -206,7 +206,7 @@ export const ViewPage: React.FC = () => {
             </Avatar>
             <div className="space-y-1">
               <h3 className="text-base font-bold text-foreground">{appointment.trainerName}</h3>
-              <p className="text-xs text-muted-foreground">{appointment.branchName || 'PD Vihar'}</p>
+              <p className="text-xs text-muted-foreground">{appointment.branchName || 'Main Facility'}</p>
               <Badge variant="outline" className="text-[9px] font-bold text-primary border-primary/30">
                 Certified Master Coach
               </Badge>
@@ -241,7 +241,7 @@ export const ViewPage: React.FC = () => {
             <MapPin className="w-4 h-4 text-rose-500" />
           </div>
           <p className="text-xs font-bold text-foreground mt-1 truncate">{appointment.zoneName}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{appointment.branchName || 'PD Vihar'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{appointment.branchName || 'Main Facility'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

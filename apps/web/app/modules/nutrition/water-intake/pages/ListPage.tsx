@@ -212,7 +212,7 @@ export const ListPage: React.FC = () => {
       cell: ({ row }) => (
         <Badge variant="outline" className="gap-1 text-[11px] font-medium border-border/80">
           <Building2 className="w-3 h-3 text-muted-foreground" />
-          {row.getValue('branchName') || 'PD Vihar'}
+          {row.getValue('branchName') || 'Main Facility'}
         </Badge>
       ),
     },

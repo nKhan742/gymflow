@@ -69,7 +69,7 @@ export const ViewPage: React.FC = () => {
       rewardValue: '1 Month Free Dues ($89 Value)',
       rewardStatus: 'APPROVED_ISSUED',
       status: 'CONVERTED_MEMBER',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       notes: 'Enrolled in Gold 12-Month plan after touring with Rachel.',
       createdAt: '2026-08-20T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
@@ -266,7 +266,7 @@ export const ViewPage: React.FC = () => {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">CAMPUS LOCATION</span>
             <Building2 className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-sm font-bold text-foreground mt-1 truncate">{referral.branchName || 'PD Vihar'}</p>
+          <p className="text-sm font-bold text-foreground mt-1 truncate">{referral.branchName || 'Main Facility'}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Primary Facility</p>
         </Card>
       </div>

@@ -210,7 +210,7 @@ export const ListPage: React.FC = () => {
                 </div>
                 <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5 text-primary" />
-                  {profile?.jobTitle || 'Facility Operator'} • <strong className="text-foreground">{profile?.department || 'Operations'}</strong> • {profile?.branchName || 'PD Vihar'}
+                  {profile?.jobTitle || 'Facility Operator'} • <strong className="text-foreground">{profile?.department || 'Operations'}</strong> • {profile?.branchName || 'Main Facility'}
                 </p>
               </div>
             </div>

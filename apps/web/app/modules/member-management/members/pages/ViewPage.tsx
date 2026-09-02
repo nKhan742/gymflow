@@ -140,7 +140,7 @@ export const ViewPage: React.FC = () => {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>Branch:</span>
           <span className="font-mono text-foreground font-semibold px-2 py-0.5 rounded bg-muted">
-            PD Vihar
+            Main Facility
           </span>
         </div>
       </div>

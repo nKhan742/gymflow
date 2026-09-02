@@ -58,7 +58,7 @@ export const CreatePage: React.FC = () => {
       condition,
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       lastServiceDate: purchaseDate,
       nextServiceDate: '2026-11-30',
       notes,

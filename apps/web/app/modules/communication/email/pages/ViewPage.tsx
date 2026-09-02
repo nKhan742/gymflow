@@ -71,7 +71,7 @@ export const ViewPage: React.FC = () => {
       clickRate: 22.8,
       scheduledDate: '2026-08-25',
       htmlBody: `Dear GymFlow Athlete,\n\nWe are thrilled to announce our official September Masterclass Series!\n\nHighlights for this month:\n• Nordic Incline Platforms now operational in Free Weights Bay 2\n• Hyrox Simulation Workshops every Saturday at 08:30 AM\n• Complimentary InBody 770 composition scans for all Black Card members\n\nClick below to reserve your workshop slot before registration caps.\n\nTrain with purpose,\nGymFlow Coaching Staff`,
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });

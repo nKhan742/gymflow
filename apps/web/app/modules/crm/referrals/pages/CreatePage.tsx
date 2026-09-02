@@ -60,7 +60,7 @@ export const CreatePage: React.FC = () => {
       rewardStatus: 'PENDING_QUALIFICATION',
       status: 'INVITED',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

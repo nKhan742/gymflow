@@ -67,7 +67,7 @@ export const ViewPage: React.FC = () => {
       operationsAnalyst: 'Devon Ray (IoT Operations Specialist)',
       analystAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
       status: 'NORMAL_OPERATIONS',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -242,7 +242,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Audit ID: <strong>{analysis.id || analysis._id}</strong></div>
-                <div>Campus Scope: <strong>{analysis.branchName || 'PD Vihar'}</strong></div>
+                <div>Campus Scope: <strong>{analysis.branchName || 'Main Facility'}</strong></div>
               </div>
             </div>
           </CardContent>

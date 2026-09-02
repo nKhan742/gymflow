@@ -106,7 +106,7 @@ export const EditPage: React.FC = () => {
         { id: '4', text: 'Apply synthetic grease and test load glide', done: false },
       ],
       resolutionNotes: 'Bearings delivered; technician on-site Saturday 08:00 AM.',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
     });
@@ -176,7 +176,7 @@ export const EditPage: React.FC = () => {
       checklist: checklists,
       resolutionNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

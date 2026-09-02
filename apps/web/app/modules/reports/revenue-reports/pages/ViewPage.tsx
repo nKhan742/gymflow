@@ -71,7 +71,7 @@ export const ViewPage: React.FC = () => {
       auditedBy: 'Rachel Sterling, CPA',
       auditorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
       status: 'FINALIZED',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -154,7 +154,7 @@ export const ViewPage: React.FC = () => {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">CAMPUS BRANCH</span>
             <Building2 className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-base font-bold text-foreground mt-1 truncate">{report.branchName || 'PD Vihar'}</p>
+          <p className="text-base font-bold text-foreground mt-1 truncate">{report.branchName || 'Main Facility'}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Primary Campus</p>
         </Card>
       </div>

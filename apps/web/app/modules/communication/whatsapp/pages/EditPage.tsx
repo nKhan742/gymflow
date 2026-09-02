@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       messagesSent: 2840,
       readRate: 97.4,
       responseRate: 44.8,
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -137,7 +137,7 @@ export const EditPage: React.FC = () => {
       metaApprovalStatus,
       qualityRating,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       updatedAt: new Date().toISOString(),
     };
 

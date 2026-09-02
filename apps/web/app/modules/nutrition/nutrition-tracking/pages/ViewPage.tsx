@@ -104,7 +104,7 @@ export const ViewPage: React.FC = () => {
         coachFeedback: 'Exceptional bio-adherence. Caloric intake matched energy expenditure perfectly.',
         reviewedByCoachName: 'Dr. Marcus Vance, PhD, RD',
         branchId: 'ALL',
-        branchName: 'PD Vihar',
+        branchName: 'Main Facility',
         status: 'active',
       };
       setLog(fallback);
@@ -203,7 +203,7 @@ export const ViewPage: React.FC = () => {
                 <div className="text-xs text-muted-foreground flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5" /> {log.logDate}
                   <span>•</span>
-                  <Building2 className="w-3.5 h-3.5" /> {log.branchName || 'PD Vihar'}
+                  <Building2 className="w-3.5 h-3.5" /> {log.branchName || 'Main Facility'}
                 </div>
               </div>
             </div>

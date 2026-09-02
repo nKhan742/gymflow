@@ -93,7 +93,7 @@ export const EditPage: React.FC = () => {
       rewardValue: '1 Month Free Dues ($89 Value)',
       rewardStatus: 'APPROVED_ISSUED',
       status: 'CONVERTED_MEMBER',
-      branchName: 'PD Vihar',
+      branchName: 'Main Facility',
       notes: 'Enrolled in Gold 12-Month plan after touring with Rachel.',
       createdAt: '2026-08-20T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       rewardStatus,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Main Facility',
       notes,
       updatedAt: new Date().toISOString(),
     };
