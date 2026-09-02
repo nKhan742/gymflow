@@ -32,7 +32,7 @@ export const CreatePage: React.FC = () => {
   const [status, setStatus] = useState<IEquipment['status']>('OPERATIONAL');
   const [condition, setCondition] = useState<IEquipment['condition']>('EXCELLENT');
   const [zoneName, setZoneName] = useState('Free Weights Floor');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +58,7 @@ export const CreatePage: React.FC = () => {
       condition,
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       lastServiceDate: purchaseDate,
       nextServiceDate: '2026-11-30',
       notes,

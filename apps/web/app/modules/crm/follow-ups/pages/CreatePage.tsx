@@ -28,7 +28,7 @@ export const CreatePage: React.FC = () => {
   const [scheduledTime, setScheduledTime] = useState('11:00 AM');
   const [priority, setPriority] = useState<IFollowUp['priority']>('URGENT');
   const [assignedRep, setAssignedRep] = useState('Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +50,7 @@ export const CreatePage: React.FC = () => {
       priority,
       assignedRep,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       outcome: 'PENDING',
       notes,
       createdAt: new Date().toISOString(),

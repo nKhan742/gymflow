@@ -26,7 +26,7 @@ export const CreatePage: React.FC = () => {
   const [priority, setPriority] = useState<ITask['priority']>('HIGH');
   const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
   const [dueTime] = useState('17:00 PM');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   // Dynamic Checklist
@@ -67,7 +67,7 @@ export const CreatePage: React.FC = () => {
       dueTime,
       status: 'PENDING',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       checklist,
       notes,
       createdAt: new Date().toISOString(),

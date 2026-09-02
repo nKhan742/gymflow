@@ -33,7 +33,7 @@ export const EditPage: React.FC = () => {
   const [auditedBy, setAuditedBy] = useState('');
   const [auditorAvatar, setAuditorAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IRevenueReport['status']>('FINALIZED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // Calculations
   const grossRevenue = membershipRevenue + ptRevenue + posRetailRevenue + amenityRevenue;
@@ -94,7 +94,7 @@ export const EditPage: React.FC = () => {
       auditedBy: 'Rachel Sterling, CPA',
       auditorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
       status: 'FINALIZED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       auditorAvatar,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

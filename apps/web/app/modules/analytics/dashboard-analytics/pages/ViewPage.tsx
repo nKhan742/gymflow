@@ -62,12 +62,12 @@ export const ViewPage: React.FC = () => {
       activeMembersCount: 3230,
       mrrVelocity: 391200,
       avgWorkoutDwellMinutes: 64,
-      topPerformingBranch: 'Downtown Flagship (94% Fill)',
+      topPerformingBranch: 'PD Vihar (94% Fill)',
       systemHealthScore: 99.4,
       recordedBy: 'Dr. Aris Thorne (Chief Analytics Officer)',
       controllerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       status: 'ACTIVE_TELEMETRY',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-29T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
     });
@@ -248,7 +248,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Snapshot ID: <strong>{snapshot.id || snapshot._id}</strong></div>
-                <div>Campus Scope: <strong>{snapshot.branchName || 'Downtown Flagship'}</strong></div>
+                <div>Campus Scope: <strong>{snapshot.branchName || 'PD Vihar'}</strong></div>
               </div>
             </div>
           </CardContent>

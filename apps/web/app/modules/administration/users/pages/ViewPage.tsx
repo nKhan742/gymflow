@@ -21,7 +21,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'SUPER_ADMIN',
     roleName: 'Super Administrator (Global)',
     department: 'Executive Operations',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '2 mins ago (Chrome on MacOS)',
     ipAddress: '192.168.1.142 (Encrypted TLS v1.3)',
@@ -40,7 +40,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'FACILITY_ADMIN',
     roleName: 'Facility Administrator',
     department: 'Personal Training & Fitness',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '18 mins ago (iPad OS / Safari)',
     ipAddress: '172.56.21.90 (Encrypted TLS v1.3)',
@@ -59,7 +59,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'BRANCH_MANAGER',
     roleName: 'Branch General Manager',
     department: 'Member Experience',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '1 hour ago (Windows 11 / Edge)',
     ipAddress: '192.168.1.189 (Encrypted TLS v1.3)',
@@ -181,7 +181,7 @@ export const ViewPage: React.FC = () => {
                 </div>
                 <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5 text-primary" />
-                  {user?.department} • <strong className="text-foreground">{user?.branchName || 'Downtown Flagship'}</strong>
+                  {user?.department} • <strong className="text-foreground">{user?.branchName || 'PD Vihar'}</strong>
                 </p>
               </div>
             </div>

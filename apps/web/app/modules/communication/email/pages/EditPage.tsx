@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [status, setStatus] = useState<IEmailCampaign['status']>('SENT');
   const [scheduledDate, setScheduledDate] = useState('');
   const [htmlBody, setHtmlBody] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadCampaign();
@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       clickRate: 22.8,
       scheduledDate: '2026-08-25',
       htmlBody: `Dear GymFlow Athlete,\n\nWe are thrilled to announce our official September Masterclass Series!`,
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -127,7 +127,7 @@ export const EditPage: React.FC = () => {
       scheduledDate,
       htmlBody,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

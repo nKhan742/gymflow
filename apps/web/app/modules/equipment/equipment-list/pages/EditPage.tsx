@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [status, setStatus] = useState<IEquipment['status']>('OPERATIONAL');
   const [condition, setCondition] = useState<IEquipment['condition']>('EXCELLENT');
   const [zoneName, setZoneName] = useState('Free Weights Floor');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export const EditPage: React.FC = () => {
       status: 'OPERATIONAL',
       condition: 'EXCELLENT',
       zoneName: 'Free Weights Floor',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       lastServiceDate: '2026-07-10',
       nextServiceDate: '2026-10-10',
       notes: 'Premium knurled bar hooks, safety spotter arms, band pegs calibrated monthly.',
@@ -136,7 +136,7 @@ export const EditPage: React.FC = () => {
       condition,
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       updatedAt: new Date().toISOString(),
     };

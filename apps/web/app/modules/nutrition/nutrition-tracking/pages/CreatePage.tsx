@@ -106,7 +106,7 @@ export const CreatePage: React.FC = () => {
       coachFeedback,
       reviewedByCoachName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'PD Vihar',
       status: 'active',
     };
 

@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [netPromoterScore, setNetPromoterScore] = useState(0);
   const [performanceTier, setPerformanceTier] = useState<ITrainerAnalyticsModel['performanceTier']>('ELITE_MASTER');
   const [status, setStatus] = useState<ITrainerAnalyticsModel['status']>('ACTIVE_ROSTER');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadModel();
@@ -84,7 +84,7 @@ export const EditPage: React.FC = () => {
       netPromoterScore: 94,
       performanceTier: 'ELITE_MASTER',
       status: 'ACTIVE_ROSTER',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -123,7 +123,7 @@ export const EditPage: React.FC = () => {
       performanceTier,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

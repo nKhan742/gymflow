@@ -31,7 +31,7 @@ export const EditPage: React.FC = () => {
   const [checkInTime, setCheckInTime] = useState('09:45 AM');
   const [checkOutTime, setCheckOutTime] = useState('');
   const [hostStaff, setHostStaff] = useState('Sarah Jenkins');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [waiverSigned, setWaiverSigned] = useState(true);
   const [status, setStatus] = useState<IVisitor['status']>('CHECKED_IN');
   const [notes, setNotes] = useState('');
@@ -84,7 +84,7 @@ export const EditPage: React.FC = () => {
       checkInTime: '09:45 AM',
       purpose: 'CAMPUS_TOUR',
       hostStaff: 'Sarah Jenkins',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       waiverSigned: true,
       status: 'CHECKED_IN',
       notes: 'Touring free weights and functional turf zone.',
@@ -127,7 +127,7 @@ export const EditPage: React.FC = () => {
       checkOutTime,
       hostStaff,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       waiverSigned,
       status,
       notes,

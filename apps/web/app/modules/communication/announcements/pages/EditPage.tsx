@@ -31,7 +31,7 @@ export const EditPage: React.FC = () => {
   const [publishDate, setPublishDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [authorName, setAuthorName] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadAnnouncement();
@@ -83,7 +83,7 @@ export const EditPage: React.FC = () => {
       expiryDate: '2026-09-10',
       authorName: 'Executive Management',
       authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       viewsCount: 3840,
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -121,7 +121,7 @@ export const EditPage: React.FC = () => {
       expiryDate,
       authorName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

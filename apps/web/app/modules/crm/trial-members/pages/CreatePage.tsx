@@ -30,7 +30,7 @@ export const CreatePage: React.FC = () => {
   );
   const [maxAllowedCheckIns, setMaxAllowedCheckIns] = useState('3');
   const [sponsorTrainer, setSponsorTrainer] = useState('Coach Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handlePassTypeChange = (type: ITrialMember['passType']) => {
@@ -73,7 +73,7 @@ export const CreatePage: React.FC = () => {
       checkInCount: 0,
       sponsorTrainer,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       status: 'ACTIVE',
       amenitiesIncluded: ['Gym Floor', 'Locker Room', 'Group Studio', 'Recovery Lounge'],
       notes,

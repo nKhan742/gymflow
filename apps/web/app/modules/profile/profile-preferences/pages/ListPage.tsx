@@ -34,7 +34,7 @@ export const ListPage: React.FC = () => {
   const [timezone, setTimezone] = useState('America/New_York (EST - UTC-5)');
   const [dateFormat, setDateFormat] = useState<IAppPreferenceModel['dateFormat']>('MM/DD/YYYY');
   const [status, setStatus] = useState<IAppPreferenceModel['status']>('ACTIVE');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     try {

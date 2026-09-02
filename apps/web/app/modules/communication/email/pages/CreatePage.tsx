@@ -41,7 +41,7 @@ Click below to reserve your workshop slot before registration caps.
 
 Train with purpose,
 GymFlow Coaching Staff`);
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +68,7 @@ GymFlow Coaching Staff`);
       scheduledDate,
       htmlBody,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

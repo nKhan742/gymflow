@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [endDate, setEndDate] = useState('2026-09-01');
   const [status, setStatus] = useState<ICampaign['status']>('ACTIVE');
   const [discountOffer, setDiscountOffer] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       leadsGenerated: 142,
       conversionsCount: 38,
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       discountOffer: '20% Off 12-Month Gold Pass',
       notes: 'High conversion rate on Instagram story reels targeting 5-mile geo radius.',
       createdAt: '2026-08-01T08:00:00.000Z',
@@ -133,7 +133,7 @@ export const EditPage: React.FC = () => {
       endDate,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       discountOffer,
       notes,
       updatedAt: new Date().toISOString(),

@@ -332,7 +332,7 @@ export const ViewPage: React.FC = () => {
                 <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase font-semibold flex items-center md:justify-end gap-1">
                   <Building2 className="w-3 h-3 text-primary" /> Assigned Facility
                 </div>
-                <div className="text-xs font-bold text-foreground truncate">{staff.branchName || 'Downtown Flagship'}</div>
+                <div className="text-xs font-bold text-foreground truncate">{staff.branchName || 'PD Vihar'}</div>
                 <div className="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Turnstile RFID: Verified</div>
               </div>
             </div>
@@ -444,7 +444,7 @@ export const ViewPage: React.FC = () => {
                           </Badge>
                         </td>
                         <td className="py-3">
-                          <div className="text-foreground font-medium">Downtown Flagship</div>
+                          <div className="text-foreground font-medium">PD Vihar</div>
                           <div className="text-[10px] text-muted-foreground">Level 2 Strength Bay</div>
                         </td>
                         <td className="py-3">
@@ -729,7 +729,7 @@ export const ViewPage: React.FC = () => {
                     <span className="text-muted-foreground flex items-center gap-2">
                       <Building2 className="w-4 h-4" /> Assigned Gym
                     </span>
-                    <span className="font-semibold text-foreground">Downtown Flagship</span>
+                    <span className="font-semibold text-foreground">PD Vihar</span>
                   </div>
                 </CardContent>
               </Card>

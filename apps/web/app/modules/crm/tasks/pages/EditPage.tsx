@@ -29,7 +29,7 @@ export const EditPage: React.FC = () => {
   const [dueDate, setDueDate] = useState('2026-08-29');
   const [dueTime, setDueTime] = useState('14:00 PM');
   const [status, setStatus] = useState<ITask['status']>('IN_PROGRESS');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   // Dynamic Checklist
@@ -83,7 +83,7 @@ export const EditPage: React.FC = () => {
       dueDate: '2026-08-29',
       dueTime: '14:00 PM',
       status: 'IN_PROGRESS',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       checklist: [
         { id: '1', text: 'Prepare corporate membership proposal deck', done: true },
         { id: '2', text: 'Reserve private conference room for presentation', done: true },
@@ -143,7 +143,7 @@ export const EditPage: React.FC = () => {
       dueTime,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       checklist,
       notes,
       updatedAt: new Date().toISOString(),

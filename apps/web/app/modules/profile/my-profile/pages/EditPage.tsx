@@ -36,7 +36,7 @@ export const EditPage: React.FC = () => {
   const [bio, setBio] = useState('');
   const [certificationsInput, setCertificationsInput] = useState('');
   const [status, setStatus] = useState<IMyProfileModel['status']>('ACTIVE');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadProfile();
@@ -93,7 +93,7 @@ export const EditPage: React.FC = () => {
       certifications: ['CPR/AED Certified', 'OSHA Facility Safety', 'NASM Club Admin'],
       profileCompletionScore: 100,
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -145,7 +145,7 @@ export const EditPage: React.FC = () => {
       certifications: certList.length > 0 ? certList : ['CPR/AED Certified'],
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

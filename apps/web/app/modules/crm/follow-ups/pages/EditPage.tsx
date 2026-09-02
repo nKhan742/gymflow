@@ -30,7 +30,7 @@ export const EditPage: React.FC = () => {
   const [scheduledTime, setScheduledTime] = useState('11:00 AM');
   const [priority, setPriority] = useState<IFollowUp['priority']>('URGENT');
   const [assignedRep, setAssignedRep] = useState('Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [outcome, setOutcome] = useState<IFollowUp['outcome']>('PENDING');
   const [notes, setNotes] = useState('');
 
@@ -82,7 +82,7 @@ export const EditPage: React.FC = () => {
       scheduledTime: '11:00 AM',
       priority: 'URGENT',
       assignedRep: 'Alex Vance',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       outcome: 'PENDING',
       notes: 'Follow up on yesterday trial class experience. Offer 15% discount for annual signup.',
       createdAt: '2026-08-29T08:00:00.000Z',
@@ -121,7 +121,7 @@ export const EditPage: React.FC = () => {
       priority,
       assignedRep,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       outcome,
       notes,
       updatedAt: new Date().toISOString(),

@@ -71,7 +71,7 @@ export const ViewPage: React.FC = () => {
       quietHoursEnd: '07:00',
       enabledChannelsCount: 4,
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -96,7 +96,7 @@ export const ViewPage: React.FC = () => {
     <PageContainer>
       <PageHeader
         title={`Notification Preferences: ${preference.userName}`}
-        subtitle={`${preference.userEmail} • Dispatch Status: ${preference.status} • Scope: ${preference.branchName || 'Downtown Flagship'}`}
+        subtitle={`${preference.userEmail} • Dispatch Status: ${preference.status} • Scope: ${preference.branchName || 'PD Vihar'}`}
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/profile/profile-notifications')}>
@@ -246,7 +246,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Preference ID: <strong>{preference.id || preference._id}</strong></div>
-                <div>Campus Scope: <strong>{preference.branchName || 'Downtown Flagship'}</strong></div>
+                <div>Campus Scope: <strong>{preference.branchName || 'PD Vihar'}</strong></div>
               </div>
             </div>
           </CardContent>

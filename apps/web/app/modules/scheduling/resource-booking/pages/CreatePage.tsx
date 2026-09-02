@@ -40,7 +40,7 @@ export const CreatePage: React.FC = () => {
   const [hourlyRate, setHourlyRate] = useState(45);
   const [paymentStatus, setPaymentStatus] = useState<IResourceBooking['paymentStatus']>('PAID');
   const [zoneLocation, setZoneLocation] = useState('Racket Sports Pavilion - Court Level');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([
     'Pro Rackets & Balls',
     'Fresh Linen Towel Service',
@@ -82,7 +82,7 @@ export const CreatePage: React.FC = () => {
       status: 'RESERVED',
       zoneLocation,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       amenitiesIncluded: selectedAmenities,
       specialRequests,
       createdAt: new Date().toISOString(),
@@ -353,7 +353,7 @@ export const CreatePage: React.FC = () => {
 
             <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
               <span className="text-xs text-muted-foreground">
-                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'Downtown Flagship'}</strong>
+                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'PD Vihar'}</strong>
               </span>
               <div className="flex gap-2.5">
                 <Button variant="outline" type="button" onClick={() => navigate('/scheduling/resource-booking')}>

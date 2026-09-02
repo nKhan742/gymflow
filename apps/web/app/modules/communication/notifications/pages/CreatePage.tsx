@@ -28,7 +28,7 @@ export const CreatePage: React.FC = () => {
   const [channel, setChannel] = useState<INotification['channel']>('IN_APP_PUSH');
   const [scheduledFor, setScheduledFor] = useState(new Date().toISOString().slice(0, 16));
   const [authorName, setAuthorName] = useState('General Operations Desk');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ export const CreatePage: React.FC = () => {
       authorName,
       authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

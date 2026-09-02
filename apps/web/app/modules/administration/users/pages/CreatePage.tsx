@@ -25,7 +25,7 @@ export const CreatePage: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [role, setRole] = useState<IUserModel['role']>('FACILITY_ADMIN');
   const [department, setDepartment] = useState('Operations & Management');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const [status, setStatus] = useState<IUserModel['status']>('ACTIVE');
   const [initialPassword, setInitialPassword] = useState('GymFlow@2026!');
@@ -56,7 +56,7 @@ export const CreatePage: React.FC = () => {
       roleName: roleNameMap[role],
       department,
       branchId,
-      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'PD Vihar',
       mfaEnabled,
       lastLoginAt: 'Invited (Pending First Sign-In)',
       ipAddress: 'Awaiting Authentication',

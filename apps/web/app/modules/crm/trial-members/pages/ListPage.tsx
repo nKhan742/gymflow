@@ -220,7 +220,7 @@ export const ListPage: React.FC = () => {
             {row.original.startDate} → {row.original.endDate}
           </span>
           <span className="text-[10px] text-muted-foreground block">
-            {row.original.branchName || 'Downtown Flagship'}
+            {row.original.branchName || 'PD Vihar'}
           </span>
         </div>
       ),

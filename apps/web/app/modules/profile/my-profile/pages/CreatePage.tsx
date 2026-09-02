@@ -34,7 +34,7 @@ export const CreatePage: React.FC = () => {
   const [bio, setBio] = useState('Seasoned fitness facility operator specializing in biometric turnstile infrastructure, campus maintenance, and cross-functional team leadership.');
   const [certificationsInput, setCertificationsInput] = useState('CPR/AED Certified, OSHA Compliance, NASM Facility Safety');
   const [status, setStatus] = useState<IMyProfileModel['status']>('ACTIVE');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +67,7 @@ export const CreatePage: React.FC = () => {
       profileCompletionScore: 98,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

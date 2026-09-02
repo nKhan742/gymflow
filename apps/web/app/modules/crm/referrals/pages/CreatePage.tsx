@@ -34,7 +34,7 @@ export const CreatePage: React.FC = () => {
   const [referralCode, setReferralCode] = useState(`REF-${Math.floor(1000 + Math.random() * 9000)}`);
   const [rewardType, setRewardType] = useState<IReferral['rewardType']>('FREE_MONTH');
   const [rewardValue, setRewardValue] = useState('1 Month Free Membership ($89 value)');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +60,7 @@ export const CreatePage: React.FC = () => {
       rewardStatus: 'PENDING_QUALIFICATION',
       status: 'INVITED',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

@@ -30,7 +30,7 @@ export const CreatePage: React.FC = () => {
   const [targetBudgetMonthly, setTargetBudgetMonthly] = useState('149');
   const [preferredTimeSlot, setPreferredTimeSlot] = useState<ILead['preferredTimeSlot']>('EVENING_PEAK');
   const [assignedAgent, setAssignedAgent] = useState('Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ export const CreatePage: React.FC = () => {
       preferredTimeSlot,
       assignedAgent,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

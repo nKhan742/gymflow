@@ -38,7 +38,7 @@ export const EditPage: React.FC = () => {
   const [rewardValue, setRewardValue] = useState('1 Month Free Dues ($89 Value)');
   const [rewardStatus, setRewardStatus] = useState<IReferral['rewardStatus']>('APPROVED_ISSUED');
   const [status, setStatus] = useState<IReferral['status']>('CONVERTED_MEMBER');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export const EditPage: React.FC = () => {
       rewardValue: '1 Month Free Dues ($89 Value)',
       rewardStatus: 'APPROVED_ISSUED',
       status: 'CONVERTED_MEMBER',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       notes: 'Enrolled in Gold 12-Month plan after touring with Rachel.',
       createdAt: '2026-08-20T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       rewardStatus,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       updatedAt: new Date().toISOString(),
     };

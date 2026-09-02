@@ -79,7 +79,7 @@ export const ViewPage: React.FC = () => {
         { id: '4', text: 'Apply high-viscosity synthetic lithium grease and test load glide', done: false },
       ],
       resolutionNotes: 'Bearings delivered; technician on-site Saturday 08:00 AM. Requires 200kg load test before clearing.',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
     });
@@ -244,7 +244,7 @@ export const ViewPage: React.FC = () => {
             <Calendar className="w-4 h-4 text-blue-500" />
           </div>
           <p className="text-sm font-bold text-foreground mt-1">{ticket.scheduledDate}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{ticket.branchName || 'Downtown Flagship'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{ticket.branchName || 'PD Vihar'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

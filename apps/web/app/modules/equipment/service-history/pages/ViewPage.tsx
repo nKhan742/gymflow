@@ -74,7 +74,7 @@ export const ViewPage: React.FC = () => {
       conditionAfterService: 'EXCELLENT',
       warrantyClaimed: false,
       technicianNotes: 'Platform wood recoated with anti-slip grip; J-cups replaced with fresh UHMW liners. Machine passed 400kg barbell drop test.',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-07-10T10:00:00.000Z',
       updatedAt: '2026-07-10T10:00:00.000Z',
     });
@@ -157,7 +157,7 @@ export const ViewPage: React.FC = () => {
                   </Badge>
                 </div>
                 <h2 className="text-lg font-bold text-foreground">{log.equipmentName}</h2>
-                <p className="text-xs text-muted-foreground">{log.zoneName} • {log.branchName || 'Downtown Flagship'}</p>
+                <p className="text-xs text-muted-foreground">{log.zoneName} • {log.branchName || 'PD Vihar'}</p>
               </div>
             </div>
 

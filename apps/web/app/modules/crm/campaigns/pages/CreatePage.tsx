@@ -28,7 +28,7 @@ export const CreatePage: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [endDate, setEndDate] = useState(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
   const [discountOffer, setDiscountOffer] = useState('20% Off 12-Month Gold Pass + Zero Initiation');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +53,7 @@ export const CreatePage: React.FC = () => {
       conversionsCount: 0,
       status: 'ACTIVE',
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       discountOffer,
       notes,
       createdAt: new Date().toISOString(),

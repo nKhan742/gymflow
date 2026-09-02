@@ -124,7 +124,7 @@ export const EditPage: React.FC = () => {
       potassiumMg: Number(potassiumMg) || 600,
       magnesiumMg: Number(magnesiumMg) || 300,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '')?.replace('🌐 ', '') || 'PD Vihar',
       status: 'active',
       notes,
     };

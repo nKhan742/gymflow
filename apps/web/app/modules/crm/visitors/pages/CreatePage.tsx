@@ -27,7 +27,7 @@ export const CreatePage: React.FC = () => {
   const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
   const [checkInTime, setCheckInTime] = useState('10:00 AM');
   const [hostStaff, setHostStaff] = useState('Sarah Jenkins');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [waiverSigned, setWaiverSigned] = useState(true);
   const [notes, setNotes] = useState('');
 
@@ -51,7 +51,7 @@ export const CreatePage: React.FC = () => {
       purpose,
       hostStaff,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       waiverSigned,
       status: 'CHECKED_IN',
       notes,

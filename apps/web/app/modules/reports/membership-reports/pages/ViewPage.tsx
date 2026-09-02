@@ -69,7 +69,7 @@ export const ViewPage: React.FC = () => {
       auditedBy: 'Sarah Jenkins (Head of CX)',
       auditorAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
       status: 'CERTIFIED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -250,7 +250,7 @@ export const ViewPage: React.FC = () => {
               </p>
               <div className="pt-2 border-t border-border space-y-1 font-mono text-[10px]">
                 <div>Report ID: <strong>{report.id || report._id}</strong></div>
-                <div>Campus: <strong>{report.branchName || 'Downtown Flagship'}</strong></div>
+                <div>Campus: <strong>{report.branchName || 'PD Vihar'}</strong></div>
               </div>
             </div>
           </CardContent>

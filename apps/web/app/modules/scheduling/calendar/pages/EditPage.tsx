@@ -33,7 +33,7 @@ export const EditPage: React.FC = () => {
   const [capacity, setCapacity] = useState(20);
   const [bookedCount, setBookedCount] = useState(0);
   const [status, setStatus] = useState<ICalendarEvent['status']>('SCHEDULED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [description, setDescription] = useState('');
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       bookedCount: 22,
       color: '#6366F1',
       status: 'SCHEDULED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       description: 'High-intensity interval training focusing on functional power, kettlebells, and sprint drills.',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -131,7 +131,7 @@ export const EditPage: React.FC = () => {
       bookedCount: Number(bookedCount) || 0,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       description,
       updatedAt: new Date().toISOString(),
     };

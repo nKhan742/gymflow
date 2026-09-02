@@ -65,7 +65,7 @@ export const ViewPage: React.FC = () => {
       checkInTime: '09:45 AM',
       purpose: 'CAMPUS_TOUR',
       hostStaff: 'Sarah Jenkins',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       waiverSigned: true,
       status: 'CHECKED_IN',
       notes: 'Touring free weights and functional turf zone. Inquired about guest passes for family.',
@@ -192,7 +192,7 @@ export const ViewPage: React.FC = () => {
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5 text-blue-500" /> {visitor.branchName || 'Downtown Flagship'}
+                    <Building2 className="w-3.5 h-3.5 text-blue-500" /> {visitor.branchName || 'PD Vihar'}
                   </span>
                 </div>
               </div>
@@ -247,7 +247,7 @@ export const ViewPage: React.FC = () => {
             <UserCheck className="w-4 h-4 text-blue-500" />
           </div>
           <p className="text-sm font-bold text-foreground mt-1">{visitor.hostStaff}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{visitor.branchName || 'Downtown Flagship'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{visitor.branchName || 'PD Vihar'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

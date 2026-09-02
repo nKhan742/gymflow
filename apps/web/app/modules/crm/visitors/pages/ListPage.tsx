@@ -218,7 +218,7 @@ export const ListPage: React.FC = () => {
             <Clock className="h-3 w-3 text-muted-foreground" /> {row.original.checkInTime}
           </span>
           <span className="text-[10px] text-muted-foreground block">
-            {row.original.branchName || 'Downtown Flagship'}
+            {row.original.branchName || 'PD Vihar'}
           </span>
         </div>
       ),

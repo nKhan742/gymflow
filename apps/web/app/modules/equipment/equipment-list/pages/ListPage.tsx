@@ -178,7 +178,7 @@ export const ListPage: React.FC = () => {
             {row.original.zoneName}
           </span>
           <span className="text-[10px] text-muted-foreground block truncate">
-            {row.original.branchName || 'Downtown Flagship'}
+            {row.original.branchName || 'PD Vihar'}
           </span>
         </div>
       ),

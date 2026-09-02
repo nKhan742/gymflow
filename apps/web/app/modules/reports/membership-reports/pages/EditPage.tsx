@@ -35,7 +35,7 @@ export const EditPage: React.FC = () => {
   const [auditedBy, setAuditedBy] = useState('');
   const [auditorAvatar, setAuditorAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IMembershipReport['status']>('CERTIFIED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadReport();
@@ -90,7 +90,7 @@ export const EditPage: React.FC = () => {
       auditedBy: 'Sarah Jenkins (Head of CX)',
       auditorAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
       status: 'CERTIFIED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -135,7 +135,7 @@ export const EditPage: React.FC = () => {
       auditorAvatar,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

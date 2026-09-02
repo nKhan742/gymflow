@@ -26,12 +26,12 @@ export const CreatePage: React.FC = () => {
   const [activeMembersCount, setActiveMembersCount] = useState(3230);
   const [mrrVelocity, setMrrVelocity] = useState(391200);
   const [avgWorkoutDwellMinutes, setAvgWorkoutDwellMinutes] = useState(64);
-  const [topPerformingBranch, setTopPerformingBranch] = useState('Downtown Flagship (94% Fill)');
+  const [topPerformingBranch, setTopPerformingBranch] = useState('PD Vihar (94% Fill)');
   const [systemHealthScore, setSystemHealthScore] = useState(99.4);
   const [recordedBy, setRecordedBy] = useState('Dr. Aris Thorne (Chief Analytics Officer)');
   const [controllerAvatar, setControllerAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IDashboardMetricSnapshot['status']>('ACTIVE_TELEMETRY');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ export const CreatePage: React.FC = () => {
       controllerAvatar: controllerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

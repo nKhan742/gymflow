@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [targetBudgetMonthly, setTargetBudgetMonthly] = useState('149');
   const [preferredTimeSlot, setPreferredTimeSlot] = useState<ILead['preferredTimeSlot']>('EVENING_PEAK');
   const [assignedAgent, setAssignedAgent] = useState('Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       estimatedLtv: 2388,
       preferredTimeSlot: 'EVENING_PEAK',
       assignedAgent: 'Alex Vance',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       notes: 'Interested in VIP Platinum membership with 1-on-1 personal training.',
       createdAt: '2026-08-27T10:00:00.000Z',
       updatedAt: '2026-08-27T10:00:00.000Z',
@@ -132,7 +132,7 @@ export const EditPage: React.FC = () => {
       preferredTimeSlot,
       assignedAgent,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       updatedAt: new Date().toISOString(),
     };

@@ -31,7 +31,7 @@ export const CreatePage: React.FC = () => {
   const [operationsAnalyst, setOperationsAnalyst] = useState('Devon Ray (IoT Operations Specialist)');
   const [analystAvatar, setAnalystAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IAttendanceAnalyticsModel['status']>('NORMAL_OPERATIONS');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ export const CreatePage: React.FC = () => {
       analystAvatar: analystAvatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

@@ -1,0 +1,32 @@
+<testsuites id="" name="" tests="11" failures="0" skipped="0" errors="0" time="32.838445">
+<testsuite name="01_auth_flow.spec.ts" timestamp="2026-08-31T06:52:46.938Z" hostname="chromium" tests="5" failures="0" skipped="0" time="111.364" errors="0">
+<testcase name="Authentication &amp; Zero-Trust Security Suite › TC-AUTH-01: Page renders cleanly with security layout &amp; inputs" classname="01_auth_flow.spec.ts" time="21.925">
+</testcase>
+<testcase name="Authentication &amp; Zero-Trust Security Suite › TC-AUTH-02: Form rejects empty submission with appropriate feedback" classname="01_auth_flow.spec.ts" time="21.957">
+</testcase>
+<testcase name="Authentication &amp; Zero-Trust Security Suite › TC-AUTH-03: Form rejects invalid email format" classname="01_auth_flow.spec.ts" time="22.362">
+</testcase>
+<testcase name="Authentication &amp; Zero-Trust Security Suite › TC-AUTH-04: Resists SQL Injection and NoSQL Injection payloads safely" classname="01_auth_flow.spec.ts" time="22.593">
+</testcase>
+<testcase name="Authentication &amp; Zero-Trust Security Suite › TC-AUTH-05: Direct protected URL access redirects to login when unauthenticated" classname="01_auth_flow.spec.ts" time="22.527">
+</testcase>
+</testsuite>
+<testsuite name="02_registration_onboarding.spec.ts" timestamp="2026-08-31T06:52:46.938Z" hostname="chromium" tests="2" failures="0" skipped="0" time="26.392" errors="0">
+<testcase name="Client Tenant Registration &amp; Onboarding Suite › TC-REG-01: Registration page displays multi-step commercial onboarding form" classname="02_registration_onboarding.spec.ts" time="22.018">
+</testcase>
+<testcase name="Client Tenant Registration &amp; Onboarding Suite › TC-REG-02: Input sanitization prevents script execution (XSS)" classname="02_registration_onboarding.spec.ts" time="4.374">
+</testcase>
+</testsuite>
+<testsuite name="03_dashboard_kpis.spec.ts" timestamp="2026-08-31T06:52:46.938Z" hostname="chromium" tests="2" failures="0" skipped="0" time="13.507" errors="0">
+<testcase name="Dashboard &amp; Real-Time Telemetry Suite › TC-DASH-01: Admin Dashboard loads without NaN or undefined metrics" classname="03_dashboard_kpis.spec.ts" time="6.824">
+</testcase>
+<testcase name="Dashboard &amp; Real-Time Telemetry Suite › TC-DASH-02: Facility switcher header exists and is interactive" classname="03_dashboard_kpis.spec.ts" time="6.683">
+</testcase>
+</testsuite>
+<testsuite name="04_attendance_terminal.spec.ts" timestamp="2026-08-31T06:52:46.938Z" hostname="chromium" tests="2" failures="0" skipped="0" time="14.386" errors="0">
+<testcase name="Turnstile Access &amp; Attendance Telemetry Suite › TC-ATT-01: Attendance page displays Live Facility KPI matrix and chart" classname="04_attendance_terminal.spec.ts" time="7.216">
+</testcase>
+<testcase name="Turnstile Access &amp; Attendance Telemetry Suite › TC-ATT-02: Quick Check-In Terminal triggers turnstile unlock" classname="04_attendance_terminal.spec.ts" time="7.17">
+</testcase>
+</testsuite>
+</testsuites>

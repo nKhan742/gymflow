@@ -71,7 +71,7 @@ export const ViewPage: React.FC = () => {
       certifications: ['CPR/AED Certified', 'OSHA Facility Safety', 'NASM Club Admin'],
       profileCompletionScore: 100,
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -162,7 +162,7 @@ export const ViewPage: React.FC = () => {
 
           <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground pb-1">
             <Building2 className="h-4 w-4 text-blue-500" />
-            <span>{profile.branchName || 'Downtown Flagship'}</span>
+            <span>{profile.branchName || 'PD Vihar'}</span>
           </div>
         </div>
       </div>
@@ -242,7 +242,7 @@ export const ViewPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between p-3.5">
                 <span className="text-xs font-semibold text-foreground">4. Primary Campus Branch Affiliation</span>
-                <span className="font-mono text-xs text-blue-600 font-bold">{profile.branchName || 'Downtown Flagship'}</span>
+                <span className="font-mono text-xs text-blue-600 font-bold">{profile.branchName || 'PD Vihar'}</span>
               </div>
             </div>
 

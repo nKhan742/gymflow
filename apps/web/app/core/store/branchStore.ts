@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface IBranchItem {
@@ -39,7 +39,25 @@ export interface IBranchItem {
   status?: string;
 }
 
-export const DEFAULT_BRANCHES: IBranchItem[] = [];
+export const DEFAULT_BRANCHES: IBranchItem[] = [
+  {
+    id: '6a97eeff54ea155f8cc023cb',
+    _id: '6a97eeff54ea155f8cc023cb',
+    code: 'BR-274',
+    name: 'PD Vihar',
+    tagline: 'Flagship Headquarters & Performance Center',
+    phone: '8595725491',
+    email: 'ahmad@gmail.com',
+    sqFt: 20000,
+    capacity: 450,
+    address: {
+      street: '100 Main Facility Boulevard',
+      city: 'New Delhi',
+      country: 'India',
+    },
+    status: 'active',
+  },
+];
 
 export interface IBranchOption {
   value: string;
@@ -62,7 +80,7 @@ export const useBranchStore = create<IBranchState>((set, get) => {
     ? JSON.parse(cached)
     : customRaw
     ? JSON.parse(customRaw)
-    : [];
+    : DEFAULT_BRANCHES;
 
   const savedActive = localStorage.getItem('gymflow_active_branch');
   const initialActiveId =

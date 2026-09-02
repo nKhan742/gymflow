@@ -69,7 +69,7 @@ export const ViewPage: React.FC = () => {
       estimatedLtv: 2388,
       preferredTimeSlot: 'EVENING_PEAK',
       assignedAgent: 'Alex Vance',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       notes: 'Interested in VIP Platinum membership with 1-on-1 personal training. Attended 2 free trial classes.',
       createdAt: '2026-08-27T10:00:00.000Z',
       updatedAt: '2026-08-27T10:00:00.000Z',
@@ -168,7 +168,7 @@ export const ViewPage: React.FC = () => {
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5 text-blue-500" /> {lead.branchName || 'Downtown Flagship'}
+                    <Building2 className="w-3.5 h-3.5 text-blue-500" /> {lead.branchName || 'PD Vihar'}
                   </span>
                 </div>
               </div>
@@ -245,7 +245,7 @@ export const ViewPage: React.FC = () => {
             <User className="w-4 h-4 text-blue-500" />
           </div>
           <p className="text-sm font-bold text-foreground mt-1">{lead.assignedAgent}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{lead.branchName || 'Downtown Flagship'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{lead.branchName || 'PD Vihar'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">
@@ -286,7 +286,7 @@ export const ViewPage: React.FC = () => {
             <div className="p-3 rounded-lg border border-border bg-card">
               <span className="text-muted-foreground block text-[11px]">Assigned Campus</span>
               <span className="font-bold text-foreground mt-0.5 block">
-                {lead.branchName || 'Downtown Flagship'}
+                {lead.branchName || 'PD Vihar'}
               </span>
             </div>
           </div>

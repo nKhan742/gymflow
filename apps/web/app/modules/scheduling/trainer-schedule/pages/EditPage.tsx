@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [hourlyRate, setHourlyRate] = useState(85);
   const [availabilityStatus, setAvailabilityStatus] = useState<ITrainerSchedule['availabilityStatus']>('AVAILABLE');
   const [assignedZone, setAssignedZone] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       hourlyRate: 85,
       availabilityStatus: 'AVAILABLE',
       assignedZone: 'Free Weights Floor & Platform Bay',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       notes: 'Specializes in Olympic barbell lifts and hypertrophy periodization.',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -136,7 +136,7 @@ export const EditPage: React.FC = () => {
       availabilityStatus,
       assignedZone,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       updatedAt: new Date().toISOString(),
     };

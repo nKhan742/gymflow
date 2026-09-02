@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [auditedBy, setAuditedBy] = useState('');
   const [auditorAvatar, setAuditorAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IFinanceReport['status']>('BOARD_APPROVED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // Dynamic P&L Calculations
   const totalOpex = operatingExpenses + payrollExpenses + facilitiesRentLease;
@@ -95,7 +95,7 @@ export const EditPage: React.FC = () => {
       auditedBy: 'Julian Vance, Chief Financial Officer',
       auditorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
       status: 'BOARD_APPROVED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       auditorAvatar,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

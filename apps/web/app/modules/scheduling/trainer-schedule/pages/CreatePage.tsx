@@ -32,7 +32,7 @@ export const CreatePage: React.FC = () => {
   const [hourlyRate, setHourlyRate] = useState(85);
   const [availabilityStatus, setAvailabilityStatus] = useState<ITrainerSchedule['availabilityStatus']>('AVAILABLE');
   const [assignedZone, setAssignedZone] = useState('Free Weights Floor & Platform Bay');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [notes, setNotes] = useState('Specializes in Olympic barbell lifts, post-rehab conditioning, and progressive overload periodization.');
 
   const toggleDay = (day: string) => {
@@ -64,7 +64,7 @@ export const CreatePage: React.FC = () => {
       availabilityStatus,
       assignedZone,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       notes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -287,7 +287,7 @@ export const CreatePage: React.FC = () => {
 
             <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
               <span className="text-xs text-muted-foreground">
-                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'Downtown Flagship'}</strong>
+                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'PD Vihar'}</strong>
               </span>
               <div className="flex gap-2.5">
                 <Button variant="outline" type="button" onClick={() => navigate('/scheduling/trainer-schedule')}>

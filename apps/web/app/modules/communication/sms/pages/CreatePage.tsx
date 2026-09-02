@@ -24,7 +24,7 @@ export const CreatePage: React.FC = () => {
   const [gatewayProvider, setGatewayProvider] = useState<ISmsBlast['gatewayProvider']>('TWILIO');
   const [targetAudience, setTargetAudience] = useState<ISmsBlast['targetAudience']>('ALL_MEMBERS');
   const [scheduledAt, setScheduledAt] = useState(new Date().toISOString().slice(0, 16));
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // Calculations
   const charLength = smsText.length;
@@ -55,7 +55,7 @@ export const CreatePage: React.FC = () => {
       estimatedCost: parseFloat(estimatedCost),
       scheduledAt,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

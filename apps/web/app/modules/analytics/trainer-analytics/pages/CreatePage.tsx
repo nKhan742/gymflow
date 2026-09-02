@@ -30,7 +30,7 @@ export const CreatePage: React.FC = () => {
   const [netPromoterScore, setNetPromoterScore] = useState(94);
   const [performanceTier, setPerformanceTier] = useState<ITrainerAnalyticsModel['performanceTier']>('ELITE_MASTER');
   const [status, setStatus] = useState<ITrainerAnalyticsModel['status']>('ACTIVE_ROSTER');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ export const CreatePage: React.FC = () => {
       performanceTier,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

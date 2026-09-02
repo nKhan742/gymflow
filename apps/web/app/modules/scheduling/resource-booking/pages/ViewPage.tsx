@@ -70,7 +70,7 @@ export const ViewPage: React.FC = () => {
       paymentStatus: 'PAID',
       status: 'RESERVED',
       zoneLocation: 'Racket Sports Pavilion - Court Level',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       amenitiesIncluded: ['Pro Rackets & Balls', 'Fresh Linen Towel Service', 'Chilled Electrolyte Bar'],
       specialRequests: 'Ensure court flooring has been freshly swept and temperature set to 20°C.',
       createdAt: '2026-08-25T08:00:00.000Z',
@@ -183,7 +183,7 @@ export const ViewPage: React.FC = () => {
                 >
                   {booking.status?.replace(/_/g, ' ')}
                 </Badge>
-                <span className="text-xs text-muted-foreground">• {booking.branchName || 'Downtown Flagship'}</span>
+                <span className="text-xs text-muted-foreground">• {booking.branchName || 'PD Vihar'}</span>
               </div>
               <h2 className="text-xl font-bold text-foreground">{booking.resourceName}</h2>
               <p className="text-xs text-muted-foreground">
@@ -243,7 +243,7 @@ export const ViewPage: React.FC = () => {
             <MapPin className="w-4 h-4 text-rose-500" />
           </div>
           <p className="text-xs font-bold text-foreground mt-1 truncate">{booking.zoneLocation}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{booking.branchName || 'Downtown Flagship'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{booking.branchName || 'PD Vihar'}</p>
         </Card>
 
         <Card className="p-4 bg-card border border-border/80 shadow-2xs">

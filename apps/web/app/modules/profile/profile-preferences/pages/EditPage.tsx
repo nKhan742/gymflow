@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [timezone, setTimezone] = useState('America/New_York (EST - UTC-5)');
   const [dateFormat, setDateFormat] = useState<IAppPreferenceModel['dateFormat']>('MM/DD/YYYY');
   const [status, setStatus] = useState<IAppPreferenceModel['status']>('CUSTOM');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadPreference();
@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       timezone: 'America/New_York (EST - UTC-5)',
       dateFormat: 'MM/DD/YYYY',
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -131,7 +131,7 @@ export const EditPage: React.FC = () => {
       dateFormat,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

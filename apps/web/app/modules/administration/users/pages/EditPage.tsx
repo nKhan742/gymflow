@@ -24,7 +24,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'SUPER_ADMIN',
     roleName: 'Super Administrator (Global)',
     department: 'Executive Operations',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '2 mins ago (Chrome on MacOS)',
     ipAddress: '192.168.1.142 (Encrypted TLS v1.3)',
@@ -43,7 +43,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'FACILITY_ADMIN',
     roleName: 'Facility Administrator',
     department: 'Personal Training & Fitness',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '18 mins ago (iPad OS / Safari)',
     ipAddress: '172.56.21.90 (Encrypted TLS v1.3)',
@@ -62,7 +62,7 @@ const DEFAULT_USERS: Record<string, IUserModel> = {
     role: 'BRANCH_MANAGER',
     roleName: 'Branch General Manager',
     department: 'Member Experience',
-    branchName: 'Downtown Flagship',
+    branchName: 'PD Vihar',
     mfaEnabled: true,
     lastLoginAt: '1 hour ago (Windows 11 / Edge)',
     ipAddress: '192.168.1.189 (Encrypted TLS v1.3)',
@@ -86,7 +86,7 @@ export const EditPage: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80');
   const [role, setRole] = useState<IUserModel['role']>('SUPER_ADMIN');
   const [department, setDepartment] = useState('Executive Operations');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [mfaEnabled, setMfaEnabled] = useState(true);
   const [status, setStatus] = useState<IUserModel['status']>('ACTIVE');
 
@@ -148,7 +148,7 @@ export const EditPage: React.FC = () => {
       roleName: roleNameMap[role],
       department,
       branchId,
-      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: selectedBranch?.label?.replace('🏢 ', '') || 'PD Vihar',
       mfaEnabled,
       lastLoginAt: 'Just now (Settings Modified)',
       ipAddress: '192.168.1.142 (Encrypted TLS v1.3)',

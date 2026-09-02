@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = useState<IAppointment['paymentStatus']>('PAID');
   const [status, setStatus] = useState<IAppointment['status']>('CONFIRMED');
   const [zoneName, setZoneName] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [clientGoals, setClientGoals] = useState('');
   const [coachNotes, setCoachNotes] = useState('');
 
@@ -91,7 +91,7 @@ export const EditPage: React.FC = () => {
       paymentStatus: 'PAID',
       status: 'CONFIRMED',
       zoneName: 'Free Weights Platform Bay',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       clientGoals: 'Overhead squat barbell mobility, posterior chain hypertrophy.',
       coachNotes: 'Warmup sets with PVC pipe before heavy sets.',
       createdAt: '2026-08-25T08:00:00.000Z',
@@ -138,7 +138,7 @@ export const EditPage: React.FC = () => {
       status,
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       clientGoals,
       coachNotes,
       updatedAt: new Date().toISOString(),

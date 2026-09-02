@@ -37,7 +37,7 @@ export const EditPage: React.FC = () => {
   const [scheduledDate, setScheduledDate] = useState('');
   const [estimatedCost, setEstimatedCost] = useState(0);
   const [actualCost, setActualCost] = useState(0);
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [resolutionNotes, setResolutionNotes] = useState('');
 
   // Checklist
@@ -106,7 +106,7 @@ export const EditPage: React.FC = () => {
         { id: '4', text: 'Apply synthetic grease and test load glide', done: false },
       ],
       resolutionNotes: 'Bearings delivered; technician on-site Saturday 08:00 AM.',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-29T08:00:00.000Z',
     });
@@ -176,7 +176,7 @@ export const EditPage: React.FC = () => {
       checklist: checklists,
       resolutionNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

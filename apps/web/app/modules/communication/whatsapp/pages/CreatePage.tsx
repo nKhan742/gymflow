@@ -30,7 +30,7 @@ export const CreatePage: React.FC = () => {
     { type: 'QUICK_REPLY', text: '🎟️ View Access QR Code' },
     { type: 'URL', text: '📅 Book Class', value: 'https://gymflow.io/book' },
   ]);
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleAddButton = () => {
     if (buttons.length >= 3) {
@@ -67,7 +67,7 @@ export const CreatePage: React.FC = () => {
       readRate: 94.2,
       responseRate: 38.6,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

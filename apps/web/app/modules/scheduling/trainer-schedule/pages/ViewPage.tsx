@@ -67,7 +67,7 @@ export const ViewPage: React.FC = () => {
       hourlyRate: 85,
       availabilityStatus: 'AVAILABLE',
       assignedZone: 'Free Weights Floor & Platform Bay',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       notes: 'Specializes in Olympic barbell lifts, post-rehab conditioning, and progressive overload periodization.',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -192,7 +192,7 @@ export const ViewPage: React.FC = () => {
                   >
                     {schedule.availabilityStatus?.replace(/_/g, ' ')}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">• {schedule.branchName || 'Downtown Flagship'}</span>
+                  <span className="text-xs text-muted-foreground">• {schedule.branchName || 'PD Vihar'}</span>
                 </div>
                 <h2 className="text-xl font-bold text-foreground">{schedule.trainerName}</h2>
                 <p className="text-xs text-muted-foreground">

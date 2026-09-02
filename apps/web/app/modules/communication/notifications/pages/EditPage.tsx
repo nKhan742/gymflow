@@ -30,7 +30,7 @@ export const EditPage: React.FC = () => {
   const [channel, setChannel] = useState<INotification['channel']>('IN_APP_PUSH');
   const [deliveryStatus, setDeliveryStatus] = useState<INotification['deliveryStatus']>('SENT');
   const [authorName, setAuthorName] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadNotification();
@@ -84,7 +84,7 @@ export const EditPage: React.FC = () => {
       scheduledFor: '2026-08-29T09:00:00.000Z',
       authorName: 'Coach Marcus Vance',
       authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -119,7 +119,7 @@ export const EditPage: React.FC = () => {
       deliveryStatus,
       authorName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

@@ -36,7 +36,7 @@ export const CreatePage: React.FC = () => {
   const [invoiceNumber, setInvoiceNumber] = useState(`INV-ELK-${Math.floor(1000 + Math.random() * 9000)}`);
   const [conditionAfterService, setConditionAfterService] = useState<IServiceLog['conditionAfterService']>('EXCELLENT');
   const [warrantyClaimed, setWarrantyClaimed] = useState(false);
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [technicianNotes, setTechnicianNotes] = useState('');
 
   // Parts list
@@ -85,7 +85,7 @@ export const CreatePage: React.FC = () => {
       warrantyClaimed,
       technicianNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

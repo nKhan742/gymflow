@@ -27,7 +27,7 @@ export const EditPage: React.FC = () => {
   const [targetAudience, setTargetAudience] = useState<ISmsBlast['targetAudience']>('ALL_MEMBERS');
   const [status, setStatus] = useState<ISmsBlast['status']>('DELIVERED');
   const [scheduledAt, setScheduledAt] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // Calculations
   const charLength = smsText.length;
@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       smsSegments: 2,
       estimatedCost: 42.6,
       scheduledAt: '2026-08-25T09:00',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -123,7 +123,7 @@ export const EditPage: React.FC = () => {
       estimatedCost: parseFloat(estimatedCost),
       scheduledAt,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

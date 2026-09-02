@@ -36,7 +36,7 @@ export const EditPage: React.FC = () => {
   const [shrinkageRate, setShrinkageRate] = useState(0.5);
   const [auditedBy, setAuditedBy] = useState('');
   const [status, setStatus] = useState<IInventoryReport['status']>('AUDITED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadReport();
@@ -92,7 +92,7 @@ export const EditPage: React.FC = () => {
       shrinkageRate: 0.8,
       auditedBy: 'Elena Rostova (Inventory Controller)',
       status: 'AUDITED',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -139,7 +139,7 @@ export const EditPage: React.FC = () => {
       auditedBy,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

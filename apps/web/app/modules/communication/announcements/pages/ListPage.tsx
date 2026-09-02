@@ -151,7 +151,7 @@ export const ListPage: React.FC = () => {
             {row.original.category?.replace(/_/g, ' ')}
           </Badge>
           <span className="text-[10px] text-muted-foreground block font-mono">
-            {row.original.branchName || 'Downtown Flagship'}
+            {row.original.branchName || 'PD Vihar'}
           </span>
         </div>
       ),

@@ -30,7 +30,7 @@ export const CreatePage: React.FC = () => {
   const [mfaMethod, setMfaMethod] = useState<ISecurityCredentialModel['mfaMethod']>('AUTHENTICATOR_APP');
   const [forceRotationDays, setForceRotationDays] = useState(90);
   const [status, setStatus] = useState<ISecurityCredentialModel['status']>('COMPLIANT');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // Password strength check
   const hasMinLength = newPassword.length >= 8;
@@ -64,12 +64,12 @@ export const CreatePage: React.FC = () => {
       mfaMethod,
       activeSessionCount: 2,
       ipAddressLastLogin: '192.168.1.142 (Encrypted TLS v1.3)',
-      sessionDevice: 'Chrome on MacOS (Downtown Flagship)',
+      sessionDevice: 'Chrome on MacOS (PD Vihar)',
       forceRotationDays,
       securityHealthScore: 99,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

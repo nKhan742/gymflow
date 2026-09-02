@@ -31,7 +31,7 @@ export const EditPage: React.FC = () => {
   const [buttons, setButtons] = useState<IWhatsappButton[]>([]);
   const [metaApprovalStatus, setMetaApprovalStatus] = useState<IWhatsappTemplate['metaApprovalStatus']>('APPROVED');
   const [qualityRating, setQualityRating] = useState<IWhatsappTemplate['qualityRating']>('HIGH');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadTemplate();
@@ -88,7 +88,7 @@ export const EditPage: React.FC = () => {
       messagesSent: 2840,
       readRate: 97.4,
       responseRate: 44.8,
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -137,7 +137,7 @@ export const EditPage: React.FC = () => {
       metaApprovalStatus,
       qualityRating,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

@@ -38,7 +38,7 @@ export const EditPage: React.FC = () => {
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [conditionAfterService, setConditionAfterService] = useState<IServiceLog['conditionAfterService']>('EXCELLENT');
   const [warrantyClaimed, setWarrantyClaimed] = useState(false);
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [technicianNotes, setTechnicianNotes] = useState('');
 
   // Parts list
@@ -103,7 +103,7 @@ export const EditPage: React.FC = () => {
       conditionAfterService: 'EXCELLENT',
       warrantyClaimed: false,
       technicianNotes: 'Platform wood recoated with anti-slip grip; J-cups replaced with fresh UHMW liners.',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-07-10T10:00:00.000Z',
       updatedAt: '2026-07-10T10:00:00.000Z',
     });
@@ -166,7 +166,7 @@ export const EditPage: React.FC = () => {
       warrantyClaimed,
       technicianNotes,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

@@ -69,7 +69,7 @@ export const ViewPage: React.FC = () => {
       scheduledFor: '2026-08-29T09:00:00.000Z',
       authorName: 'Coach Marcus Vance',
       authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -155,7 +155,7 @@ export const ViewPage: React.FC = () => {
                 >
                   {notification.priority} Priority
                 </Badge>
-                <span className="text-xs text-muted-foreground">• {notification.branchName || 'Downtown Flagship'}</span>
+                <span className="text-xs text-muted-foreground">• {notification.branchName || 'PD Vihar'}</span>
               </div>
               <h2 className="text-xl font-bold text-foreground">{notification.title}</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">

@@ -170,7 +170,7 @@ export const ListPage: React.FC = () => {
             <span>{row.original.targetAudience?.replace(/_/g, ' ')}</span>
           </div>
           <span className="text-[10px] text-muted-foreground block font-mono">
-            {row.original.branchName || 'Downtown Flagship'}
+            {row.original.branchName || 'PD Vihar'}
           </span>
         </div>
       ),

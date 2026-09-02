@@ -34,7 +34,7 @@ export const EditPage: React.FC = () => {
   const [clientSatisfactionRating, setClientSatisfactionRating] = useState(5.0);
   const [auditedBy, setAuditedBy] = useState('');
   const [status, setStatus] = useState<ITrainerReport['status']>('APPROVED_FOR_PAYROLL');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // 60/40 Commission Split Auto-Calculation
   const coachCommissionPayout = Math.round(grossBillingGenerated * 0.60);
@@ -94,7 +94,7 @@ export const EditPage: React.FC = () => {
       facilityNetShare: 2560,
       auditedBy: 'Dmitri Volkov (Head of Training)',
       status: 'APPROVED_FOR_PAYROLL',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -139,7 +139,7 @@ export const EditPage: React.FC = () => {
       auditedBy,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

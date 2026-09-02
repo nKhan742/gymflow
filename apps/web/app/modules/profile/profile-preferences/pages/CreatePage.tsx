@@ -32,7 +32,7 @@ export const CreatePage: React.FC = () => {
   const [timezone, setTimezone] = useState('America/New_York (EST - UTC-5)');
   const [dateFormat, setDateFormat] = useState<IAppPreferenceModel['dateFormat']>('MM/DD/YYYY');
   const [status, setStatus] = useState<IAppPreferenceModel['status']>('CUSTOM');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +57,7 @@ export const CreatePage: React.FC = () => {
       dateFormat,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

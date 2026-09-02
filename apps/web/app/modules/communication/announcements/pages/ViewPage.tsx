@@ -67,7 +67,7 @@ export const ViewPage: React.FC = () => {
       expiryDate: '2026-09-10',
       authorName: 'Executive Management',
       authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       viewsCount: 3840,
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
@@ -197,7 +197,7 @@ export const ViewPage: React.FC = () => {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">CAMPUS SCOPE</span>
             <Building2 className="w-4 h-4 text-primary" />
           </div>
-          <p className="text-sm font-bold text-foreground mt-1 truncate">{announcement.branchName || 'Downtown Flagship'}</p>
+          <p className="text-sm font-bold text-foreground mt-1 truncate">{announcement.branchName || 'PD Vihar'}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">Target Location</p>
         </Card>
 

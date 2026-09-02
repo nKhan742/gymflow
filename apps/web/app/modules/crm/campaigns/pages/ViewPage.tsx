@@ -67,7 +67,7 @@ export const ViewPage: React.FC = () => {
       leadsGenerated: 142,
       conversionsCount: 38,
       status: 'ACTIVE',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       discountOffer: '20% Off 12-Month Gold Pass + Zero Initiation',
       notes: 'High conversion rate on Instagram reels targeting 5-mile geo radius. Top acquisition channel this quarter.',
       createdAt: '2026-08-01T08:00:00.000Z',
@@ -214,7 +214,7 @@ export const ViewPage: React.FC = () => {
             <Calendar className="w-4 h-4 text-blue-500" />
           </div>
           <p className="text-xs font-mono font-bold text-foreground mt-1 truncate">{campaign.startDate} to {campaign.endDate}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{campaign.branchName || 'Downtown Flagship'}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{campaign.branchName || 'PD Vihar'}</p>
         </Card>
       </div>
 

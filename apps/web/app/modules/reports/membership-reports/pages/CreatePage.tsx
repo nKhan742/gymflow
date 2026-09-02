@@ -33,7 +33,7 @@ export const CreatePage: React.FC = () => {
   const [auditedBy, setAuditedBy] = useState('Sarah Jenkins (Head of Member Experience)');
   const [auditorAvatar, setAuditorAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IMembershipReport['status']>('CERTIFIED');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +59,7 @@ export const CreatePage: React.FC = () => {
       auditorAvatar: auditorAvatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

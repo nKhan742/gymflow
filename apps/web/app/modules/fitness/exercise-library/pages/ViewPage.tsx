@@ -316,7 +316,7 @@ export const ViewPage: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-foreground">Marcus Aurelius Vance</div>
-                      <div className="text-[10px] text-muted-foreground">Downtown Flagship Campus</div>
+                      <div className="text-[10px] text-muted-foreground">PD Vihar Campus</div>
                     </div>
                   </div>
                   <span className="font-mono text-sm font-bold text-primary">315 lbs (142.8 kg)</span>

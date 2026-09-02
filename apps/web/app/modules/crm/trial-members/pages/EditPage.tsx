@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [maxAllowedCheckIns, setMaxAllowedCheckIns] = useState('3');
   const [checkInCount, setCheckInCount] = useState('0');
   const [sponsorTrainer, setSponsorTrainer] = useState('Coach Alex Vance');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [status, setStatus] = useState<ITrialMember['status']>('ACTIVE');
   const [notes, setNotes] = useState('');
 
@@ -87,7 +87,7 @@ export const EditPage: React.FC = () => {
       maxAllowedCheckIns: 3,
       checkInCount: 2,
       sponsorTrainer: 'Coach Alex Vance',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       status: 'ACTIVE',
       amenitiesIncluded: ['Gym Floor', 'Locker Room', 'Group Studio'],
       notes: 'Interested in sauna and hypertrophy weights.',
@@ -131,7 +131,7 @@ export const EditPage: React.FC = () => {
       checkInCount: Number(checkInCount) || 0,
       sponsorTrainer,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       status,
       notes,
       updatedAt: new Date().toISOString(),

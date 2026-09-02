@@ -99,7 +99,7 @@ export const ViewPage: React.FC = () => {
         potassiumMg: 750,
         magnesiumMg: 350,
         branchId: 'ALL',
-        branchName: 'Downtown Flagship',
+        branchName: 'PD Vihar',
         status: 'active',
         notes: 'Optimal fluid turnover with zero cellular cramping reported.',
       };
@@ -213,7 +213,7 @@ export const ViewPage: React.FC = () => {
                 <div className="text-xs text-muted-foreground flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5" /> {log.logDate}
                   <span>•</span>
-                  <Building2 className="w-3.5 h-3.5" /> {log.branchName || 'Downtown Flagship'}
+                  <Building2 className="w-3.5 h-3.5" /> {log.branchName || 'PD Vihar'}
                 </div>
               </div>
             </div>

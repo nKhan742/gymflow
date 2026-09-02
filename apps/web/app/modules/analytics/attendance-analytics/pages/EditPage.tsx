@@ -33,7 +33,7 @@ export const EditPage: React.FC = () => {
   const [operationsAnalyst, setOperationsAnalyst] = useState('');
   const [analystAvatar, setAnalystAvatar] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<IAttendanceAnalyticsModel['status']>('NORMAL_OPERATIONS');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadAnalysis();
@@ -86,7 +86,7 @@ export const EditPage: React.FC = () => {
       operationsAnalyst: 'Devon Ray (IoT Operations Specialist)',
       analystAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
       status: 'NORMAL_OPERATIONS',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -127,7 +127,7 @@ export const EditPage: React.FC = () => {
       analystAvatar,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

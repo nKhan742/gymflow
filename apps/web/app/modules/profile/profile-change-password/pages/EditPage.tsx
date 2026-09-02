@@ -32,7 +32,7 @@ export const EditPage: React.FC = () => {
   const [mfaMethod, setMfaMethod] = useState<ISecurityCredentialModel['mfaMethod']>('AUTHENTICATOR_APP');
   const [forceRotationDays, setForceRotationDays] = useState(90);
   const [status, setStatus] = useState<ISecurityCredentialModel['status']>('COMPLIANT');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   useEffect(() => {
     loadCredential();
@@ -83,11 +83,11 @@ export const EditPage: React.FC = () => {
       mfaMethod: 'AUTHENTICATOR_APP',
       activeSessionCount: 2,
       ipAddressLastLogin: '192.168.1.142 (Encrypted TLS v1.3)',
-      sessionDevice: 'Chrome on MacOS (Downtown Flagship)',
+      sessionDevice: 'Chrome on MacOS (PD Vihar)',
       forceRotationDays: 90,
       securityHealthScore: 100,
       status: 'COMPLIANT',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       createdAt: '2026-08-25T08:00:00.000Z',
       updatedAt: '2026-08-25T08:00:00.000Z',
     });
@@ -126,7 +126,7 @@ export const EditPage: React.FC = () => {
       forceRotationDays,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       updatedAt: new Date().toISOString(),
     };
 

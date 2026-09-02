@@ -34,7 +34,7 @@ export const CreatePage: React.FC = () => {
   const [sessionFee, setSessionFee] = useState(locationState.hourlyRate || 85);
   const [paymentStatus, setPaymentStatus] = useState<IAppointment['paymentStatus']>('PAID');
   const [zoneName, setZoneName] = useState(locationState.assignedZone || 'Free Weights Platform Bay');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [clientGoals, setClientGoals] = useState('Overhead squat barbell mobility, posterior chain hypertrophy, and conditioning.');
   const [coachNotes, setCoachNotes] = useState('Review thoracic spine mobility and warmup sets with PVC pipe before heavy sets.');
 
@@ -63,7 +63,7 @@ export const CreatePage: React.FC = () => {
       status: 'CONFIRMED',
       zoneName,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       clientGoals,
       coachNotes,
       createdAt: new Date().toISOString(),
@@ -331,7 +331,7 @@ export const CreatePage: React.FC = () => {
 
             <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
               <span className="text-xs text-muted-foreground">
-                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'Downtown Flagship'}</strong>
+                Branch: <strong className="text-foreground">{branchOptions.find((b) => b.value === branchId)?.label || 'PD Vihar'}</strong>
               </span>
               <div className="flex gap-2.5">
                 <Button variant="outline" type="button" onClick={() => navigate('/scheduling/appointments')}>

@@ -43,7 +43,7 @@ export const EditPage: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = useState<IResourceBooking['paymentStatus']>('PAID');
   const [status, setStatus] = useState<IResourceBooking['status']>('RESERVED');
   const [zoneLocation, setZoneLocation] = useState('');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [specialRequests, setSpecialRequests] = useState('');
 
@@ -100,7 +100,7 @@ export const EditPage: React.FC = () => {
       paymentStatus: 'PAID',
       status: 'RESERVED',
       zoneLocation: 'Racket Sports Pavilion - Court Level',
-      branchName: 'Downtown Flagship',
+      branchName: 'PD Vihar',
       amenitiesIncluded: ['Pro Rackets & Balls', 'Fresh Linen Towel Service', 'Chilled Electrolyte Bar'],
       specialRequests: 'Ensure court flooring has been freshly swept and temperature set to 20°C.',
       createdAt: '2026-08-25T08:00:00.000Z',
@@ -158,7 +158,7 @@ export const EditPage: React.FC = () => {
       status,
       zoneLocation,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       amenitiesIncluded: selectedAmenities,
       specialRequests,
       updatedAt: new Date().toISOString(),

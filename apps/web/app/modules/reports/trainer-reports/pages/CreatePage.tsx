@@ -32,7 +32,7 @@ export const CreatePage: React.FC = () => {
   const [clientSatisfactionRating, setClientSatisfactionRating] = useState(4.9);
   const [auditedBy, setAuditedBy] = useState('Dmitri Volkov (Head of Training)');
   const [status, setStatus] = useState<ITrainerReport['status']>('APPROVED_FOR_PAYROLL');
-  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-01');
+  const [branchId, setBranchId] = useState(branchOptions[0]?.value || 'BR-274');
 
   // 60/40 Commission Split Auto-Calculation
   const coachCommissionPayout = Math.round(grossBillingGenerated * 0.60);
@@ -63,7 +63,7 @@ export const CreatePage: React.FC = () => {
       auditedBy,
       status,
       branchId,
-      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'Downtown Flagship',
+      branchName: branchOptions.find((b) => b.value === branchId)?.label?.replace('🏢 ', '') || 'PD Vihar',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
