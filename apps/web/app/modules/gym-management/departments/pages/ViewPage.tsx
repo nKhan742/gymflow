@@ -331,15 +331,15 @@ export const ViewPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-2.5">
-                  {staffRoster.map((s) => (
+                  {staffRoster.filter(Boolean).map((s) => (
                     <div
-                      key={s.id}
+                      key={s.id || s.name}
                       className="p-3.5 rounded-xl bg-card border border-border/80 flex items-center justify-between hover:border-primary/40 transition-all shadow-2xs group"
                     >
                       <div className="flex items-center gap-3">
                         <img
-                          src={s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                          alt={s.name}
+                          src={s?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                          alt={s?.name || 'Staff'}
                           className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
                         />
                         <div>
@@ -565,8 +565,8 @@ export const ViewPage: React.FC = () => {
           {staffToRemove && (
             <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-xs">
               <img
-                src={staffToRemove.avatar}
-                alt={staffToRemove.name}
+                src={staffToRemove.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                alt={staffToRemove.name || 'Staff'}
                 className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
               />
               <div>

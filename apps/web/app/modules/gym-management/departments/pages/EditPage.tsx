@@ -56,14 +56,7 @@ const ICON_OPTIONS: ISelectOption[] = [
   { value: 'TrendingUp', label: '📈 Trending / Sales' },
 ];
 
-const INITIAL_ROSTERS: Record<string, IDepartmentStaffItem[]> = {
-  'DEP-FIT-01': [ALL_GYM_STAFF[0], ALL_GYM_STAFF[1], ALL_GYM_STAFF[3]],
-  'DEP-REC-02': [ALL_GYM_STAFF[1]],
-  'DEP-STU-03': [ALL_GYM_STAFF[4]],
-  'DEP-NUT-04': [ALL_GYM_STAFF[5]],
-  'DEP-OPS-05': [ALL_GYM_STAFF[2]],
-  'DEP-SAL-06': [ALL_GYM_STAFF[2]],
-};
+const INITIAL_ROSTERS: Record<string, IDepartmentStaffItem[]> = {};
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -169,7 +162,7 @@ export const EditPage: React.FC = () => {
         setHeadPhone(data.headOfDepartment.phone || '');
         setHeadAvatar(data.headOfDepartment.avatar || '');
         
-        const matched = ALL_GYM_STAFF.find((s) => s.name === data.headOfDepartment?.name);
+        const matched = staffList.find((s) => s.name === data.headOfDepartment?.name);
         if (matched) setSelectedLeaderId(matched.id);
       }
 
@@ -178,7 +171,7 @@ export const EditPage: React.FC = () => {
       setRevenueGenerating(data.revenueGenerating ? 'true' : 'false');
       setBranchId(data.branchId || 'ALL');
       setShiftsInput(data.shifts ? data.shifts.join(', ') : 'Morning, Evening');
-      setAssignedRoster(INITIAL_ROSTERS[data.id || data.code] || INITIAL_ROSTERS['DEP-FIT-01'] || []);
+      setAssignedRoster(INITIAL_ROSTERS[data.id || data.code] || []);
     } catch {
       // Use fallback
     } finally {
@@ -212,10 +205,10 @@ export const EditPage: React.FC = () => {
       return;
     }
 
-    const member = ALL_GYM_STAFF.find((s) => s.id === quickAddStaffId);
+    const member = staffList.find((s) => s.id === quickAddStaffId);
     if (!member) return;
 
-    if (assignedRoster.some((s) => s.id === member.id)) {
+    if (assignedRoster.some((s) => s?.id === member.id)) {
       toast.error(`${member.name} is already assigned.`);
       return;
     }
@@ -228,7 +221,7 @@ export const EditPage: React.FC = () => {
   // Remove staff from roster in edit page
   const handleConfirmRemoveStaff = () => {
     if (!staffToRemove) return;
-    setAssignedRoster(assignedRoster.filter((s) => s.id !== staffToRemove.id));
+    setAssignedRoster(assignedRoster.filter((s) => s?.id !== staffToRemove.id));
     toast.success(`${staffToRemove.name} was removed from this department.`);
     setIsRemoveModalOpen(false);
     setStaffToRemove(null);
@@ -241,15 +234,15 @@ export const EditPage: React.FC = () => {
 
   const leaderSelectOptions: ISelectOption[] = [
     { value: '', label: '— Unassigned (Assign Leadership Later) —' },
-    ...staffList.map((s) => ({
+    ...staffList.filter(Boolean).map((s) => ({
       value: s.id,
       label: `👤 ${s.name} (${s.role})`,
     })),
   ];
 
   // Available staff for quick assignment dropdown
-  const availableToAssign = ALL_GYM_STAFF.filter(
-    (s) => !assignedRoster.some((r) => r.id === s.id)
+  const availableToAssign = staffList.filter(
+    (s) => s && !assignedRoster.some((r) => r && r.id === s.id)
   );
 
   const quickAddSelectOptions: ISelectOption[] = [
@@ -612,21 +605,21 @@ export const EditPage: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {assignedRoster.map((s) => (
+                {assignedRoster.filter(Boolean).map((s) => (
                   <div
-                    key={s.id}
+                    key={s?.id || s?.name}
                     className="p-3 rounded-xl bg-muted/40 border border-border/80 flex items-center justify-between shadow-2xs hover:border-primary/40 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                        alt={s.name}
+                        src={s?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                        alt={s?.name || 'Staff'}
                         className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
                       />
                       <div>
-                        <div className="font-semibold text-foreground text-xs">{s.name}</div>
-                        <div className="text-[11px] text-muted-foreground">{s.role} • {s.shift || 'Standard'} Shift</div>
-                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">{s.rate}</div>
+                        <div className="font-semibold text-foreground text-xs">{s?.name}</div>
+                        <div className="text-[11px] text-muted-foreground">{s?.role} • {s?.shift || 'Standard'} Shift</div>
+                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">{s?.rate}</div>
                       </div>
                     </div>
 
@@ -686,8 +679,8 @@ export const EditPage: React.FC = () => {
           {staffToRemove && (
             <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-xs">
               <img
-                src={staffToRemove.avatar}
-                alt={staffToRemove.name}
+                src={staffToRemove?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                alt={staffToRemove?.name || 'Staff'}
                 className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
               />
               <div>
