@@ -113,6 +113,23 @@ export class TenantDatabaseManager {
    */
   static async findUserAcrossTenants(email: string): Promise<{ user: any; dbName: string } | null> {
     const normalizedEmail = email.toLowerCase().trim();
+
+    // 1. Fast check in primary database first (sub-millisecond)
+    try {
+      const defaultModels = this.getTenantModels('gymflow_erp');
+      const primaryUser = await defaultModels.Users.findOne({ email: normalizedEmail, isDeleted: false }).exec();
+      if (primaryUser && primaryUser.tenantId) {
+        const dbName = primaryUser.tenantId.replace(/^tenant_/, '');
+        const tenantModels = this.getTenantModels(dbName);
+        const tenantUser = await tenantModels.Users.findOne({ email: normalizedEmail, isDeleted: false }).exec();
+        if (tenantUser) {
+          return { user: tenantUser, dbName };
+        }
+        return { user: primaryUser, dbName };
+      }
+    } catch {}
+
+    // 2. Fallback: inspect discovered tenant databases
     const dbs = await this.listTenantDatabases();
 
     for (const dbName of dbs) {

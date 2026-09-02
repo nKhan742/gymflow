@@ -142,6 +142,27 @@ export class AuthService {
       status: 'active',
     });
 
+    // 7b. Also mirror user in primary database for sub-millisecond lookup & uniqueness
+    await UsersModel.findOneAndUpdate(
+      { email: normalizedEmail },
+      {
+        tenantId,
+        name: fullName || `${firstName} ${lastName}`,
+        code: `USR-${randomSuffix}`,
+        email: normalizedEmail,
+        passwordHash,
+        firstName,
+        lastName,
+        role: 'SUPER_ADMIN',
+        permissions: ['*'],
+        branchId: branchDoc._id.toString(),
+        phone: phone || '',
+        isActive: true,
+        status: 'active',
+      },
+      { upsert: true, new: true }
+    ).catch(() => {});
+
     // 8. Seed Default Membership Plans inside the separate tenant database
     await Promise.all([
       tenantModels.MembershipPlans.create({

@@ -10,6 +10,7 @@ export class AuthController {
       const result = await this.authService.register(req.body || {});
       res.status(201).json(BaseResponse.success(result, 'Organization and administrator account registered successfully.'));
     } catch (error: any) {
+      console.error('[AuthController.register] Registration failed:', error.message || error);
       res.status(error.statusCode || 400).json(BaseResponse.error(error.message || 'Registration failed.'));
     }
   };

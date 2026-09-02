@@ -137,7 +137,17 @@ export const ListPage: React.FC = () => {
           resData?.errors?.[0]?.message ||
           (typeof resData?.errors === 'string' ? resData.errors : null) ||
           'Registration failed. An account with this email may already exist.';
-        toast.error(errMsg);
+
+        if (errMsg.toLowerCase().includes('already exists')) {
+          toast.error(errMsg, {
+            action: {
+              label: 'Go to Login',
+              onClick: () => navigate('/auth/login'),
+            },
+          });
+        } else {
+          toast.error(errMsg);
+        }
         setLoading(false);
         return;
       }
