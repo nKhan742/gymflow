@@ -6,29 +6,40 @@ import { DataTable } from '../../../../shared/components/table/DataTable';
 import { Button } from '../../../../shared/components/ui/button';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../../shared/components/ui/avatar';
-import { Plus, Download, UserCheck, ShieldCheck, Shield, Users, Smartphone, Eye, Edit, Trash2, CheckCircle2 } from 'lucide-react';
+import { Plus, Download, ShieldCheck, Shield, Users, Smartphone, Eye, Edit, Trash2, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { useBranchStore } from '../../../../core/store/branchStore';
+import { useAuthStore } from '../../../../core/store/authStore';
 import { IUserModel } from '../types';
 import { toast } from 'sonner';
 
+// System Role Hierarchy Levels
+const ROLE_HIERARCHY: Record<string, number> = {
+  SUPER_ADMIN: 100,
+  ADMIN: 80,
+  BRANCH_MANAGER: 60,
+  TRAINER: 40,
+  RECEPTIONIST: 40,
+  NUTRITIONIST: 40,
+  MEMBER: 20,
+};
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId } = useBranchStore();
+  const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<IUserModel[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadUsers();
-  }, [activeBranchId]);
+  }, [activeBranchId, currentUser]);
 
   const loadUsers = async () => {
+    setLoading(true);
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_users');
-      const customList: IUserModel[] = stored ? JSON.parse(stored) : [];
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/users', {
         headers: {
@@ -37,51 +48,124 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      let fetchedList: IUserModel[] = [];
+      let rawItems: any[] = [];
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data?.items) {
-          fetchedList = json.data.items;
-        } else if (Array.isArray(json.data)) {
-          fetchedList = json.data;
+        rawItems = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        // If API returned real records, clear any stale mock localStorage items
+        if (rawItems.length > 0) {
+          localStorage.removeItem('gymflow_custom_admin_users');
+        }
+      } else {
+        const stored = localStorage.getItem('gymflow_custom_admin_users');
+        rawItems = stored ? JSON.parse(stored) : [];
+      }
+
+      const currentEmail = currentUser?.email?.toLowerCase().trim();
+      const currentId = currentUser?.id || (currentUser as any)?._id;
+      const currentLevel = ROLE_HIERARCHY[currentUser?.role || 'ADMIN'] || 80;
+
+      // Map, normalize and filter by hierarchy & self exclusion
+      const normalized: IUserModel[] = rawItems.map((item: any) => {
+        const fullName = item.fullName || item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'Staff User';
+        return {
+          id: item.id || item._id,
+          _id: item._id || item.id,
+          fullName,
+          email: item.email || '',
+          phone: item.phone || '',
+          avatarUrl: item.avatarUrl || item.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          role: item.role || 'TRAINER',
+          roleName: item.roleName || item.role,
+          department: item.department || (item.role === 'TRAINER' ? 'Personal Training & Fitness' : 'Operations & Management'),
+          branchId: item.branchId || 'BR-274',
+          branchName: item.branchName || 'Main Facility',
+          mfaEnabled: !!item.mfaEnabled,
+          lastLoginAt: item.lastLoginAt || 'Recent',
+          ipAddress: item.ipAddress || 'Verified IP',
+          status: (item.status || 'ACTIVE').toUpperCase(),
+          securityScore: typeof item.securityScore === 'number' && !isNaN(item.securityScore)
+            ? item.securityScore
+            : item.mfaEnabled ? 95 : 85,
+          createdAt: item.createdAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || new Date().toISOString(),
+        };
+      });
+
+      // Filter:
+      // 1. Hide SUPER_ADMIN
+      // 2. Hide currently logged-in user (user cannot view or delete self in this directory)
+      // 3. Only show users within hierarchy (subordinates or peers below/at clearance level)
+      const allowedUsers = normalized.filter((u) => {
+        if (u.role === 'SUPER_ADMIN') return false;
+
+        const uEmail = u.email.toLowerCase().trim();
+        const uId = u.id;
+
+        // Strictly exclude logged-in user
+        if (currentEmail && uEmail === currentEmail) return false;
+        if (currentId && uId === currentId) return false;
+
+        // Hierarchy rule: only see users lower or equal to current role level (excluding self)
+        const userLevel = ROLE_HIERARCHY[u.role] || 40;
+        return userLevel <= currentLevel;
+      });
+
+      // Deduplicate by email
+      const seenEmails = new Set<string>();
+      const deduped: IUserModel[] = [];
+      for (const u of allowedUsers) {
+        const emailKey = u.email.toLowerCase().trim();
+        if (emailKey && !seenEmails.has(emailKey)) {
+          seenEmails.add(emailKey);
+          deduped.push(u);
+        } else if (!emailKey) {
+          deduped.push(u);
         }
       }
 
-      const combined = [...customList];
-      for (const item of fetchedList) {
-        const id = item.id || item._id;
-        if (!combined.some((u) => (u.id || u._id) === id)) {
-          combined.push(item);
-        }
-      }
-      // Never show SUPER_ADMIN to tenant staff/admins
-      const gymUsers = combined.filter((u) => u.role !== 'SUPER_ADMIN');
-      setUsers(gymUsers);
+      setUsers(deduped);
     } catch {
-      const stored = localStorage.getItem('gymflow_custom_admin_users');
-      const customList: IUserModel[] = stored ? JSON.parse(stored) : [];
-      setUsers(customList.filter((u) => u.role !== 'SUPER_ADMIN'));
+      toast.error('Could not load system users directory.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
-    const updated = users.filter((u) => (u.id || u._id) !== id);
-    setUsers(updated);
+  const handleDelete = async (id: string, name: string, targetEmail?: string) => {
+    const currentEmail = currentUser?.email?.toLowerCase().trim();
+    const currentId = currentUser?.id || (currentUser as any)?._id;
 
-    const stored = localStorage.getItem('gymflow_custom_admin_users');
-    if (stored) {
-      const customList: IUserModel[] = JSON.parse(stored);
-      const filtered = customList.filter((u) => (u.id || u._id) !== id);
-      localStorage.setItem('gymflow_custom_admin_users', JSON.stringify(filtered));
+    if ((targetEmail && targetEmail.toLowerCase().trim() === currentEmail) || id === currentId) {
+      toast.error('Security policy violation: You cannot delete your own user account.');
+      return;
     }
 
-    toast.success(`User account for "${name}" deactivated and removed`);
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+
+      if (res.ok || res.status === 204) {
+        toast.success(`User account for "${name}" removed successfully.`);
+        setUsers((prev) => prev.filter((u) => (u.id || u._id) !== id));
+      } else {
+        const json = await res.json().catch(() => null);
+        toast.error(json?.message || 'Failed to remove user account.');
+      }
+    } catch {
+      toast.error('Network error while removing user.');
+    }
   };
 
   // Telemetry Metrics
   const totalActiveUsers = `${users.filter((u) => u.status === 'ACTIVE').length} / ${users.length} Active`;
   const mfaEnforcedRate = `${Math.round((users.filter((u) => u.mfaEnabled).length / (users.length || 1)) * 100)}% Enforced`;
-  const adminCount = `${users.filter((u) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN').length} Admins`;
+  const staffCount = `${users.filter((u) => u.role === 'TRAINER' || u.role === 'RECEPTIONIST').length} Staff`;
   const liveSessionHealth = '100% Verified SSO';
 
   const columns: ColumnDef<IUserModel>[] = [
@@ -177,43 +261,57 @@ export const ListPage: React.FC = () => {
     {
       accessorKey: 'securityScore',
       header: 'Trust Score',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <div className="w-14 bg-muted rounded-full h-1.5 overflow-hidden border border-border">
-            <div
-              className={`h-full rounded-full ${
-                row.original.securityScore >= 95
-                  ? 'bg-emerald-500'
-                  : row.original.securityScore >= 80
-                  ? 'bg-primary'
-                  : 'bg-amber-500'
-              }`}
-              style={{ width: `${row.original.securityScore}%` }}
-            />
+      cell: ({ row }) => {
+        const score = typeof row.original.securityScore === 'number' && !isNaN(row.original.securityScore)
+          ? row.original.securityScore
+          : row.original.mfaEnabled ? 95 : 85;
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-14 bg-muted rounded-full h-1.5 overflow-hidden border border-border">
+              <div
+                className={`h-full rounded-full ${
+                  score >= 90
+                    ? 'bg-emerald-500'
+                    : score >= 75
+                    ? 'bg-primary'
+                    : 'bg-amber-500'
+                }`}
+                style={{ width: `${score}%` }}
+              />
+            </div>
+            <span className="text-xs font-mono font-bold text-foreground">
+              {score}%
+            </span>
           </div>
-          <span className="text-xs font-mono font-bold text-foreground">
-            {row.original.securityScore}%
-          </span>
-        </div>
-      ),
+        );
+      },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => (
-        <Badge
-          variant={row.original.status === 'ACTIVE' ? 'success' : row.original.status === 'INVITED' ? 'warning' : 'destructive'}
-          className="text-[9px] font-bold"
-        >
-          {row.original.status === 'ACTIVE' ? '🟢 ACTIVE' : row.original.status === 'INVITED' ? '✉️ INVITED' : '🔴 SUSPENDED'}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const rawStatus = (row.original.status || 'ACTIVE').toUpperCase();
+        const isActive = rawStatus === 'ACTIVE';
+        const isInvited = rawStatus === 'INVITED';
+        return (
+          <Badge
+            variant={isActive ? 'success' : isInvited ? 'warning' : 'destructive'}
+            className="text-[9px] font-bold"
+          >
+            {isActive ? '🟢 ACTIVE' : isInvited ? '✉️ INVITED' : '🔴 SUSPENDED'}
+          </Badge>
+        );
+      },
     },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
         const id = row.original.id || row.original._id;
+        const currentEmail = currentUser?.email?.toLowerCase().trim();
+        const currentId = currentUser?.id || (currentUser as any)?._id;
+        const isSelf = (currentEmail && row.original.email?.toLowerCase().trim() === currentEmail) || (currentId && id === currentId);
+
         return (
           <div className="flex items-center gap-1.5">
             <Button
@@ -234,15 +332,17 @@ export const ListPage: React.FC = () => {
             >
               <Edit className="h-3.5 w-3.5" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-7 w-7 text-rose-500 hover:bg-rose-500/10 border-rose-500/30"
-              onClick={() => handleDelete(id || '', row.original.fullName)}
-              title="Deactivate User"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {!isSelf && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7 text-rose-500 hover:bg-rose-500/10 border-rose-500/30"
+                onClick={() => handleDelete(id || '', row.original.fullName, row.original.email)}
+                title="Deactivate User"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         );
       },
@@ -289,7 +389,7 @@ export const ListPage: React.FC = () => {
       {/* 4 Telemetry Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard
-          title="TOTAL ACTIVE USERS"
+          title="TOTAL MANAGED USERS"
           value={totalActiveUsers}
           change="Directory Population"
           trend="up"
@@ -305,9 +405,9 @@ export const ListPage: React.FC = () => {
           icon={<ShieldCheck className="h-5 w-5 text-emerald-500" />}
         />
         <MetricCard
-          title="ADMINISTRATOR TIER"
-          value={adminCount}
-          change="Facility Leadership"
+          title="STAFF CLEARANCE"
+          value={staffCount}
+          change="Operations Roster"
           trend="up"
           timeframe="Governance"
           icon={<Shield className="h-5 w-5 text-primary" />}

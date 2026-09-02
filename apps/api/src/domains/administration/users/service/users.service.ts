@@ -2,7 +2,7 @@ import { BaseService } from '../../../../shared/base/BaseService.js';
 import { IUsersRepository, UsersRepository } from '../repository/users.repository.js';
 import { CreateUsersDto, UpdateUsersDto } from '../dto/index.js';
 import { UsersMapper } from '../mapper/users.mapper.js';
-import { NotFoundException } from '../../../../core/exceptions/HttpException.js';
+import { NotFoundException, BadRequestException } from '../../../../core/exceptions/HttpException.js';
 import { IPaginationOptions } from '../../../../database/base.repository.js';
 import bcrypt from 'bcrypt';
 
@@ -75,6 +75,11 @@ export class UsersService extends BaseService {
   }
 
   async delete(id: string, tenantId: string, deletedBy?: string) {
+    if (deletedBy && id === deletedBy) {
+      throw new BadRequestException('Security policy violation: You cannot delete your own user account.');
+    }
+    const target = await this.repo.findById(id, tenantId);
+    if (!target) throw new NotFoundException('Users record not found');
     const deleted = await this.repo.softDelete(id, deletedBy, tenantId);
     if (!deleted) throw new NotFoundException('Users record not found');
     return true;
