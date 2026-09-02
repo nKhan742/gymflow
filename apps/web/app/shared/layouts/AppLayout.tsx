@@ -28,6 +28,7 @@ import {
 import { useThemeStore } from '../../core/store/themeStore';
 import { useAuthStore } from '../../core/store/authStore';
 import { useBranchStore } from '../../core/store/branchStore';
+import { usePlatformAuthStore } from '../../core/store/platformAuthStore';
 import { Button } from '../components/ui/button';
 import { CommandPalette } from '../components/command/CommandPalette';
 import {
@@ -68,6 +69,8 @@ export const AppLayout: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { mode, toggleTheme } = useThemeStore();
   const { user, logout } = useAuthStore();
+  const { isPlatformAuthenticated, platformUser } = usePlatformAuthStore();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || isPlatformAuthenticated || platformUser?.isPlatformAdmin;
   const { activeBranchId, branches, setActiveBranchId, getActiveBranch, loadBranches } = useBranchStore();
   const { currentPlan, hasAccess, openUpgradeModal, getRequiredPlan } = usePlanStore();
   const activeBranch = getActiveBranch();
@@ -208,42 +211,49 @@ export const AppLayout: React.FC = () => {
                   >
                     <div className="overflow-hidden">
                       <div className="pl-6 pr-1 space-y-0.5 border-l border-border/50 ml-4 my-1 py-0.5">
-                        {menu.children!.map((sub) => {
-                          const isSubActive =
-                            location.pathname === sub.path ||
-                            location.pathname.startsWith(sub.path + '/');
-                          const isAllowed = hasAccess(sub.path);
-                          const requiredTier = getRequiredPlan(sub.path);
+                        {menu.children!
+                          .filter((sub) => !sub.superAdminOnly || isSuperAdmin)
+                          .map((sub) => {
+                            const isSubActive =
+                              location.pathname === sub.path ||
+                              location.pathname.startsWith(sub.path + '/');
+                            const isAllowed = hasAccess(sub.path);
+                            const requiredTier = getRequiredPlan(sub.path);
 
-                          return (
-                            <button
-                              key={sub.id}
-                              onClick={() => {
-                                navigate(sub.path);
-                                setMobileOpen(false);
-                              }}
-                              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-left ${
-                                isSubActive
-                                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 truncate">
-                                <span
-                                  className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
-                                    isSubActive ? 'bg-primary-foreground' : 'bg-muted-foreground/40'
-                                  }`}
-                                />
-                                <span className="truncate">{sub.title}</span>
-                              </div>
-                              {!isAllowed && (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
-                                  {requiredTier === 'ENTERPRISE' ? 'ENT' : 'PRO'}
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
+                            return (
+                              <button
+                                key={sub.id}
+                                onClick={() => {
+                                  navigate(sub.path);
+                                  setMobileOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-left ${
+                                  isSubActive
+                                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  <span
+                                    className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
+                                      isSubActive ? 'bg-primary-foreground' : 'bg-muted-foreground/40'
+                                    }`}
+                                  />
+                                  <span className="truncate">{sub.title}</span>
+                                </div>
+                                {sub.superAdminOnly && (
+                                  <span className="px-1 py-0.5 rounded text-[8px] font-black uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0 ml-1">
+                                    ROOT
+                                  </span>
+                                )}
+                                {!isAllowed && !sub.superAdminOnly && (
+                                  <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
+                                    {requiredTier === 'ENTERPRISE' ? 'ENT' : 'PRO'}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>

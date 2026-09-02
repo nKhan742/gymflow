@@ -4,6 +4,7 @@ export interface ISidebarMenuItem {
   icon?: string;
   permission?: string;
   path: string;
+  superAdminOnly?: boolean;
   children?: ISidebarMenuItem[];
 }
 
@@ -96,6 +97,13 @@ export const SIDEBAR_MENU_CONFIG: ISidebarMenuItem[] = [
     path: '/administration/users',
     permission: 'administration:view',
     children: [
+      {
+        id: 'administration-platform-tenants',
+        title: 'Platform Tenants & Subscriptions',
+        path: '/administration/platform-tenants',
+        permission: 'administration:users:view',
+        superAdminOnly: true,
+      },
       {
         id: 'administration-users',
         title: 'Users',
