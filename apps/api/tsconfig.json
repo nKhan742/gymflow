@@ -16,28 +16,27 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
       "@core/*": [
-        "src/core/*"
+        "./src/core/*"
       ],
       "@config/*": [
-        "src/config/*"
+        "./src/config/*"
       ],
       "@database/*": [
-        "src/database/*"
+        "./src/database/*"
       ],
       "@shared/*": [
-        "src/shared/*"
+        "./src/shared/*"
       ],
       "@domains/*": [
-        "src/domains/*"
+        "./src/domains/*"
       ],
       "@docs/*": [
-        "src/docs/*"
+        "./src/docs/*"
       ],
       "@routes/*": [
-        "src/routes/*"
+        "./src/routes/*"
       ]
     }
   },
