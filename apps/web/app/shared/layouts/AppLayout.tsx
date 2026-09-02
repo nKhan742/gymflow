@@ -77,10 +77,46 @@ export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [platformNotifications, setPlatformNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const loadNotifications = async () => {
+    if (!isSuperAdmin) return;
+    try {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/platform/notifications');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setPlatformNotifications(json.data);
+          setUnreadCount(json.meta?.unreadCount || 0);
+        }
+      }
+    } catch {}
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/platform/notifications/read-all', { method: 'POST' });
+      setUnreadCount(0);
+      loadNotifications();
+      toast.success('All notifications marked as read.');
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isSuperAdmin]);
+
   // Load live branches on mount so the active branch is always available
   useEffect(() => {
-    loadBranches();
-  }, []);
+    if (!isSuperAdmin) {
+      loadBranches();
+    }
+  }, [isSuperAdmin]);
 
   // Automatically keep only the active route's parent menu open
   useEffect(() => {
@@ -327,110 +363,124 @@ export const AppLayout: React.FC = () => {
               </kbd>
             </button>
 
-            {/* Global Gym Branch Switcher */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-muted/60 text-xs font-semibold transition-all shadow-2xs group max-w-[210px] sm:max-w-[240px]">
-                  <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="truncate text-foreground font-semibold">
-                    {activeBranch ? activeBranch.name : (branches.length > 0 ? branches[0].name : (user?.campusName || 'PD Vihar'))}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 group-hover:text-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">
-                  Switch Active Gym Location
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                
-                {/* Individual Branches list */}
-                {branches.length === 0 ? (
+            {/* Gym Branch Switcher - Reserved Exclusively for Gym Admins */}
+            {isSuperAdmin ? (
+              <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-semibold shadow-2xs">
+                <Shield className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span className="truncate">Platform Console • Global Root</span>
+              </div>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-muted/60 text-xs font-semibold transition-all shadow-2xs group max-w-[210px] sm:max-w-[240px]">
+                    <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="truncate text-foreground font-semibold">
+                      {activeBranch ? activeBranch.name : (branches.length > 0 ? branches[0].name : (user?.campusName || 'Main Facility'))}
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0 group-hover:text-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">
+                    Switch Active Gym Location
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  {/* Individual Branches list */}
+                  {branches.length === 0 ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        loadBranches();
+                        toast.info('Reloading branches from database...');
+                      }}
+                      className="flex items-center justify-between cursor-pointer text-xs py-2"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <div className="truncate">
+                          <div className="font-semibold text-foreground truncate">{user?.campusName || 'Main Facility'}</div>
+                          <div className="text-[10px] text-muted-foreground">Primary Facility • Active</div>
+                        </div>
+                      </div>
+                      <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                    </DropdownMenuItem>
+                  ) : (
+                    branches.map((b) => {
+                      const isSelected = activeBranchId === b.id || activeBranchId === b._id || activeBranchId === b.name;
+                      return (
+                        <DropdownMenuItem
+                          key={b.id || b._id}
+                          onClick={() => {
+                            setActiveBranchId(b.id || (b._id as string));
+                            toast.success(`Switched active branch to ${b.name}`);
+                          }}
+                          className="flex items-center justify-between cursor-pointer text-xs py-2"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <div className="truncate">
+                              <div className="font-semibold text-foreground truncate">{b.name}</div>
+                              <div className="text-[10px] text-muted-foreground">
+                                {b.address?.city || 'Delhi'} • {b.code || 'BR-274'}
+                              </div>
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 text-primary shrink-0 ml-2" />}
+                        </DropdownMenuItem>
+                      );
+                    })
+                  )}
+
+                  <DropdownMenuSeparator />
+
+                  {/* All Locations option */}
                   <DropdownMenuItem
                     onClick={() => {
-                      loadBranches();
-                      toast.info('Reloading branches from database...');
+                      setActiveBranchId('ALL');
+                      toast.success('Switched to Consolidated View (All Gyms)');
                     }}
                     className="flex items-center justify-between cursor-pointer text-xs py-2"
                   >
-                    <div className="flex items-center gap-2 truncate">
-                      <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <div className="truncate">
-                        <div className="font-semibold text-foreground truncate">{user?.campusName || 'PD Vihar'}</div>
-                        <div className="text-[10px] text-muted-foreground">Primary Facility • Active</div>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-indigo-500" />
+                      <div>
+                        <div className="font-semibold text-foreground">All Locations (Consolidated)</div>
+                        <div className="text-[10px] text-muted-foreground">Network-wide telemetry</div>
                       </div>
                     </div>
-                    <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                    {activeBranchId === 'ALL' && <Check className="w-4 h-4 text-primary shrink-0" />}
                   </DropdownMenuItem>
-                ) : (
-                  branches.map((b) => {
-                    const isSelected = activeBranchId === b.id || activeBranchId === b._id || activeBranchId === b.name;
-                    return (
-                      <DropdownMenuItem
-                        key={b.id || b._id}
-                        onClick={() => {
-                          setActiveBranchId(b.id || (b._id as string));
-                          toast.success(`Switched active branch to ${b.name}`);
-                        }}
-                        className="flex items-center justify-between cursor-pointer text-xs py-2"
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <div className="truncate">
-                            <div className="font-semibold text-foreground truncate">{b.name}</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {b.address?.city || 'Delhi'} • {b.code || 'BR-274'}
-                            </div>
-                          </div>
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-primary shrink-0 ml-2" />}
-                      </DropdownMenuItem>
-                    );
-                  })
-                )}
 
-                <DropdownMenuSeparator />
-
-                {/* All Locations option */}
-                <DropdownMenuItem
-                  onClick={() => {
-                    setActiveBranchId('ALL');
-                    toast.success('Switched to Consolidated View (All Gyms)');
-                  }}
-                  className="flex items-center justify-between cursor-pointer text-xs py-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-indigo-500" />
-                    <div>
-                      <div className="font-semibold text-foreground">All Locations (Consolidated)</div>
-                      <div className="text-[10px] text-muted-foreground">Network-wide telemetry</div>
-                    </div>
-                  </div>
-                  {activeBranchId === 'ALL' && <Check className="w-4 h-4 text-primary shrink-0" />}
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => navigate('/gym-management/branches')}
-                  className="text-xs text-primary font-semibold cursor-pointer py-1.5 justify-center"
-                >
-                  Manage All Gym Branches →
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => navigate('/gym-management/branches')}
+                    className="text-xs text-primary font-semibold cursor-pointer py-1.5 justify-center"
+                  >
+                    Manage All Gym Branches →
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Right Header Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Plan Tier Badge Button */}
-            <button
-              type="button"
-              onClick={() => openUpgradeModal()}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all cursor-pointer shadow-xs"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>{currentPlan === 'ENTERPRISE' ? 'Enterprise' : currentPlan === 'PROFESSIONAL' ? 'Professional' : 'Essential'} Plan</span>
-            </button>
+            {/* Plan Tier Badge Button - Only for Gym Admins, Never Super Admin */}
+            {isSuperAdmin ? (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                <Shield className="h-3.5 w-3.5 text-purple-400" />
+                <span>Platform Owner</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openUpgradeModal()}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all cursor-pointer shadow-xs"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>{currentPlan === 'ENTERPRISE' ? 'Enterprise' : currentPlan === 'PROFESSIONAL' ? 'Professional' : 'Essential'} Plan</span>
+              </button>
+            )}
 
             <Button
               size="sm"
@@ -444,10 +494,91 @@ export const AppLayout: React.FC = () => {
               <span className="hidden sm:inline">Quick Add</span>
             </Button>
 
-            <Button variant="outline" size="icon" className="h-9 w-9 relative" onClick={() => toast.info('No new notifications')}>
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-            </Button>
+            {/* Notification Bell: Live Registration Alerts for Super Admin */}
+            {isSuperAdmin ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9 relative cursor-pointer">
+                    <Bell className="h-4 w-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center animate-pulse shadow-md">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0 shadow-2xl rounded-2xl bg-card border border-border">
+                  <div className="p-3 border-b border-border flex items-center justify-between bg-muted/30">
+                    <div className="flex items-center gap-1.5">
+                      <Bell className="h-4 w-4 text-primary" />
+                      <span className="text-xs font-bold text-foreground">Super Admin Alerts</span>
+                      {unreadCount > 0 && (
+                        <span className="px-1.5 py-0.2 rounded-full bg-primary/20 text-primary text-[10px] font-black">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleMarkAllRead}
+                        className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-border/60">
+                    {platformNotifications.length === 0 ? (
+                      <div className="p-8 text-center text-xs text-muted-foreground space-y-1">
+                        <p className="font-semibold text-foreground">No alerts yet</p>
+                        <p className="text-[11px]">You will receive instant alerts here whenever a new gym tenant registers at /auth/register.</p>
+                      </div>
+                    ) : (
+                      platformNotifications.map((notif) => (
+                        <div
+                          key={notif._id || notif.id}
+                          onClick={() => {
+                            navigate('/administration/platform-tenants');
+                          }}
+                          className={`p-3.5 hover:bg-muted/50 transition-colors cursor-pointer space-y-1 ${!notif.read ? 'bg-primary/5' : ''}`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+                              🏢 {notif.gymName}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            Owner: <strong className="text-foreground">{notif.ownerName}</strong> ({notif.email})
+                          </p>
+                          <div className="flex items-center justify-between text-[10px] text-primary font-bold pt-1">
+                            <span>📍 {notif.campusName || 'Main Facility'}</span>
+                            <span className="underline">View in Platform Console →</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-2 border-t border-border bg-muted/20 text-center">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/administration/platform-tenants')}
+                      className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                    >
+                      Go to Platform Tenants Console →
+                    </button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" size="icon" className="h-9 w-9 relative" onClick={() => toast.info('No new notifications')}>
+                <Bell className="h-4 w-4" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
+              </Button>
+            )}
 
             <Button variant="outline" size="icon" className="h-9 w-9" onClick={toggleTheme}>
               {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -461,8 +592,8 @@ export const AppLayout: React.FC = () => {
         </main>
       </div>
 
-      {/* Global Software Plan Upgrade & Comparison Modal */}
-      <PlanUpgradeModal />
+      {/* Global Software Plan Upgrade Modal - Never rendered for Super Admin */}
+      {!isSuperAdmin && <PlanUpgradeModal />}
     </div>
   );
 };

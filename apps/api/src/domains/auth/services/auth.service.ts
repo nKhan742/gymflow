@@ -166,6 +166,28 @@ export class AuthService {
       { upsert: true, new: true }
     ).catch(() => {});
 
+    // 7c. Dispatch notification to Platform Super Admin in Primary Database
+    try {
+      const primaryModels = TenantDatabaseManager.getTenantModels('gymflow_erp');
+      await primaryModels.connection.collection('platform_notifications').insertOne({
+        id: `notif_${Date.now()}_${randomSuffix}`,
+        type: 'NEW_GYM_REGISTRATION',
+        title: 'New Gym Facility Registered',
+        message: `${gymName} has registered by ${fullName || `${firstName} ${lastName}`} (${normalizedEmail})`,
+        gymName,
+        ownerName: fullName || `${firstName} ${lastName}`,
+        email: normalizedEmail,
+        phone: phone || '',
+        campusName: campusName || 'Main Facility',
+        tenantId,
+        databaseName: tenantDbName,
+        read: false,
+        createdAt: new Date(),
+      });
+    } catch (err) {
+      console.warn('[AuthService] Warning writing platform notification:', err);
+    }
+
     // 8. Seed Default Membership Plans inside the separate tenant database
     await Promise.all([
       tenantModels.MembershipPlans.create({

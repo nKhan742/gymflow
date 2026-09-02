@@ -1,4 +1,4 @@
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { TenantDatabaseManager } from '../../../database/tenant-database.manager.js';
 import { UsersModel } from '../../administration/users/model/users.model.js';
@@ -118,6 +118,49 @@ export class PlatformController {
       return res.status(500).json({
         success: false,
         message: 'Failed to update tenant status',
+        error: err?.message,
+      });
+    }
+  }
+
+  static async getNotifications(_req: Request, res: Response) {
+    try {
+      const primaryModels = TenantDatabaseManager.getTenantModels('gymflow_erp');
+      const collection = primaryModels.connection.collection('platform_notifications');
+      const notifications = await collection.find({}).sort({ createdAt: -1 }).limit(50).toArray();
+      const unreadCount = await collection.countDocuments({ read: false });
+
+      return res.status(200).json({
+        success: true,
+        data: notifications,
+        meta: {
+          unreadCount,
+          total: notifications.length,
+        },
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch platform notifications',
+        error: err?.message,
+      });
+    }
+  }
+
+  static async markNotificationsRead(_req: Request, res: Response) {
+    try {
+      const primaryModels = TenantDatabaseManager.getTenantModels('gymflow_erp');
+      const collection = primaryModels.connection.collection('platform_notifications');
+      await collection.updateMany({ read: false }, { $set: { read: true } });
+
+      return res.status(200).json({
+        success: true,
+        message: 'All notifications marked as read',
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to mark notifications read',
         error: err?.message,
       });
     }

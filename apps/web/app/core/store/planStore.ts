@@ -80,6 +80,16 @@ export const usePlanStore = create<IPlanState>((set, get) => ({
   },
 
   hasAccess: (modulePath: string): boolean => {
+    // Super Admin has full unrestricted access across all software modules
+    const authUserRaw = localStorage.getItem('gymflow_auth_user');
+    if (authUserRaw) {
+      try {
+        const u = JSON.parse(authUserRaw);
+        if (u.role === 'SUPER_ADMIN') return true;
+      } catch {}
+    }
+    if (localStorage.getItem('gymflow_platform_admin_session')) return true;
+
     const cleanPath = modulePath.replace(/^\//, '');
     const requiredTier = FEATURE_TIER_REQUIREMENTS[cleanPath] || 'ESSENTIAL';
     const userTier = get().currentPlan;
@@ -97,6 +107,16 @@ export const usePlanStore = create<IPlanState>((set, get) => ({
   },
 
   openUpgradeModal: (featureName?: string) => {
+    // Super Admin never subscribes or pays for plans
+    const authUserRaw = localStorage.getItem('gymflow_auth_user');
+    if (authUserRaw) {
+      try {
+        const u = JSON.parse(authUserRaw);
+        if (u.role === 'SUPER_ADMIN') return;
+      } catch {}
+    }
+    if (localStorage.getItem('gymflow_platform_admin_session')) return;
+
     set({
       isUpgradeModalOpen: true,
       upgradePromptFeature: featureName || null,

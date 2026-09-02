@@ -48,8 +48,6 @@ export const DEFAULT_BRANCHES: IBranchItem[] = [
     tagline: 'Flagship Headquarters & Performance Center',
     phone: '',
     email: '',
-    sqFt: 20000,
-    capacity: 450,
     address: {
       street: '100 Main Facility Boulevard',
       city: 'New Delhi',
