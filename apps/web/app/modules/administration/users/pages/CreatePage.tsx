@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -229,7 +229,7 @@ export const CreatePage: React.FC = () => {
         }
       />
 
-      <div className="max-w-4xl space-y-6">
+      <div className="max-w-4xl space-y-6 pt-6">
         {/* Quick Staff Import Banner */}
         <Card className="border-primary/30 bg-primary/5 shadow-xs">
           <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
