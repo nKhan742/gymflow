@@ -6,6 +6,7 @@ import { Input } from '../../../../shared/components/ui/input';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Mail, Lock, Sparkles, ArrowRight, Eye, EyeOff, ShieldCheck, UserCheck, Dumbbell } from 'lucide-react';
 import { useAuthStore } from '../../../../core/store/authStore';
+import { getDefaultDashboardPath } from '../../../../core/guards/rbacGuard';
 
 export const ListPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,13 +17,15 @@ export const ListPage: React.FC = () => {
 
   const { login, isLoading } = useAuthStore();
 
-  const from = (location.state as any)?.from?.pathname || '/dashboard/admin-dashboard';
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await login({ email, pass: password });
     if (success) {
-      navigate(from, { replace: true });
+      const currentUser = useAuthStore.getState().user;
+      const defaultPath = getDefaultDashboardPath(currentUser?.role);
+      const stateFrom = (location.state as any)?.from?.pathname;
+      const target = stateFrom && stateFrom !== '/' && stateFrom !== '/dashboard/admin-dashboard' ? stateFrom : defaultPath;
+      navigate(target, { replace: true });
     }
   };
 

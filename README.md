@@ -772,8 +772,11 @@ flowchart TD
    * **🥗 Certified Nutritionist (`NUTRITIONIST` — Tier 3)**: Authors clinical meal recipes, calculates caloric/macronutrient splits, tracks client hydration, and prescribes nutritional plans. *Boundary*: Zero access to hardware turnstiles, staff shift scheduling, or financial ledgers.
    * **📱 Gym Member (`MEMBER` — Tier 4)**: Mobile app and self-service portal access. Logs workout sets/reps, checks prescribed diet plans, reserves group fitness class spots, and views billing receipts. *Boundary*: Strict multi-tenant row isolation ensures members can only read and mutate documents where `memberId === req.user.id`.
 
+   ##### 🛡️ Automated UI Gating & Route Protection (`rbacGuard.ts`):
+   * **Dynamic Sidebar Filtering (`filterSidebarMenuForUser`)**: The sidebar automatically parses the active user's role and granted capabilities. Non-permitted operational sections (e.g. `Administration`, `Finance & Billing`, `Inventory` for a Trainer) are completely stripped from the navigation menu.
+   * **Route-Level 403 Security Interceptor (`canAccessPath`)**: Direct browser URL manipulation (e.g. a Trainer manually entering `/administration/users` or `/finance/invoices`) is intercepted, rendering an enterprise **403 Access Restricted** screen with 1-click return to their authorized dashboard.
+   * **Persona-Aware Home Routing (`getDefaultDashboardPath`)**: Upon authentication or navigating to `/dashboard`, users are dynamically redirected to their persona's operational dashboard (`/dashboard/trainer-dashboard` for Trainers, `/dashboard/reception-dashboard` for Receptionists, `/dashboard/accountant-dashboard` for Accountants, etc.).
 
-3. **Permissions Registry (`/administration/permissions`)**:
    - *Role*: Atomic machine capability registry and NIST access governance.
    - *Workflow*: Registers and edits machine authorization tokens (e.g. `gymflow.finance.invoices.sign`, `gymflow.gym.turnstiles.override`), domain scope verbs (`CREATE`, `READ`, `UPDATE`, `DELETE`, `EXPORT`, `SIGN_OFF`), risk rating classifications (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), and immutable root system protection locks.
    - *360° Permission Dossier*: 4 telemetry metrics (`RISK CLASSIFICATION`, `TARGET DOMAIN`, `ROLES HOLDING GRANT`, `PROTECTION STATUS`), machine token breakdown, and NIST 800-53 security compliance rating.

@@ -7,8 +7,17 @@ import { nutritionDashboardRoutes } from './nutrition-dashboard/routes';
 import { accountantDashboardRoutes } from './accountant-dashboard/routes';
 import { memberDashboardRoutes } from './member-dashboard/routes';
 
+import { useAuthStore } from '../../core/store/authStore';
+import { getDefaultDashboardPath } from '../../core/guards/rbacGuard';
+
+const DashboardRedirect: React.FC = () => {
+  const { user } = useAuthStore();
+  const target = getDefaultDashboardPath(user?.role);
+  return <Navigate to={target} replace />;
+};
+
 export const dashboardRoutes: RouteObject[] = [
-  { path: '/dashboard', element: <Navigate to="/dashboard/admin-dashboard" replace /> },
+  { path: '/dashboard', element: <DashboardRedirect /> },
   ...adminDashboardRoutes,
   ...receptionDashboardRoutes,
   ...trainerDashboardRoutes,

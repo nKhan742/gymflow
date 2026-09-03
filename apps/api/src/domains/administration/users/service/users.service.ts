@@ -21,18 +21,46 @@ export class UsersService extends BaseService {
     const role = (dto.role as any) || 'TRAINER';
 
     // Role-based default permissions
-    let defaultPermissions: string[] = ['*'];
-    if (role === 'TRAINER') {
-      defaultPermissions = ['members:members:view', 'gym:staff:view', 'gym:departments:view', 'gym:dashboard:view'];
-    } else if (role === 'RECEPTIONIST') {
-      defaultPermissions = ['members:members:view', 'members:members:create', 'members:members:update', 'gym:branches:view', 'gym:dashboard:view'];
-    } else if (role === 'BRANCH_MANAGER') {
-      defaultPermissions = ['gym:branches:view', 'gym:staff:view', 'gym:departments:view', 'members:members:view', 'members:members:create', 'members:members:update', 'gym:dashboard:view'];
-    } else if (role === 'NUTRITIONIST') {
-      defaultPermissions = ['members:members:view', 'gym:dashboard:view'];
-    } else if (role === 'MEMBER') {
-      defaultPermissions = ['profile:view'];
-    }
+    const rolePermissionsMap: Record<string, string[]> = {
+      ADMIN: ['*'],
+      SUPER_ADMIN: ['*'],
+      BRANCH_MANAGER: [
+        'gym:branches:view', 'gym:departments:view', 'gym:staff:view', 'gym:staff:create', 'gym:shifts:view', 'gym:holidays:manage',
+        'members:members:view', 'members:members:create', 'members:members:update', 'members:attendance:view',
+        'scheduling:classes:view', 'scheduling:appointments:view',
+        'fitness:workout-plans:view',
+        'inventory:equipment:view',
+        'analytics:attendance:view'
+      ],
+      ACCOUNTANT: [
+        'finance:payments:view', 'finance:invoices:view', 'finance:invoices:create', 'finance:invoices:sign', 'finance:pos:view', 'finance:salary:view',
+        'analytics:revenue:view', 'analytics:reports:export',
+        'inventory:products:view', 'inventory:inventory-stock:manage',
+        'members:membership-plans:view', 'members:members:view'
+      ],
+      TRAINER: [
+        'fitness:exercise-categories:view', 'fitness:exercise-library:view', 'fitness:workout-templates:view', 'fitness:workout-plans:view', 'fitness:workout-plans:create', 'fitness:fitness-assessment:view',
+        'members:members:view', 'members:attendance:view',
+        'scheduling:appointments:view', 'scheduling:classes:view',
+        'nutrition:diet-plans:view', 'nutrition:meal-library:view'
+      ],
+      RECEPTIONIST: [
+        'members:members:view', 'members:members:create', 'members:members:update', 'members:attendance:view',
+        'gym:branches:view', 'gym:shifts:view',
+        'scheduling:classes:view'
+      ],
+      NUTRITIONIST: [
+        'nutrition:meal-library:view', 'nutrition:meal-library:create', 'nutrition:diet-plans:view', 'nutrition:diet-plans:create', 'nutrition:nutrition-tracking:view',
+        'members:members:view', 'fitness:workout-plans:view'
+      ],
+      MEMBER: [
+        'profile:view',
+        'fitness:workout-plans:view',
+        'nutrition:diet-plans:view',
+        'scheduling:classes:view'
+      ]
+    };
+    const defaultPermissions = rolePermissionsMap[role] || rolePermissionsMap.TRAINER;
 
     const item = await this.repo.create({
       tenantId,
