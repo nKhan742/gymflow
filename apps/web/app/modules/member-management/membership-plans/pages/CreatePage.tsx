@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Form State
   const [name, setName] = useState('Platinum All-Access Seasonal Pass');

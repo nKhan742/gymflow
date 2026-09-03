@@ -16,7 +16,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Form State
   const [reportTitle, setReportTitle] = useState('Monthly Pro Shop, Supplements & Spares Valuation Audit');

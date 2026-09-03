@@ -17,11 +17,13 @@ import {
   resolveEffectivePermissions,
   IModuleDefinition,
 } from '../permissions.config';
+import { realtimeService } from '../../../../core/notifications/realtimeService';
+import { invalidateApiCache } from '../../../../core/api/liveApiCache';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState(true);
 
   // Form State
@@ -178,6 +180,18 @@ export const EditPage: React.FC = () => {
       });
 
       if (res.ok) {
+        invalidateApiCache('roles');
+
+        // Dispatch real-time WebSocket notification with sound to all holders of this role
+        realtimeService.dispatchNotification({
+          targetRole: roleKey,
+          title: `Security Policy Updated: ${roleName}`,
+          message: `Your account permissions and clearance tier have been updated in real-time (${selectedModules.length} domains granted).`,
+          notificationType: 'success',
+          sound: true,
+          metadata: { roleKey, resource: 'roles' },
+        });
+
         toast.success(`Role "${roleName}" saved successfully! (${selectedModules.length} of ${Object.keys(AVAILABLE_MODULE_PERMISSIONS).length} domains granted)`);
         navigate(`/administration/roles/${id}`);
       } else {

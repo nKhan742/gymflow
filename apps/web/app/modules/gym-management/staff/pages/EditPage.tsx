@@ -82,7 +82,7 @@ export const EditPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currency } = useCurrencyStore();
   const currencySymbol = SUPPORTED_CURRENCIES[currency]?.symbol || '$';
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState(true);
   const [staff, setStaff] = useState<IStaff | null>(null);
 

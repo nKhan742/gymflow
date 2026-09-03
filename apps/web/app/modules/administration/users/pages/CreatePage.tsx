@@ -17,7 +17,7 @@ export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
 
   // Staff import state

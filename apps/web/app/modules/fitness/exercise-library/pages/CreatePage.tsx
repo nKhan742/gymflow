@@ -59,7 +59,7 @@ const MECHANICS_OPTIONS: ISelectOption[] = [
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Section 1: Identity & Category
   const [name, setName] = useState('');

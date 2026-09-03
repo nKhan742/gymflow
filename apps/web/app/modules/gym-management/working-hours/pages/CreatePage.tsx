@@ -42,7 +42,7 @@ const INITIAL_SCHEDULE: IDaySchedule[] = [
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Section 1: Identity & Access Mode
   const [name, setName] = useState('');

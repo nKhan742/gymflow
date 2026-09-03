@@ -12,7 +12,7 @@ import { ImageUpload } from '../../../../shared/components/image-upload';
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState('Products Item Alpha');
   const [image, setImage] = useState('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80');
 

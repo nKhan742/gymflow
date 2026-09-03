@@ -20,7 +20,7 @@ export const EditPage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
   const { user: authUser } = useAuthStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState(true);
 
   // Form State

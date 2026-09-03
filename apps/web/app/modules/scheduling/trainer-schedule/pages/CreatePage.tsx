@@ -18,7 +18,7 @@ const DAYS_OF_WEEK = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Form State
   const [trainerName, setTrainerName] = useState('Coach Alex Rivera');

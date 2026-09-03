@@ -16,7 +16,7 @@ const SEVERITY_LEVELS: IActivityLogModel['severity'][] = ['INFO', 'WARNING', 'ER
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState(true);
 
   // Form State

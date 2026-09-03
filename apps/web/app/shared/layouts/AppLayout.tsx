@@ -49,6 +49,7 @@ import { PlanUpgradeModal } from '../components/plan/PlanUpgradeModal';
 import { TopProgressBar } from '../components/feedback/TopProgressBar';
 import { toast } from 'sonner';
 import { MapPin, Check, ChevronDown, Lock } from 'lucide-react';
+import { realtimeService } from '../../core/notifications/realtimeService';
 
 const ICONS_MAP: Record<string, React.ReactElement> = {
   dashboard: <Activity className="h-4 w-4" />,
@@ -121,12 +122,34 @@ export const AppLayout: React.FC = () => {
   };
 
   useEffect(() => {
+    realtimeService.connect(user);
+
+    const unsubscribe = realtimeService.subscribe((event) => {
+      setPlatformNotifications((prev) => [
+        {
+          _id: `live_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          title: event.title,
+          message: event.message,
+          type: event.notificationType,
+          gymName: event.title,
+          ownerName: event.message,
+          read: false,
+          createdAt: event.timestamp || new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+      setUnreadCount((c) => c + 1);
+    });
+
     if (isSuperAdmin) {
       loadNotifications();
-      const interval = setInterval(loadNotifications, 10000);
-      return () => clearInterval(interval);
     }
-  }, [isSuperAdmin]);
+
+    return () => {
+      unsubscribe();
+      realtimeService.disconnect();
+    };
+  }, [user?.id, user?.email, user?.role, isSuperAdmin]);
 
   // Load live branches on mount so the active branch is always available
   useEffect(() => {
@@ -512,74 +535,72 @@ export const AppLayout: React.FC = () => {
               <span className="hidden sm:inline">Quick Add</span>
             </Button>
 
-            {/* Notification Bell: Live Registration Alerts for Super Admin */}
-            {isSuperAdmin ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9 relative cursor-pointer">
-                    <Bell className="h-4 w-4" />
+            {/* Real-time Enterprise Notification Bell */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-9 w-9 relative cursor-pointer">
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center animate-pulse shadow-md">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0 shadow-2xl rounded-2xl bg-card border border-border">
+                <div className="p-3 border-b border-border flex items-center justify-between bg-muted/30">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-bold text-foreground">
+                      {isSuperAdmin ? 'Enterprise & Platform Alerts' : 'Live Notifications'}
+                    </span>
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center animate-pulse shadow-md">
-                        {unreadCount}
+                      <span className="px-1.5 py-0.2 rounded-full bg-primary/20 text-primary text-[10px] font-black">
+                        {unreadCount} new
                       </span>
                     )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0 shadow-2xl rounded-2xl bg-card border border-border">
-                  <div className="p-3 border-b border-border flex items-center justify-between bg-muted/30">
-                    <div className="flex items-center gap-1.5">
-                      <Bell className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-bold text-foreground">Super Admin Alerts</span>
-                      {unreadCount > 0 && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-primary/20 text-primary text-[10px] font-black">
-                          {unreadCount} new
-                        </span>
-                      )}
+                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUnreadCount(0);
+                        toast.success('All notifications marked as read.');
+                      }}
+                      className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto divide-y divide-border/60">
+                  {platformNotifications.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-muted-foreground space-y-1">
+                      <p className="font-semibold text-foreground">No alerts yet</p>
+                      <p className="text-[11px]">You will receive live real-time notifications with audio chimes whenever permissions, assignments, or records update.</p>
                     </div>
-                    {unreadCount > 0 && (
-                      <button
-                        type="button"
-                        onClick={handleMarkAllRead}
-                        className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
+                  ) : (
+                    platformNotifications.map((notif, idx) => (
+                      <div
+                        key={notif._id || notif.id || idx}
+                        className={`p-3.5 hover:bg-muted/50 transition-colors cursor-pointer space-y-1 ${!notif.read ? 'bg-primary/5' : ''}`}
                       >
-                        Mark all read
-                      </button>
-                    )}
-                  </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-border/60">
-                    {platformNotifications.length === 0 ? (
-                      <div className="p-8 text-center text-xs text-muted-foreground space-y-1">
-                        <p className="font-semibold text-foreground">No alerts yet</p>
-                        <p className="text-[11px]">You will receive instant alerts here whenever a new gym tenant registers at /auth/register.</p>
-                      </div>
-                    ) : (
-                      platformNotifications.map((notif) => (
-                        <div
-                          key={notif._id || notif.id}
-                          onClick={() => {
-                            navigate('/administration/platform-tenants');
-                          }}
-                          className={`p-3.5 hover:bg-muted/50 transition-colors cursor-pointer space-y-1 ${!notif.read ? 'bg-primary/5' : ''}`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
-                              🏢 {notif.gymName}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              {notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground">
-                            Owner: <strong className="text-foreground">{notif.ownerName}</strong> ({notif.email})
-                          </p>
-                          <div className="flex items-center justify-between text-[10px] text-primary font-bold pt-1">
-                            <span>📍 {notif.campusName || 'Main Facility'}</span>
-                            <span className="underline">View in Platform Console →</span>
-                          </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+                            🔔 {notif.title || notif.gymName || 'System Alert'}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            {notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
+                          </span>
                         </div>
-                      ))
-                    )}
-                  </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          {notif.message || (notif.ownerName ? `Owner: ${notif.ownerName} (${notif.email})` : 'System event dispatched in real-time.')}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {isSuperAdmin && (
                   <div className="p-2 border-t border-border bg-muted/20 text-center">
                     <button
                       type="button"
@@ -589,14 +610,9 @@ export const AppLayout: React.FC = () => {
                       Go to Platform Tenants Console →
                     </button>
                   </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button variant="outline" size="icon" className="h-9 w-9 relative" onClick={() => toast.info('No new notifications')}>
-                <Bell className="h-4 w-4" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-              </Button>
-            )}
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button variant="outline" size="icon" className="h-9 w-9" onClick={toggleTheme}>
               {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

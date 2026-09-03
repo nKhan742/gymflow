@@ -34,7 +34,7 @@ interface IInvoiceLineItem {
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Step 1: Member Selection
   const [membersList, setMembersList] = useState<any[]>([]);

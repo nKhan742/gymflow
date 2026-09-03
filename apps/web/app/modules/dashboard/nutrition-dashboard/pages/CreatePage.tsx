@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -48,6 +48,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const authUserRaw = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       if (authUserRaw) {
         const authUser = JSON.parse(authUserRaw);
         setProfile((prev) => ({
@@ -60,6 +61,34 @@ export const ListPage: React.FC = () => {
           department: authUser.department || prev.department,
           branchName: authUser.branchName || prev.branchName,
         }));
+
+        try {
+          const staffRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/staff', {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : '',
+              'Content-Type': 'application/json',
+            },
+          });
+          if (staffRes.ok) {
+            const sJson = await staffRes.json();
+            const sList = sJson.data?.items || (Array.isArray(sJson.data) ? sJson.data : []);
+            const matched = sList.find((s: any) => s.email?.toLowerCase() === authUser.email?.toLowerCase());
+            if (matched) {
+              setProfile((prev) => ({
+                ...prev,
+                fullName: matched.name || `${matched.firstName} ${matched.lastName}`.trim() || prev.fullName,
+                phone: matched.phone || prev.phone,
+                employeeId: matched.code || prev.employeeId,
+                jobTitle: matched.role ? String(matched.role).replace('_', ' ') : prev.jobTitle,
+                department: matched.department || prev.department,
+                bio: matched.bio || `Certified fitness specialist and coach. Specializations: ${matched.specializations?.join(', ') || 'Strength, Hypertrophy, Mobility'}.`,
+                certifications: matched.certifications?.length ? matched.certifications : prev.certifications,
+                shiftSchedule: matched.shift || prev.shiftSchedule,
+                branchName: matched.branchName || prev.branchName,
+              }));
+            }
+          }
+        } catch {}
       }
 
       const stored = localStorage.getItem('gymflow_custom_my_profiles');
@@ -72,7 +101,7 @@ export const ListPage: React.FC = () => {
         }
       }
 
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      // Fetch from live API
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile', {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

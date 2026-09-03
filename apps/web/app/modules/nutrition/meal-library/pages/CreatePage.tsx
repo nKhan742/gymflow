@@ -28,7 +28,7 @@ import { IMeal, DietaryClassification, MealCategory, IIngredient } from '../type
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Form State
   const [name, setName] = useState('');
