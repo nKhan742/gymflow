@@ -156,11 +156,12 @@ export const AppLayout: React.FC = () => {
         setOpenMenuId(null);
       } else {
         setOpenMenuId(menu.id);
+        const targetPath = (menu.children && menu.children.length > 0) ? menu.children[0].path : menu.path;
         if (
           location.pathname !== '/' + menu.id &&
           !location.pathname.startsWith('/' + menu.id + '/')
         ) {
-          navigate(menu.path);
+          navigate(targetPath);
           setMobileOpen(false);
         }
       }

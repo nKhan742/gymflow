@@ -1,4 +1,4 @@
-﻿import { ISidebarMenuItem } from '../config/sidebarConfig';
+import { ISidebarMenuItem, SIDEBAR_MENU_CONFIG } from '../config/sidebarConfig';
 import { isModuleGranted } from '../../modules/administration/roles/permissions.config';
 
 /**
@@ -145,6 +145,27 @@ export const canAccessPath = (
     return false;
   }
 
+  // Check exact sub-item permission if the route maps to a declared sidebar item
+  if (normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
+    for (const menu of SIDEBAR_MENU_CONFIG) {
+      if (menu.children) {
+        for (const child of menu.children) {
+          if (child.path === pathname || pathname.startsWith(child.path + '/')) {
+            if (child.permission) {
+              const hasWildcard = permissions.includes('*') || permissions.includes('all');
+              const modKey = MENU_TO_MODULE_MAP[menu.id];
+              const hasModuleWildcard = permissions.includes(`${menu.id}:*`) || (modKey ? permissions.includes(`${modKey}:*`) : false);
+              const hasExact = permissions.includes(child.permission);
+              if (!hasWildcard && !hasModuleWildcard && !hasExact) {
+                return false;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Check top-level domain access
   const segments = pathname.split('/').filter(Boolean);
   const rootSegment = segments[0] || '';
@@ -203,6 +224,17 @@ export const filterSidebarMenuForUser = (
         const disallowed = ROLE_DISALLOWED_SUBPATHS[normRole] || [];
         if (disallowed.some((bad) => sub.path === bad || sub.path.startsWith(bad + '/'))) {
           return false;
+        }
+
+        // Check sub-item specific permission if declared
+        if (sub.permission && normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
+          const hasWildcard = permissions.includes('*') || permissions.includes('all');
+          const modKey = MENU_TO_MODULE_MAP[menu.id];
+          const hasModuleWildcard = permissions.includes(`${menu.id}:*`) || (modKey ? permissions.includes(`${modKey}:*`) : false);
+          const hasExact = permissions.includes(sub.permission);
+          if (!hasWildcard && !hasModuleWildcard && !hasExact) {
+            return false;
+          }
         }
 
         return true;

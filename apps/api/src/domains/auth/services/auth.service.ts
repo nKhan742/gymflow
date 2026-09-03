@@ -325,6 +325,30 @@ export class AuthService {
           throw new UnauthorizedException('Invalid credentials provided.');
         }
 
+        // Dynamically resolve the latest permissions from the Roles collection for this user's role
+        let effectivePermissions = dbUser.permissions || [];
+        if (dbUser.role && dbUser.role !== 'ADMIN' && dbUser.role !== 'SUPER_ADMIN') {
+          try {
+            const tenantModels = TenantDatabaseManager.getTenantModels(dbName);
+            if (tenantModels.Roles) {
+              const roleDoc = await tenantModels.Roles.findOne({
+                roleKey: { $regex: new RegExp(`^${dbUser.role}$`, 'i') },
+                isDeleted: false,
+              }).lean();
+              if (roleDoc) {
+                const rolePerms = (roleDoc.permissionsList && roleDoc.permissionsList.length > 0)
+                  ? roleDoc.permissionsList
+                  : (roleDoc.permissions || []);
+                if (rolePerms.length > 0) {
+                  effectivePermissions = rolePerms;
+                }
+              }
+            }
+          } catch {}
+        } else if (dbUser.role === 'ADMIN' || dbUser.role === 'SUPER_ADMIN') {
+          effectivePermissions = ['*'];
+        }
+
         const user = {
           id: dbUser._id.toString(),
           email: dbUser.email,
@@ -334,7 +358,7 @@ export class AuthService {
           tenantId: dbUser.tenantId,
           dbName,
           branchId: dbUser.branchId,
-          permissions: dbUser.permissions || ['*'],
+          permissions: effectivePermissions,
           isActive: dbUser.isActive,
         };
 

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -33,6 +33,7 @@ export const EditPage: React.FC = () => {
   const [isSystemRole, setIsSystemRole] = useState(false);
   const [status, setStatus] = useState<IRoleModel['status']>('ACTIVE');
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [rawPermissions, setRawPermissions] = useState<string[]>([]);
 
   useEffect(() => {
@@ -85,6 +86,7 @@ export const EditPage: React.FC = () => {
 
         const perms: string[] = roleData.permissionsList || roleData.permissions || [];
         setRawPermissions(perms);
+        setSelectedPermissions(perms);
 
         // Derive which module domains are granted
         const granted = getGrantedModules(perms, roleData.roleKey || roleData.code);
@@ -98,21 +100,51 @@ export const EditPage: React.FC = () => {
   };
 
   const toggleModule = (moduleKey: string) => {
-    setSelectedModules((prev) => {
-      const isSelected = prev.includes(moduleKey);
-      if (isSelected) {
-        return prev.filter((m) => m !== moduleKey);
-      } else {
-        return [...prev, moduleKey];
+    const mod = AVAILABLE_MODULE_PERMISSIONS[moduleKey];
+    if (!mod) return;
+    const modCapCodes = mod.capabilities.map((c) => c.code);
+    const hasAll = modCapCodes.every((code) => selectedPermissions.includes(code));
+
+    if (hasAll) {
+      setSelectedPermissions((prev) => prev.filter((p) => !modCapCodes.includes(p)));
+      setSelectedModules((prev) => prev.filter((m) => m !== moduleKey));
+    } else {
+      setSelectedPermissions((prev) => Array.from(new Set([...prev, ...modCapCodes])));
+      setSelectedModules((prev) => Array.from(new Set([...prev, moduleKey])));
+    }
+  };
+
+  const toggleCapability = (capCode: string, moduleKey: string) => {
+    setSelectedPermissions((prev) => {
+      const exists = prev.includes(capCode);
+      const next = exists ? prev.filter((c) => c !== capCode) : [...prev, capCode];
+      const mod = AVAILABLE_MODULE_PERMISSIONS[moduleKey];
+      if (mod) {
+        const hasAny = mod.capabilities.some((c) => next.includes(c.code));
+        setSelectedModules((prevMods) => {
+          if (hasAny && !prevMods.includes(moduleKey)) {
+            return [...prevMods, moduleKey];
+          } else if (!hasAny && prevMods.includes(moduleKey)) {
+            return prevMods.filter((m) => m !== moduleKey);
+          }
+          return prevMods;
+        });
       }
+      return next;
     });
   };
 
   const handleSelectAllModules = () => {
+    const allCodes: string[] = [];
+    Object.values(AVAILABLE_MODULE_PERMISSIONS).forEach((m) => {
+      m.capabilities.forEach((c) => allCodes.push(c.code));
+    });
+    setSelectedPermissions(allCodes);
     setSelectedModules(Object.keys(AVAILABLE_MODULE_PERMISSIONS));
   };
 
   const handleClearAllModules = () => {
+    setSelectedPermissions([]);
     setSelectedModules([]);
   };
 
@@ -120,7 +152,7 @@ export const EditPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    const effectivePermissions = resolveEffectivePermissions(selectedModules, rawPermissions);
+    const effectivePermissions = selectedPermissions;
 
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
@@ -345,38 +377,57 @@ export const EditPage: React.FC = () => {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {Object.entries(AVAILABLE_MODULE_PERMISSIONS).map(([key, mod]: [string, IModuleDefinition]) => {
-                    const isChecked = selectedModules.includes(key);
+                    const modCapCodes = mod.capabilities.map((c) => c.code);
+                    const selectedCount = modCapCodes.filter((code) =>
+                      selectedPermissions.includes(code) || selectedPermissions.includes('*') || selectedPermissions.includes('all')
+                    ).length;
+                    const isAllSelected = selectedCount === modCapCodes.length && modCapCodes.length > 0;
+                    const isPartial = selectedCount > 0 && !isAllSelected;
+
                     return (
                       <div
                         key={key}
                         onClick={() => toggleModule(key)}
                         className={`p-3 rounded-xl border flex items-start justify-between gap-2.5 cursor-pointer select-none transition-all ${
-                          isChecked
+                          isAllSelected
                             ? 'border-emerald-500/60 bg-emerald-500/10 shadow-sm'
+                            : isPartial
+                            ? 'border-primary/50 bg-primary/5 shadow-2xs'
                             : 'border-border bg-card/40 opacity-60 hover:opacity-100 hover:border-border/80'
                         }`}
                       >
-                        <div className="space-y-1">
-                          <span className="text-xs font-bold text-foreground block leading-tight">
+                        <div className="space-y-1 min-w-0">
+                          <span className="text-xs font-bold text-foreground block leading-tight truncate">
                             {mod.label}
                           </span>
                           <p className="text-[10px] text-muted-foreground line-clamp-2">
                             {mod.desc}
                           </p>
-                          <div className="flex items-center gap-1 pt-1">
-                            <span className="text-[9px] font-mono text-muted-foreground">
-                              {mod.capabilities.length} capabilities
-                            </span>
+                          <div className="flex items-center gap-1.5 pt-1">
+                            <Badge
+                              variant="outline"
+                              className={`text-[9px] font-mono font-bold ${
+                                isAllSelected
+                                  ? 'bg-emerald-500/20 text-emerald-600 border-emerald-500/40'
+                                  : isPartial
+                                  ? 'bg-primary/20 text-primary border-primary/40'
+                                  : 'text-muted-foreground'
+                              }`}
+                            >
+                              {selectedCount} / {mod.capabilities.length} Capabilities
+                            </Badge>
                           </div>
                         </div>
                         <div
                           className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                            isChecked
+                            isAllSelected
                               ? 'bg-emerald-500 border-emerald-500 text-white'
+                              : isPartial
+                              ? 'bg-primary border-primary text-primary-foreground'
                               : 'border-input bg-background'
                           }`}
                         >
-                          {isChecked && <Check className="h-3.5 w-3.5" />}
+                          {(isAllSelected || isPartial) && <Check className="h-3.5 w-3.5" />}
                         </div>
                       </div>
                     );
@@ -390,45 +441,83 @@ export const EditPage: React.FC = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <KeyRound className="h-4 w-4 text-primary" />
-                  Granular Permission Capabilities List
+                  Granular Permission Capabilities Matrix
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Detailed tokens and operations enforced for active granted domains
+                  Check or uncheck individual operational permissions across modules (e.g. Salary View under Finance)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {selectedModules.length === 0 ? (
-                  <div className="p-8 text-center border border-dashed border-border rounded-xl">
-                    <AlertCircle className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground">
-                      No modules selected. Check modules above to grant operational capabilities.
-                    </p>
-                  </div>
-                ) : (
-                  selectedModules.map((modKey) => {
-                    const mod = AVAILABLE_MODULE_PERMISSIONS[modKey];
-                    if (!mod) return null;
-                    return (
-                      <div key={modKey} className="rounded-xl border border-border p-3.5 bg-card/40 space-y-2.5">
-                        <div className="flex items-center justify-between border-b border-border pb-2">
-                          <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                {Object.entries(AVAILABLE_MODULE_PERMISSIONS).map(([modKey, mod]) => {
+                  const modCapCodes = mod.capabilities.map((c) => c.code);
+                  const selectedInMod = modCapCodes.filter((code) =>
+                    selectedPermissions.includes(code) || selectedPermissions.includes('*') || selectedPermissions.includes('all')
+                  ).length;
+                  const isAll = selectedInMod === modCapCodes.length && modCapCodes.length > 0;
+
+                  return (
+                    <div key={modKey} className="rounded-xl border border-border p-3.5 bg-card/40 space-y-2.5">
+                      <div className="flex items-center justify-between border-b border-border pb-2 flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-foreground">
                             {mod.label}
                           </span>
-                          <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
-                            ACTIVE DOMAIN
+                          <Badge
+                            variant="outline"
+                            className={`text-[9px] font-mono font-bold ${
+                              isAll
+                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                                : selectedInMod > 0
+                                ? 'bg-primary/10 text-primary border-primary/30'
+                                : 'text-muted-foreground'
+                            }`}
+                          >
+                            {selectedInMod} / {mod.capabilities.length} GRANTED
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-1 gap-2">
-                          {mod.capabilities.map((cap) => (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[10px] px-2 text-primary hover:bg-primary/10"
+                          onClick={() => toggleModule(modKey)}
+                        >
+                          {isAll ? 'Revoke All' : 'Grant All'}
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {mod.capabilities.map((cap) => {
+                          const isCapChecked =
+                            selectedPermissions.includes(cap.code) ||
+                            selectedPermissions.includes('*') ||
+                            selectedPermissions.includes('all');
+
+                          return (
                             <div
                               key={cap.code}
-                              className="flex items-center justify-between text-xs p-2 rounded-lg bg-background/80 border border-border/70"
+                              onClick={() => toggleCapability(cap.code, modKey)}
+                              className={`flex items-center justify-between text-xs p-2.5 rounded-lg border cursor-pointer select-none transition-all ${
+                                isCapChecked
+                                  ? 'bg-primary/5 border-primary/40 shadow-2xs'
+                                  : 'bg-background/80 border-border/70 opacity-60 hover:opacity-100 hover:border-border'
+                              }`}
                             >
-                              <div className="space-y-0.5">
-                                <span className="font-semibold text-foreground block">{cap.name}</span>
-                                <code className="text-[10px] text-muted-foreground font-mono">{cap.code}</code>
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div
+                                  className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                                    isCapChecked
+                                      ? 'bg-primary border-primary text-primary-foreground'
+                                      : 'border-input bg-background'
+                                  }`}
+                                >
+                                  {isCapChecked && <Check className="h-3 w-3" />}
+                                </div>
+                                <div className="space-y-0.5 min-w-0 truncate">
+                                  <span className="font-semibold text-foreground block truncate">{cap.name}</span>
+                                  <code className="text-[10px] text-muted-foreground font-mono">{cap.code}</code>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex items-center gap-1.5 shrink-0 ml-2">
                                 <Badge
                                   variant="outline"
                                   className={`text-[9px] font-mono font-bold ${
@@ -451,12 +540,12 @@ export const EditPage: React.FC = () => {
                                 </Badge>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })
-                )}
+                    </div>
+                  );
+                })}
               </CardContent>
               <CardFooter className="flex items-center justify-between border-t border-border pt-4">
                 <span className="text-xs text-muted-foreground">
