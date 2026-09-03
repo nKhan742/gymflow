@@ -24,15 +24,12 @@ import {
   LogOut,
   Sparkles,
   ChevronRight,
-  ShieldAlert,
-  ArrowLeft,
 } from 'lucide-react';
 import { useThemeStore } from '../../core/store/themeStore';
 import { useAuthStore } from '../../core/store/authStore';
 import { useBranchStore } from '../../core/store/branchStore';
 import { usePlatformAuthStore } from '../../core/store/platformAuthStore';
 import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
 import { CommandPalette } from '../components/command/CommandPalette';
 import {
   DropdownMenu,
@@ -43,7 +40,6 @@ import {
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
 import { SIDEBAR_MENU_CONFIG, ISidebarMenuItem } from '../../core/config/sidebarConfig';
-import { filterSidebarMenuForUser, canAccessPath, getDefaultDashboardPath } from '../../core/guards/rbacGuard';
 import { usePlanStore } from '../../core/store/planStore';
 import { PlanUpgradeModal } from '../components/plan/PlanUpgradeModal';
 import { TopProgressBar } from '../components/feedback/TopProgressBar';
@@ -80,19 +76,6 @@ export const AppLayout: React.FC = () => {
   const activeBranch = getActiveBranch();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const isPathAuthorized = React.useMemo(() => {
-    return canAccessPath(location.pathname, user?.role, user?.permissions);
-  }, [location.pathname, user?.role, user?.permissions]);
-
-  const authorizedMenuItems = React.useMemo(() => {
-    return filterSidebarMenuForUser(
-      SIDEBAR_MENU_CONFIG,
-      user?.role,
-      user?.permissions,
-      isSuperAdmin
-    );
-  }, [user?.role, user?.permissions, isSuperAdmin]);
 
   const [platformNotifications, setPlatformNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -208,7 +191,6 @@ export const AppLayout: React.FC = () => {
 
         {/* Navigation List with Single Accordion & Smooth Grid Transitions */}
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-          {authorizedMenuItems.map((menu: ISidebarMenuItem) => {
             const isParentActive =
               location.pathname === '/' + menu.id ||
               location.pathname.startsWith('/' + menu.id + '/');
@@ -605,31 +587,7 @@ export const AppLayout: React.FC = () => {
 
         {/* Main Content Router View */}
         <main className="flex-1">
-          {isPathAuthorized ? (
-            <Outlet />
-          ) : (
-            <div className="min-h-[75vh] flex flex-col items-center justify-center p-6 text-center space-y-5 animate-in fade-in-50 duration-200">
-              <div className="h-16 w-16 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 flex items-center justify-center shadow-lg">
-                <ShieldAlert className="h-8 w-8" />
-              </div>
-              <div className="space-y-2 max-w-md">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground">Access Restricted</h2>
-                <p className="text-sm text-muted-foreground">
-                  Your security clearance tier (<Badge variant="outline" className="font-mono text-xs font-bold text-destructive border-destructive/30">{user?.role || 'STAFF'}</Badge>) does not possess authorization to view <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs">{location.pathname}</code>.
-                </p>
-                <p className="text-xs text-muted-foreground pt-1">
-                  This operational domain is strictly enforced under role-based access control governance. Contact your facility Super Administrator if you require elevated privileges.
-                </p>
-              </div>
-              <Button
-                className="gap-2 font-semibold shadow-md cursor-pointer"
-                onClick={() => navigate(getDefaultDashboardPath(user?.role), { replace: true })}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Return to {user?.role ? `${user.role} Dashboard` : 'Authorized Dashboard'}</span>
-              </Button>
-            </div>
-          )}
+          <Outlet />
         </main>
       </div>
 

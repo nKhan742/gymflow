@@ -29,7 +29,6 @@ const PlatformLoginPage = React.lazy(() =>
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
   },
   {
     path: '/platform-admin/login',
