@@ -13,21 +13,18 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IPermissionModel } from '../types';
 import { toast } from 'sonner';
 
-export const DEFAULT_PERMISSIONS: any[] = [];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [permissions, setPermissions] = useState<IPermissionModel[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadPermissions();
   }, []);
 
   const loadPermissions = async () => {
+    setLoading(true);
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_permissions');
-      const customList: IPermissionModel[] = stored ? JSON.parse(stored) : [];
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions', {
         headers: {
@@ -36,49 +33,38 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      let fetchedList: IPermissionModel[] = [];
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data?.items) {
-          fetchedList = json.data.items;
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setPermissions(items);
+        if (items.length > 0) {
+          localStorage.removeItem('gymflow_custom_admin_permissions');
         }
+      } else {
+        setPermissions([]);
       }
-
-      const combined = [...customList];
-      const allSources = fetchedList.length > 0 ? fetchedList : DEFAULT_PERMISSIONS;
-      for (const item of allSources) {
-        const id = item.id || item._id;
-        if (!combined.some((p) => (p.id || p._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setPermissions(combined);
     } catch {
-      const stored = localStorage.getItem('gymflow_custom_admin_permissions');
-      const customList: IPermissionModel[] = stored ? JSON.parse(stored) : [];
-      const combined = [...customList];
-      for (const item of DEFAULT_PERMISSIONS) {
-        const id = item.id || item._id;
-        if (!combined.some((p) => (p.id || p._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setPermissions(combined);
+      setPermissions([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
-    const updated = permissions.filter((p) => (p.id || p._id) !== id);
-    setPermissions(updated);
-
-    const stored = localStorage.getItem('gymflow_custom_admin_permissions');
-    if (stored) {
-      const customList: IPermissionModel[] = JSON.parse(stored);
-      const filtered = customList.filter((p) => (p.id || p._id) !== id);
-      localStorage.setItem('gymflow_custom_admin_permissions', JSON.stringify(filtered));
+  const handleDelete = async (id: string, name: string) => {
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+      setPermissions((prev) => prev.filter((p) => (p.id || p._id) !== id));
+      toast.success(`Permission "${name}" deleted`);
+    } catch {
+      toast.error('Failed to delete permission');
     }
-
-    toast.success(`Permission "${name}" deleted`);
   };
 
   // Telemetry Metrics

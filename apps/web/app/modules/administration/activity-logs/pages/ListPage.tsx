@@ -13,21 +13,18 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IActivityLogModel } from '../types';
 import { toast } from 'sonner';
 
-export const DEFAULT_ACTIVITY_LOGS: any[] = [];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<IActivityLogModel[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadLogs();
   }, []);
 
   const loadLogs = async () => {
+    setLoading(true);
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_activity_logs');
-      const customList: IActivityLogModel[] = stored ? JSON.parse(stored) : [];
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/activity-logs', {
         headers: {
@@ -36,34 +33,18 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      let fetchedList: IActivityLogModel[] = [];
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data?.items) {
-          fetchedList = json.data.items;
-        }
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setLogs(items);
+        localStorage.removeItem('gymflow_custom_admin_activity_logs');
+      } else {
+        setLogs([]);
       }
-
-      const combined = [...customList];
-      const allSources = fetchedList.length > 0 ? fetchedList : DEFAULT_ACTIVITY_LOGS;
-      for (const item of allSources) {
-        const id = item.id || item._id;
-        if (!combined.some((l) => (l.id || l._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setLogs(combined);
     } catch {
-      const stored = localStorage.getItem('gymflow_custom_admin_activity_logs');
-      const customList: IActivityLogModel[] = stored ? JSON.parse(stored) : [];
-      const combined = [...customList];
-      for (const item of DEFAULT_ACTIVITY_LOGS) {
-        const id = item.id || item._id;
-        if (!combined.some((l) => (l.id || l._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setLogs(combined);
+      setLogs([]);
+    } finally {
+      setLoading(false);
     }
   };
 

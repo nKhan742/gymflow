@@ -19,7 +19,6 @@ import {
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IWorkingHourZone, IDaySchedule } from '../types';
-import { DEFAULT_ZONES } from './ListPage';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
 const ZONE_TYPE_OPTIONS: ISelectOption[] = [
@@ -66,8 +65,9 @@ export const EditPage: React.FC = () => {
   const loadZone = async () => {
     setFetching(true);
     try {
-      const fallback = DEFAULT_ZONES.find((z: IWorkingHourZone) => z.id === id || z.code === id) || ({} as IWorkingHourZone);
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      let data: any = null;
+
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/working-hours/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -75,12 +75,28 @@ export const EditPage: React.FC = () => {
         },
       });
 
-      let data: IWorkingHourZone = fallback;
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          data = json.data;
+        data = json.data;
+      }
+
+      if (!data) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/working-hours', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          data = items.find((z: any) => (z.id || z._id) === id || z.code === id);
         }
+      }
+
+      if (!data) {
+        setFetching(false);
+        return;
       }
 
       setName(data.name || '');

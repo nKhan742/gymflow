@@ -21,9 +21,6 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IWorkingHourZone } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
-export const DEFAULT_WORKING_HOURS: IWorkingHourZone[] = [];
-export const DEFAULT_ZONES: IWorkingHourZone[] = [];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId, getActiveBranch } = useBranchStore();
@@ -47,20 +44,16 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      const localCustomRaw = localStorage.getItem('gymflow_custom_gym_working_hours');
-      const localCustomItems: IWorkingHourZone[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
-
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setZones([...localCustomItems, ...items]);
+        setZones(items);
+        localStorage.removeItem('gymflow_custom_gym_working_hours');
       } else {
-        setZones(localCustomItems);
+        setZones([]);
       }
     } catch {
-      const localCustomRaw = localStorage.getItem('gymflow_custom_gym_working_hours');
-      const localCustomItems: IWorkingHourZone[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
-      setZones(localCustomItems);
+      setZones([]);
     } finally {
       setLoading(false);
     }

@@ -30,7 +30,6 @@ import {
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IShift } from '../types';
-import { DEFAULT_SHIFTS } from './ListPage';
 import { useBranchStore } from '../../../../core/store/branchStore';
 import { useDepartmentStore } from '../../../../core/store/departmentStore';
 import { ALL_GYM_STAFF, IDepartmentStaffItem } from '../../departments/pages/ViewPage';
@@ -98,21 +97,38 @@ export const EditPage: React.FC = () => {
   const loadShift = async () => {
     setFetching(true);
     try {
-      const fallback = DEFAULT_SHIFTS.find((s) => s.id === id || s.code === id) || DEFAULT_SHIFTS[0];
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/shift-management/${id}`, {
+      let data: any = null;
+
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/shifts/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
       });
 
-      let data: IShift = fallback;
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          data = json.data;
+        data = json.data;
+      }
+
+      if (!data) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/shifts', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          data = items.find((s: any) => (s.id || s._id) === id || s.code === id);
         }
+      }
+
+      if (!data) {
+        setFetching(false);
+        return;
       }
 
       setName(data.name || '');
@@ -129,9 +145,9 @@ export const EditPage: React.FC = () => {
       setBranchId(data.branchId || 'ALL');
       setSelectedDays(data.daysOfWeek || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
       setStatus(data.status || 'active');
-      setAssignedRoster(INITIAL_SHIFT_ROSTER[data.id || data.code] || INITIAL_SHIFT_ROSTER['SHF-MRN-01'] || []);
+      setAssignedRoster([]);
     } catch {
-      // Use fallback
+      // Error loading
     } finally {
       setFetching(false);
     }

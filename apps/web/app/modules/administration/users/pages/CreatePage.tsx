@@ -167,10 +167,6 @@ export const CreatePage: React.FC = () => {
     };
 
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_users');
-      const existing: IUserModel[] = stored ? JSON.parse(stored) : [];
-      localStorage.setItem('gymflow_custom_admin_users', JSON.stringify([newUser, ...existing]));
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const apiPayload = {
         fullName,

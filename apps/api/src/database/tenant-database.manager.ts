@@ -14,6 +14,7 @@ import { exerciseCategoriesSchema, IExerciseCategoriesModel } from '../domains/f
 import { workoutTemplatesSchema, IWorkoutTemplatesModel } from '../domains/fitness/workout-templates/model/workout-templates.model.js';
 import { mealLibrarySchema, IMealLibraryModel } from '../domains/nutrition/meal-library/model/meal-library.model.js';
 import { dietPlansSchema, IDietPlansModel } from '../domains/nutrition/diet-plans/model/diet-plans.model.js';
+import { permissionsSchema, IPermissionsModel } from '../domains/administration/permissions/model/permissions.model.js';
 
 export interface ITenantModels {
   Users: mongoose.Model<IUsersModel>;
@@ -25,6 +26,7 @@ export interface ITenantModels {
   Members: mongoose.Model<IMembersModel>;
   Staff: mongoose.Model<IStaffModel>;
   Roles: mongoose.Model<IRolesModel>;
+  Permissions: mongoose.Model<IPermissionsModel>;
   Shifts: mongoose.Model<IShiftManagementModel>;
   Holidays: mongoose.Model<IHolidaysModel>;
   ExerciseCategories: mongoose.Model<IExerciseCategoriesModel>;
@@ -96,6 +98,9 @@ export class TenantDatabaseManager {
     const Roles = (tenantConnection.models.Roles ||
       tenantConnection.model<IRolesModel>('Roles', rolesSchema)) as mongoose.Model<IRolesModel>;
 
+    const Permissions = (tenantConnection.models.Permissions ||
+      tenantConnection.model<IPermissionsModel>('Permissions', permissionsSchema)) as mongoose.Model<IPermissionsModel>;
+
     const Shifts = (tenantConnection.models.Shifts ||
       tenantConnection.model<IShiftManagementModel>('Shifts', shiftManagementSchema)) as mongoose.Model<IShiftManagementModel>;
 
@@ -124,6 +129,7 @@ export class TenantDatabaseManager {
       Members,
       Staff,
       Roles,
+      Permissions,
       Shifts,
       Holidays,
       ExerciseCategories,

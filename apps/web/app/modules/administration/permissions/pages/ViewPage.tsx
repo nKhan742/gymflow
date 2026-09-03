@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -9,88 +9,68 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../../../shared/componen
 import { ArrowLeft, Edit, KeyRound, ShieldAlert, Layers, CheckCircle2, Users, Printer, Lock } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IPermissionModel } from '../types';
-
-const DEFAULT_PERMISSIONS: Record<string, IPermissionModel> = {
-  'PRM-101': {
-    id: 'PRM-101',
-    _id: 'PRM-101',
-    permissionName: 'Sign GAAP Tax Invoices',
-    permissionCode: 'gymflow.finance.invoices.sign',
-    moduleDomain: 'Finance & Billing',
-    actionType: 'SIGN_OFF',
-    description: 'Executive digital signature authority to certify tax invoices and reconcile payment settlements.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    riskLevel: 'CRITICAL',
-    grantedRolesCount: 2,
-    isSystemProtected: true,
-    status: 'ACTIVE',
-    createdAt: '2026-08-25T08:00:00.000Z',
-    updatedAt: '2026-08-25T08:00:00.000Z',
-  },
-  'PRM-102': {
-    id: 'PRM-102',
-    _id: 'PRM-102',
-    permissionName: 'Override Turnstile IoT Gates',
-    permissionCode: 'gymflow.gym.turnstiles.override',
-    moduleDomain: 'Gym Management',
-    actionType: 'UPDATE',
-    description: 'Emergency optical turnstile unlock and anti-tailgating sensor security override.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    riskLevel: 'HIGH',
-    grantedRolesCount: 3,
-    isSystemProtected: true,
-    status: 'ACTIVE',
-    createdAt: '2026-08-26T08:00:00.000Z',
-    updatedAt: '2026-08-26T08:00:00.000Z',
-  },
-  'PRM-103': {
-    id: 'PRM-103',
-    _id: 'PRM-103',
-    permissionName: 'Freeze Member Contract',
-    permissionCode: 'gymflow.members.freeze.execute',
-    moduleDomain: 'Member Management',
-    actionType: 'UPDATE',
-    description: 'Execute medical, travel, or military suspension freezes on active recurring contracts.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    riskLevel: 'MEDIUM',
-    grantedRolesCount: 4,
-    isSystemProtected: false,
-    status: 'ACTIVE',
-    createdAt: '2026-08-27T08:00:00.000Z',
-    updatedAt: '2026-08-27T08:00:00.000Z',
-  },
-};
+import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
 export const ViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [perm, setPerm] = useState<IPermissionModel>(DEFAULT_PERMISSIONS['PRM-101']);
+  const [perm, setPerm] = useState<IPermissionModel | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    const stored = localStorage.getItem('gymflow_custom_admin_permissions');
-    if (stored) {
-      const customList: IPermissionModel[] = JSON.parse(stored);
-      const found = customList.find((p) => (p.id || p._id) === id);
-      if (found) {
-        setPerm({ ...DEFAULT_PERMISSIONS['PRM-101'], ...found });
-        return;
-      }
-    }
-
-    if (DEFAULT_PERMISSIONS[id]) {
-      setPerm(DEFAULT_PERMISSIONS[id]);
-    }
+    loadPermission();
   }, [id]);
 
-  const safeName = perm?.permissionName || 'Permission Grant';
+  const loadPermission = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions/${id}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          setPerm(json.data);
+          return;
+        }
+      }
+
+      // Fallback search in list
+      const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions', {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+      if (listRes.ok) {
+        const listJson = await listRes.json();
+        const items: IPermissionModel[] = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+        const found = items.find((p) => (p.id || p._id) === id || p.permissionCode === id);
+        if (found) {
+          setPerm(found);
+        }
+      }
+    } catch {
+      // Network error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const safeName = perm?.permissionName || (perm as any)?.name || 'Permission Grant';
   const safeInitials = safeName.slice(0, 2).toUpperCase();
 
   return (
     <PageContainer>
       <PageHeader
         title={`Permission Dossier • ${safeName}`}
-        subtitle={`Capability grants, action verb scope, and NIST security rating for #${perm?.id || id || 'PRM-101'}`}
+        subtitle={`Capability grants, action verb scope, and NIST security rating for #${perm?.id || perm?._id || id}`}
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/administration/permissions')}>
@@ -104,7 +84,7 @@ export const ViewPage: React.FC = () => {
             <Button
               size="sm"
               className="gap-1.5 shadow-sm"
-              onClick={() => navigate(`/administration/permissions/${perm?.id || id}/edit`)}
+              onClick={() => navigate(`/administration/permissions/${perm?.id || perm?._id || id}/edit`)}
             >
               <Edit className="h-4 w-4" />
               <span>Edit Permission</span>
@@ -116,35 +96,35 @@ export const ViewPage: React.FC = () => {
       {/* 4 Telemetry Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard
-          title="RISK CLASSIFICATION"
+          title="RISK RATING"
           value={perm?.riskLevel || 'LOW'}
-          change={perm?.riskLevel === 'CRITICAL' ? '🔴 High Impact Mutation' : 'Standard Capability'}
-          trend={perm?.riskLevel === 'CRITICAL' ? 'down' : 'up'}
-          timeframe="NIST 800-53"
-          icon={<ShieldAlert className="h-5 w-5 text-rose-500" />}
+          change={perm?.riskLevel === 'CRITICAL' ? '⚠️ High Impact Action' : 'Standard Privilege'}
+          trend="up"
+          timeframe="NIST Classification"
+          icon={<ShieldAlert className={`h-5 w-5 ${perm?.riskLevel === 'CRITICAL' ? 'text-destructive' : 'text-amber-500'}`} />}
         />
         <MetricCard
-          title="TARGET DOMAIN"
-          value={perm?.moduleDomain || 'System'}
-          change={`Action: ${perm?.actionType}`}
+          title="ASSIGNED TO ROLES"
+          value={`${perm?.grantedRolesCount || 1} RBAC Roles`}
+          change="Role Policies Bound"
           trend="up"
-          timeframe="Module Scope"
+          timeframe="Access Spread"
           icon={<Layers className="h-5 w-5 text-primary" />}
         />
         <MetricCard
-          title="ROLES HOLDING GRANT"
-          value={`${perm?.grantedRolesCount || 0} RBAC Roles`}
-          change="Authorized Roles"
+          title="ACTION VERB"
+          value={perm?.actionType || 'READ'}
+          change="Operation Category"
           trend="up"
-          timeframe="Privilege Distribution"
-          icon={<Users className="h-5 w-5 text-emerald-500" />}
+          timeframe="Action Scope"
+          icon={<KeyRound className="h-5 w-5 text-emerald-500" />}
         />
         <MetricCard
-          title="PROTECTION STATUS"
-          value={perm?.isSystemProtected ? '🔒 PROTECTED' : 'CUSTOM'}
-          change="Immutable Core Rule"
+          title="GRANT STATUS"
+          value={perm?.status === 'ACTIVE' || !perm?.status ? '🟢 ACTIVE' : '🔴 RESTRICTED'}
+          change={perm?.isSystemProtected ? '🔒 System Protected' : 'Tenant Manageable'}
           trend="up"
-          timeframe="Zero-Trust"
+          timeframe="Policy State"
           icon={<CheckCircle2 className="h-5 w-5 text-blue-500" />}
         />
       </div>
@@ -164,72 +144,25 @@ export const ViewPage: React.FC = () => {
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h2 className="text-2xl font-bold text-foreground">{safeName}</h2>
                   <Badge variant="outline" className="text-[10px] font-mono font-bold bg-primary/5 text-primary border-primary/20">
-                    {perm?.permissionCode}
+                    {perm?.permissionCode || (perm as any)?.code}
                   </Badge>
-                  <Badge
-                    variant={perm?.riskLevel === 'CRITICAL' ? 'destructive' : perm?.riskLevel === 'HIGH' ? 'warning' : 'success'}
-                    className="text-[10px] font-bold"
-                  >
-                    {perm?.riskLevel} RISK
+                  <Badge variant="secondary" className="text-[10px] font-bold">
+                    {perm?.moduleDomain || 'Operations'}
                   </Badge>
+                  {perm?.isSystemProtected && (
+                    <Badge variant="default" className="text-[10px] font-bold">
+                      🔒 SYSTEM PROTECTED
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground font-medium">
-                  {perm?.description}
+                  {perm?.description || 'Granular authorization token governing access to operational features.'}
                 </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Machine Code & Technical Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <KeyRound className="h-4 w-4 text-primary" />
-              Machine Grant Specification
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs font-mono">
-            <div className="flex justify-between py-1.5 border-b border-border/60">
-              <span className="text-muted-foreground font-sans">Token String:</span>
-              <span className="font-bold text-primary">{perm?.permissionCode}</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-border/60">
-              <span className="text-muted-foreground font-sans">Action Verb:</span>
-              <Badge variant="outline" className="text-[9px] font-bold">{perm?.actionType}</Badge>
-            </div>
-            <div className="flex justify-between py-1.5">
-              <span className="text-muted-foreground font-sans">Enforcement Scope:</span>
-              <span className="font-bold text-foreground">Multi-Branch Gateway Guard</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-amber-500" />
-              Security Governance & NIST Rating
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs">
-            <div className="flex justify-between py-1.5 border-b border-border/60">
-              <span className="text-muted-foreground">Compliance Category:</span>
-              <span className="font-bold text-foreground">NIST AC-3 Access Enforcement</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-border/60">
-              <span className="text-muted-foreground">Audit Logging:</span>
-              <span className="font-bold text-emerald-600">Mandatory Immutable Ledger</span>
-            </div>
-            <div className="flex justify-between py-1.5">
-              <span className="text-muted-foreground">System Protection:</span>
-              <span className="font-bold text-foreground">{perm?.isSystemProtected ? 'Root Lock Active' : 'Custom Configurable'}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </PageContainer>
   );
 };

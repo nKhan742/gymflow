@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IWorkingHourZone } from '../types';
-import { DEFAULT_ZONES } from './ListPage';
 
 export const ViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,8 +38,9 @@ export const ViewPage: React.FC = () => {
   const loadZoneData = async () => {
     setLoading(true);
     try {
-      const fallback = DEFAULT_ZONES.find((z: IWorkingHourZone) => z.id === id || z.code === id) || null;
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      let zoneData: IWorkingHourZone | null = null;
+
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/working-hours/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -50,16 +50,26 @@ export const ViewPage: React.FC = () => {
 
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          setZone(json.data);
-          setLoading(false);
-          return;
+        zoneData = json.data;
+      }
+
+      if (!zoneData) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/working-hours', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          zoneData = items.find((z: any) => (z.id || z._id) === id || z.code === id) || null;
         }
       }
-      setZone(fallback);
+
+      setZone(zoneData);
     } catch {
-      const fallback = DEFAULT_ZONES.find((z: IWorkingHourZone) => z.id === id || z.code === id) || null;
-      setZone(fallback);
+      setZone(null);
     } finally {
       setLoading(false);
     }

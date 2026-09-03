@@ -57,8 +57,7 @@ export const ListPage: React.FC = () => {
           localStorage.removeItem('gymflow_custom_admin_users');
         }
       } else {
-        const stored = localStorage.getItem('gymflow_custom_admin_users');
-        rawItems = stored ? JSON.parse(stored) : [];
+        rawItems = [];
       }
 
       const currentEmail = currentUser?.email?.toLowerCase().trim();

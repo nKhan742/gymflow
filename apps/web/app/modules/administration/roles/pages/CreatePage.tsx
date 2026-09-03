@@ -81,22 +81,34 @@ export const CreatePage: React.FC = () => {
     };
 
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_roles');
-      const existing: IRoleModel[] = stored ? JSON.parse(stored) : [];
-      localStorage.setItem('gymflow_custom_admin_roles', JSON.stringify([newRole, ...existing]));
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newRole),
-      }).catch(() => {});
+        body: JSON.stringify({
+          name: roleName,
+          roleName,
+          code: roleKey,
+          roleKey,
+          description,
+          hierarchyTier,
+          isSystemRole,
+          status: status.toLowerCase(),
+          permissionsList: selectedPermissions,
+          permissions: selectedPermissions,
+          permissionModulesCount: selectedPermissions.length,
+        }),
+      });
 
-      toast.success(`RBAC Role "${roleName}" created with ${selectedPermissions.length} granted module domains!`);
-      navigate('/administration/roles');
+      if (res.ok) {
+        toast.success(`RBAC Role "${roleName}" created with ${selectedPermissions.length} granted module domains!`);
+        navigate('/administration/roles');
+      } else {
+        toast.error('Failed to create role in database');
+      }
     } catch {
       toast.error('Failed to create role');
     } finally {

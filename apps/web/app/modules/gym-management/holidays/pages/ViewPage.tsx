@@ -24,7 +24,6 @@ import {
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IHoliday } from '../types';
-import { DEFAULT_HOLIDAYS } from './ListPage';
 
 export const ViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,8 +39,9 @@ export const ViewPage: React.FC = () => {
   const loadHolidayData = async () => {
     setLoading(true);
     try {
-      const fallback = DEFAULT_HOLIDAYS.find((h) => h.id === id || h.code === id) || DEFAULT_HOLIDAYS[0];
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      let holidayData: IHoliday | null = null;
+
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/holidays/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -51,16 +51,26 @@ export const ViewPage: React.FC = () => {
 
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          setHoliday(json.data);
-          setLoading(false);
-          return;
+        holidayData = json.data;
+      }
+
+      if (!holidayData) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/holidays', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          holidayData = items.find((h: any) => (h.id || h._id) === id || h.code === id) || null;
         }
       }
-      setHoliday(fallback);
+
+      setHoliday(holidayData);
     } catch {
-      const fallback = DEFAULT_HOLIDAYS.find((h) => h.id === id || h.code === id) || DEFAULT_HOLIDAYS[0];
-      setHoliday(fallback);
+      setHoliday(null);
     } finally {
       setLoading(false);
     }

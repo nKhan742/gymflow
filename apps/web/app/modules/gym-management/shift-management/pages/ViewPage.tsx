@@ -34,7 +34,6 @@ import {
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IShift } from '../types';
-import { DEFAULT_SHIFTS } from './ListPage';
 import { ALL_GYM_STAFF, IDepartmentStaffItem } from '../../departments/pages/ViewPage';
 
 const INITIAL_SHIFT_ROSTER: Record<string, IDepartmentStaffItem[]> = {
@@ -71,9 +70,10 @@ export const ViewPage: React.FC = () => {
   const loadShiftData = async () => {
     setLoading(true);
     try {
-      const fallback = DEFAULT_SHIFTS.find((s) => s.id === id || s.code === id) || DEFAULT_SHIFTS[0];
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/shift-management/${id}`, {
+      let shiftData: IShift | null = null;
+
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/shifts/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -82,19 +82,56 @@ export const ViewPage: React.FC = () => {
 
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          setShift(json.data);
-          setAssignedStaff(INITIAL_SHIFT_ROSTER[json.data.id || json.data.code] || INITIAL_SHIFT_ROSTER['SHF-MRN-01'] || []);
-          setLoading(false);
-          return;
+        shiftData = json.data;
+      }
+
+      if (!shiftData) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/shifts', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          shiftData = items.find((s: any) => (s.id || s._id) === id || s.code === id) || null;
         }
       }
-      setShift(fallback);
-      setAssignedStaff(INITIAL_SHIFT_ROSTER[fallback.id || fallback.code] || INITIAL_SHIFT_ROSTER['SHF-MRN-01'] || []);
+
+      setShift(shiftData);
+
+      // Load assigned staff from real staff API
+      if (shiftData) {
+        const staffRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/staff', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (staffRes.ok) {
+          const staffJson = await staffRes.json();
+          const staffItems = staffJson.data?.items || (Array.isArray(staffJson.data) ? staffJson.data : []);
+          const matched = staffItems.filter((s: any) =>
+            s.shiftId === id ||
+            s.shift === shiftData?.name ||
+            s.shift === shiftData?.code
+          );
+          setAssignedStaff(matched.map((s: any) => ({
+            id: s.id || s._id,
+            name: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim(),
+            role: s.role || 'Staff',
+            email: s.email || '',
+            phone: s.phone || '',
+            shift: shiftData?.name || 'General',
+            rate: `$${s.hourlyRate || 45}/hr`,
+            rating: 5.0,
+            avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          })));
+        }
+      }
     } catch {
-      const fallback = DEFAULT_SHIFTS.find((s) => s.id === id || s.code === id) || DEFAULT_SHIFTS[0];
-      setShift(fallback);
-      setAssignedStaff(INITIAL_SHIFT_ROSTER[fallback.id || fallback.code] || INITIAL_SHIFT_ROSTER['SHF-MRN-01'] || []);
+      setShift(null);
     } finally {
       setLoading(false);
     }

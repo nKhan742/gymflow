@@ -13,94 +13,18 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IRoleModel } from '../types';
 import { toast } from 'sonner';
 
-export const DEFAULT_ROLES: any[] = [
-  {
-    id: 'ROL-ADMIN',
-    roleName: 'Gym Administrator / Owner',
-    roleKey: 'ADMIN',
-    description: 'Master organizational control, financial records, staff provisioning, and billing oversight across all facility branches.',
-    hierarchyTier: 1,
-    isSystemRole: true,
-    assignedUsersCount: 1,
-    permissionModulesCount: 9,
-    permissionsList: ['*'],
-    status: 'ACTIVE',
-  },
-  {
-    id: 'ROL-MGR',
-    roleName: 'Branch General Manager',
-    roleKey: 'BRANCH_MANAGER',
-    description: 'Branch-level operational oversight, shift management, attendance logs, and staff assignments.',
-    hierarchyTier: 2,
-    isSystemRole: true,
-    assignedUsersCount: 0,
-    permissionModulesCount: 6,
-    permissionsList: ['gym:branches:view', 'gym:departments:view', 'gym:staff:view', 'members:members:view', 'scheduling:classes:view'],
-    status: 'ACTIVE',
-  },
-  {
-    id: 'ROL-TRN',
-    roleName: 'Fitness Coach & Personal Trainer',
-    roleKey: 'TRAINER',
-    description: 'Workout programming, personal training sessions, body assessments, and class instruction.',
-    hierarchyTier: 3,
-    isSystemRole: false,
-    assignedUsersCount: 0,
-    permissionModulesCount: 4,
-    permissionsList: ['fitness:workout-plans:view', 'fitness:fitness-assessment:view', 'members:members:view'],
-    status: 'ACTIVE',
-  },
-  {
-    id: 'ROL-REC',
-    roleName: 'Front Desk & Member Concierge',
-    roleKey: 'RECEPTIONIST',
-    description: 'Turnstile check-in, guest pass processing, member onboardings, and locker assignments.',
-    hierarchyTier: 3,
-    isSystemRole: false,
-    assignedUsersCount: 0,
-    permissionModulesCount: 3,
-    permissionsList: ['members:members:view', 'members:members:create', 'gym:branches:view'],
-    status: 'ACTIVE',
-  },
-  {
-    id: 'ROL-NUT',
-    roleName: 'Certified Nutritionist & Dietitian',
-    roleKey: 'NUTRITIONIST',
-    description: 'Macronutrient meal planning, dietary consultations, hydration tracking, and supplement guidance.',
-    hierarchyTier: 3,
-    isSystemRole: false,
-    assignedUsersCount: 0,
-    permissionModulesCount: 3,
-    permissionsList: ['nutrition:meal-library:view', 'nutrition:diet-plans:view', 'members:members:view'],
-    status: 'ACTIVE',
-  },
-  {
-    id: 'ROL-MBR',
-    roleName: 'Gym Member (Self-Service)',
-    roleKey: 'MEMBER',
-    description: 'Mobile app and portal access for workout logs, class bookings, subscription status, and billing history.',
-    hierarchyTier: 4,
-    isSystemRole: false,
-    assignedUsersCount: 0,
-    permissionModulesCount: 2,
-    permissionsList: ['profile:view', 'fitness:workout-plans:view', 'nutrition:diet-plans:view'],
-    status: 'ACTIVE',
-  },
-];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [roles, setRoles] = useState<IRoleModel[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadRoles();
   }, []);
 
   const loadRoles = async () => {
+    setLoading(true);
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_roles');
-      const customList: IRoleModel[] = stored ? JSON.parse(stored) : [];
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', {
         headers: {
@@ -109,49 +33,38 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      let fetchedList: IRoleModel[] = [];
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data?.items) {
-          fetchedList = json.data.items;
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setRoles(items);
+        if (items.length > 0) {
+          localStorage.removeItem('gymflow_custom_admin_roles');
         }
+      } else {
+        setRoles([]);
       }
-
-      const combined = [...customList];
-      const allSources = fetchedList.length > 0 ? fetchedList : DEFAULT_ROLES;
-      for (const item of allSources) {
-        const id = item.id || item._id;
-        if (!combined.some((r) => (r.id || r._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setRoles(combined);
     } catch {
-      const stored = localStorage.getItem('gymflow_custom_admin_roles');
-      const customList: IRoleModel[] = stored ? JSON.parse(stored) : [];
-      const combined = [...customList];
-      for (const item of DEFAULT_ROLES) {
-        const id = item.id || item._id;
-        if (!combined.some((r) => (r.id || r._id) === id)) {
-          combined.push(item);
-        }
-      }
-      setRoles(combined);
+      setRoles([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
-    const updated = roles.filter((r) => (r.id || r._id) !== id);
-    setRoles(updated);
-
-    const stored = localStorage.getItem('gymflow_custom_admin_roles');
-    if (stored) {
-      const customList: IRoleModel[] = JSON.parse(stored);
-      const filtered = customList.filter((r) => (r.id || r._id) !== id);
-      localStorage.setItem('gymflow_custom_admin_roles', JSON.stringify(filtered));
+  const handleDelete = async (id: string, name: string) => {
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+      setRoles((prev) => prev.filter((r) => (r.id || r._id) !== id));
+      toast.success(`RBAC Role "${name}" deleted`);
+    } catch {
+      toast.error('Failed to delete role');
     }
-
-    toast.success(`RBAC Role "${name}" deleted`);
   };
 
   // Telemetry Metrics

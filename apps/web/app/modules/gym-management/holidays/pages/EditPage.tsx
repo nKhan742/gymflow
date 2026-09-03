@@ -19,7 +19,6 @@ import {
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { toast } from 'sonner';
 import { IHoliday } from '../types';
-import { DEFAULT_HOLIDAYS } from './ListPage';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
 const CATEGORY_OPTIONS: ISelectOption[] = [
@@ -77,8 +76,9 @@ export const EditPage: React.FC = () => {
   const loadHoliday = async () => {
     setFetching(true);
     try {
-      const fallback = DEFAULT_HOLIDAYS.find((h) => h.id === id || h.code === id) || DEFAULT_HOLIDAYS[0];
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      let data: any = null;
+
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/holidays/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -86,12 +86,28 @@ export const EditPage: React.FC = () => {
         },
       });
 
-      let data: IHoliday = fallback;
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          data = json.data;
+        data = json.data;
+      }
+
+      if (!data) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/holidays', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          data = items.find((h: any) => (h.id || h._id) === id || h.code === id);
         }
+      }
+
+      if (!data) {
+        setFetching(false);
+        return;
       }
 
       setName(data.name || '');
@@ -108,7 +124,7 @@ export const EditPage: React.FC = () => {
       setMemberBroadcast(data.memberBroadcast ? 'true' : 'false');
       setStatus(data.status || 'active');
     } catch {
-      // Use fallback
+      // Error loading
     } finally {
       setFetching(false);
     }

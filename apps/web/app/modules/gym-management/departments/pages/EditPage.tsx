@@ -106,7 +106,6 @@ export const EditPage: React.FC = () => {
   const loadDepartmentAndStaff = async () => {
     setFetching(true);
     try {
-      const fallback = DEFAULT_DEPARTMENTS.find((d) => d.id === id || d.code === id) || DEFAULT_DEPARTMENTS[0];
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
       // Load staff list
@@ -119,15 +118,17 @@ export const EditPage: React.FC = () => {
         });
         if (staffRes.ok) {
           const staffJson = await staffRes.json();
-          if (staffJson.success && Array.isArray(staffJson.data) && staffJson.data.length > 0) {
-            setStaffList(staffJson.data);
+          const items = staffJson.data?.items || (Array.isArray(staffJson.data) ? staffJson.data : []);
+          if (items.length > 0) {
+            setStaffList(items);
           }
         }
       } catch {
-        // Keep defaults
+        // Continue
       }
 
       // Load department
+      let data: any = null;
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/gym/departments/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -135,12 +136,28 @@ export const EditPage: React.FC = () => {
         },
       });
 
-      let data: IDepartment = fallback;
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          data = json.data;
+        data = json.data;
+      }
+
+      if (!data) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/departments', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          data = items.find((d: any) => (d.id || d._id) === id || d.code === id);
         }
+      }
+
+      if (!data) {
+        setFetching(false);
+        return;
       }
 
       setName(data.name || '');

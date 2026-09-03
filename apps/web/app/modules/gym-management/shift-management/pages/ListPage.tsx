@@ -21,73 +21,6 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IShift } from '../types';
 import { useBranchStore } from '../../../../core/store/branchStore';
 
-export const DEFAULT_SHIFTS: IShift[] = [
-  {
-    id: 'SHF-MRN-01',
-    name: 'Morning Dawn Opening Shift',
-    code: 'SHF-MRN-01',
-    startTime: '06:00',
-    endTime: '14:00',
-    durationHours: 8,
-    breakDurationMins: 45,
-    minHeadcount: 2,
-    daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
-    gracePeriodMins: 15,
-    overtimeMultiplier: 1.5,
-    color: '#f59e0b',
-    status: 'active',
-    description: 'Early morning facility opening, walkthrough checklist, equipment check, and rush check-ins.',
-  },
-  {
-    id: 'SHF-EVN-02',
-    name: 'Evening Prime Coaching Shift',
-    code: 'SHF-EVN-02',
-    startTime: '14:00',
-    endTime: '22:00',
-    durationHours: 8,
-    breakDurationMins: 60,
-    minHeadcount: 3,
-    daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
-    gracePeriodMins: 15,
-    overtimeMultiplier: 1.5,
-    color: '#6366f1',
-    status: 'active',
-    description: 'Peak afternoon and evening rush, group class management, and personal training slots.',
-  },
-  {
-    id: 'SHF-NGT-03',
-    name: 'Overnight / Security Shift',
-    code: 'SHF-NGT-03',
-    startTime: '22:00',
-    endTime: '06:00',
-    durationHours: 8,
-    breakDurationMins: 60,
-    minHeadcount: 1,
-    daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
-    gracePeriodMins: 15,
-    overtimeMultiplier: 1.5,
-    color: '#3b82f6',
-    status: 'active',
-    description: '24/7 keycard turnstile monitoring, deep cleaning, and overnight security access.',
-  },
-  {
-    id: 'SHF-WKD-04',
-    name: 'Weekend Split Operations',
-    code: 'SHF-WKD-04',
-    startTime: '08:00',
-    endTime: '16:00',
-    durationHours: 8,
-    breakDurationMins: 45,
-    minHeadcount: 2,
-    daysOfWeek: ['SATURDAY', 'SUNDAY'],
-    gracePeriodMins: 15,
-    overtimeMultiplier: 1.5,
-    color: '#10b981',
-    status: 'active',
-    description: 'Weekend general facility coverage, introductory trial passes, and community workshops.',
-  },
-];
-
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId, getActiveBranch } = useBranchStore();
@@ -111,21 +44,16 @@ export const ListPage: React.FC = () => {
         },
       });
 
-      const localCustomRaw = localStorage.getItem('gymflow_custom_gym_shifts');
-      const localCustomItems: IShift[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
-
       if (res.ok) {
         const json = await res.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        const merged = [...localCustomItems, ...items];
-        setShifts(merged.length > 0 ? merged : DEFAULT_SHIFTS);
+        setShifts(items);
+        localStorage.removeItem('gymflow_custom_gym_shifts');
       } else {
-        setShifts(localCustomItems.length > 0 ? localCustomItems : DEFAULT_SHIFTS);
+        setShifts([]);
       }
     } catch {
-      const localCustomRaw = localStorage.getItem('gymflow_custom_gym_shifts');
-      const localCustomItems: IShift[] = localCustomRaw ? JSON.parse(localCustomRaw) : [];
-      setShifts(localCustomItems.length > 0 ? localCustomItems : DEFAULT_SHIFTS);
+      setShifts([]);
     } finally {
       setLoading(false);
     }

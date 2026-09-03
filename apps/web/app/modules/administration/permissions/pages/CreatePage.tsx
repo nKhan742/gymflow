@@ -60,22 +60,33 @@ export const CreatePage: React.FC = () => {
     };
 
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_permissions');
-      const existing: IPermissionModel[] = stored ? JSON.parse(stored) : [];
-      localStorage.setItem('gymflow_custom_admin_permissions', JSON.stringify([newPermission, ...existing]));
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions', {
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/permissions', {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newPermission),
-      }).catch(() => {});
+        body: JSON.stringify({
+          name: permissionName,
+          permissionName,
+          code: permissionCode,
+          permissionCode,
+          moduleDomain,
+          actionType,
+          description,
+          riskLevel,
+          isSystemProtected,
+          status: status.toLowerCase(),
+        }),
+      });
 
-      toast.success(`Permission "${permissionName}" registered successfully!`);
-      navigate('/administration/permissions');
+      if (res.ok) {
+        toast.success(`Permission "${permissionName}" registered successfully in database!`);
+        navigate('/administration/permissions');
+      } else {
+        toast.error('Failed to save permission in database');
+      }
     } catch {
       toast.error('Failed to create permission');
     } finally {
