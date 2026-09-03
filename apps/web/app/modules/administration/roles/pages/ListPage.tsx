@@ -16,6 +16,7 @@ import { getGrantedModules, AVAILABLE_MODULE_PERMISSIONS } from '../permissions.
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [roles, setRoles] = useState<IRoleModel[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -85,8 +86,10 @@ export const ListPage: React.FC = () => {
 
         setRoles(enriched);
       } else {
+        setRoles([]);
       }
     } catch {
+      setRoles([]);
     } finally {
       setLoading(false);
     }
