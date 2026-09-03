@@ -4,47 +4,10 @@ import { CreateRolesDto, UpdateRolesDto } from '../dto/index.js';
 import { RolesMapper } from '../mapper/roles.mapper.js';
 import { NotFoundException } from '../../../../core/exceptions/HttpException.js';
 import { IPaginationOptions } from '../../../../database/base.repository.js';
-import { TenantDatabaseManager } from '../../../../database/tenant-database.manager.js';
 
 export class RolesService extends BaseService {
   constructor(private readonly repo: IRolesRepository = new RolesRepository()) {
     super();
-  }
-
-  private async getRoleHoldersCounts(tenantId: string): Promise<Map<string, number>> {
-    const countMap = new Map<string, number>();
-    try {
-      const cleanDbName = tenantId.startsWith('tenant_gymflow_')
-        ? tenantId.replace(/^tenant_/, '')
-        : tenantId.startsWith('tenant_')
-        ? `gymflow_db_${tenantId.replace(/^tenant_/, '')}`
-        : tenantId;
-
-      const tenantModels = TenantDatabaseManager.getTenantModels(cleanDbName);
-      const users = tenantModels.Users ? await tenantModels.Users.find({ isDeleted: false }, { email: 1, role: 1 }).lean() : [];
-      const staff = tenantModels.Staff ? await tenantModels.Staff.find({ isDeleted: false }, { email: 1, role: 1 }).lean() : [];
-
-      const roleHoldersMap = new Map<string, Set<string>>();
-      for (const u of users) {
-        if (u.role) {
-          const key = u.role.toUpperCase().trim();
-          if (!roleHoldersMap.has(key)) roleHoldersMap.set(key, new Set());
-          roleHoldersMap.get(key)!.add((u.email || u._id.toString()).toLowerCase().trim());
-        }
-      }
-      for (const s of staff) {
-        if (s.role) {
-          const key = s.role.toUpperCase().trim();
-          if (!roleHoldersMap.has(key)) roleHoldersMap.set(key, new Set());
-          roleHoldersMap.get(key)!.add((s.email || s._id.toString()).toLowerCase().trim());
-        }
-      }
-
-      for (const [key, set] of roleHoldersMap.entries()) {
-        countMap.set(key, set.size);
-      }
-    } catch {}
-    return countMap;
   }
 
   async create(tenantId: string, dto: any, createdBy?: string) {
@@ -72,39 +35,14 @@ export class RolesService extends BaseService {
   async findById(id: string, tenantId: string) {
     const item = await this.repo.findById(id, tenantId);
     if (!item) throw new NotFoundException('Roles record not found');
-    const dto = RolesMapper.toDTO(item);
-    const countMap = await this.getRoleHoldersCounts(tenantId);
-    const key = (dto.roleKey || dto.code || dto.name || '').toUpperCase().trim();
-    const dynamicCount = countMap.get(key);
-    if (dynamicCount !== undefined) {
-      dto.assignedUsersCount = dynamicCount;
-      if (item.assignedUsersCount !== dynamicCount) {
-        this.repo.updateById(item._id, { assignedUsersCount: dynamicCount }, tenantId).catch(() => null);
-      }
-    }
-    return dto;
+    return RolesMapper.toDTO(item);
   }
 
   async findAll(tenantId: string, pagination?: IPaginationOptions) {
     const result = await this.repo.find({ tenantId }, pagination);
-    const countMap = await this.getRoleHoldersCounts(tenantId);
-
-    const items = result.items.map((item) => {
-      const dto = RolesMapper.toDTO(item);
-      const key = (dto.roleKey || dto.code || dto.name || '').toUpperCase().trim();
-      const dynamicCount = countMap.get(key);
-      if (dynamicCount !== undefined) {
-        dto.assignedUsersCount = dynamicCount;
-        if (item.assignedUsersCount !== dynamicCount) {
-          this.repo.updateById(item._id, { assignedUsersCount: dynamicCount }, tenantId).catch(() => null);
-        }
-      }
-      return dto;
-    });
-
     return {
       ...result,
-      items,
+      items: result.items.map(RolesMapper.toDTO),
     };
   }
 
