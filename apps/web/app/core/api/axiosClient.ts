@@ -1,7 +1,9 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.MODE === 'development' ? '/api/v1' : 'https://gymflow-api-2jdh.onrender.com/api/v1');
 
 export const axiosClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
