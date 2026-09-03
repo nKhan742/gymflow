@@ -6,6 +6,7 @@ import { Input } from '../../../../shared/components/ui/input';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Mail, Lock, Sparkles, ArrowRight, Eye, EyeOff, ShieldCheck, UserCheck, Dumbbell } from 'lucide-react';
 import { useAuthStore } from '../../../../core/store/authStore';
+import { getDefaultDashboardPath, canAccessPath } from '../../../../core/guards/rbacGuard';
 
 export const ListPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,13 +17,28 @@ export const ListPage: React.FC = () => {
 
   const { login, isLoading } = useAuthStore();
 
-  const from = (location.state as any)?.from?.pathname || '/dashboard/admin-dashboard';
+  const from = (location.state as any)?.from?.pathname;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await login({ email, pass: password });
     if (success) {
-      navigate(from, { replace: true });
+      const currentUser = useAuthStore.getState().user;
+      const defaultDashboard = getDefaultDashboardPath(currentUser?.role);
+
+      let targetDestination = defaultDashboard;
+      if (
+        from &&
+        from !== '/' &&
+        from !== '/dashboard' &&
+        from !== '/dashboard/admin-dashboard' &&
+        !from.startsWith('/auth') &&
+        canAccessPath(from, currentUser?.role, currentUser?.permissions)
+      ) {
+        targetDestination = from;
+      }
+
+      navigate(targetDestination, { replace: true });
     }
   };
 

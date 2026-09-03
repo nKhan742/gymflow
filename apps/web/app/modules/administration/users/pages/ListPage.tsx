@@ -10,11 +10,11 @@ import { Plus, Download, ShieldCheck, Shield, Users, Smartphone, Eye, Edit, Tras
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
-import { isApiCached, getCachedJson, invalidateApiCache } from '../../../../core/api/liveApiCache';
 import { useBranchStore } from '../../../../core/store/branchStore';
 import { useAuthStore } from '../../../../core/store/authStore';
 import { IUserModel } from '../types';
 import { toast } from 'sonner';
+import { invalidateApiCache } from '../../../../core/api/liveApiCache';
 
 // System Role Hierarchy Levels
 const ROLE_HIERARCHY: Record<string, number> = {
@@ -31,13 +31,8 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId } = useBranchStore();
   const { user: currentUser } = useAuthStore();
-  const USERS_URL = 'https://gymflow-api-2jdh.onrender.com/api/v1/administration/users';
-  const cachedUsers = getCachedJson<any>(USERS_URL);
-  const initialUsers: IUserModel[] =
-    cachedUsers?.data?.items || (Array.isArray(cachedUsers?.data) ? cachedUsers.data : []);
-
-  const [users, setUsers] = useState<IUserModel[]>(initialUsers);
-  const [loading, setLoading] = useState<boolean>(() => !isApiCached(USERS_URL) && initialUsers.length === 0);
+  const [users, setUsers] = useState<IUserModel[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadUsers();

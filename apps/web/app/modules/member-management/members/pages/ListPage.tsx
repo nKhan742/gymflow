@@ -34,19 +34,13 @@ import { memberApi, IMemberItem } from '../api/memberApi';
 import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { formatCurrency } from '../../../../core/helpers/formatters';
 import { toast } from 'sonner';
-import { isApiCached, getCachedJson, invalidateApiCache } from '../../../../core/api/liveApiCache';
 import { useLoadingStore } from '../../../../core/store/loadingStore';
 
 export const ListPage: React.FC = () => {
   const { currency } = useCurrencyStore();
-  const MEMBERS_URL = 'https://gymflow-api-2jdh.onrender.com/api/v1/members/members';
-  const cachedMembers = getCachedJson<any>(MEMBERS_URL);
-  const initialMembers: IMemberItem[] =
-    cachedMembers?.data?.items || (Array.isArray(cachedMembers?.data) ? cachedMembers.data : []);
-
-  const [members, setMembers] = useState<IMemberItem[]>(initialMembers);
+  const [members, setMembers] = useState<IMemberItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [loading, setLoading] = useState<boolean>(() => !isApiCached(MEMBERS_URL) && initialMembers.length === 0);
+  const [loading, setLoading] = useState<boolean>(true);
   const { startLoading, stopLoading } = useLoadingStore();
   const navigate = useNavigate();
 
@@ -393,10 +387,6 @@ export const ListPage: React.FC = () => {
         columns={columns}
         data={members}
         loading={loading}
-        onRefresh={() => {
-          invalidateApiCache('members/members');
-          loadMembers();
-        }}
         searchPlaceholder="Search by name, email, member code #GF-..."
       />
     </PageContainer>

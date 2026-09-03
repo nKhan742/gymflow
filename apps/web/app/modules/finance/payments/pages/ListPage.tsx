@@ -33,7 +33,6 @@ import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { isApiCached, getCachedJson, invalidateApiCache } from '../../../../core/api/liveApiCache';
-import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { toast } from 'sonner';
 
 interface IPaymentItem {
@@ -72,7 +71,7 @@ export const ListPage: React.FC = () => {
 
   const [payments, setPayments] = useState<IPaymentItem[]>(initialPayments);
   const [activeTab, setActiveTab] = useState<'ALL' | 'COMPLETED' | 'PENDING' | 'FAILED' | 'REFUNDED'>('ALL');
-  const [loading, setLoading] = useState<boolean>(() => !isApiCached(PAYMENTS_URL) && initialPayments.length === 0);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Collect Payment POS Modal State
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -525,11 +524,6 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
-        loading={loading}
-        onRefresh={() => {
-          invalidateApiCache('finance/payments');
-          loadPayments();
-        }}
         searchPlaceholder="Search payments by member, transaction code, invoice #, category..."
       />
 

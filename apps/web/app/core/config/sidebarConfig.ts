@@ -50,7 +50,7 @@ export const SIDEBAR_MENU_CONFIG: ISidebarMenuItem[] = [
   {
     id: 'dashboard',
     title: 'Dashboard',
-    path: '/dashboard/admin-dashboard',
+    path: '/dashboard',
     permission: 'dashboard:view',
     children: [
       {

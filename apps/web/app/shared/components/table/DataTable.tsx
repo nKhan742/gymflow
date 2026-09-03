@@ -113,10 +113,9 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="sm"
-              onClick={onRefresh}
-              disabled={loading}
               className="gap-1.5"
-              title="Reload live data from database"
+              onClick={onRefresh}
+              title="Refresh live data from database"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>

@@ -33,7 +33,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
-import { isApiCached, getCachedJson, invalidateApiCache } from '../../../../core/api/liveApiCache';
 import { toast } from 'sonner';
 import { useCurrencyStore } from '../../../../core/store/currencyStore';
 import { formatCurrency } from '../../../../core/helpers/formatters';
@@ -49,14 +48,8 @@ export const ListPage: React.FC = () => {
   const { activeBranchId, getActiveBranch } = useBranchStore();
   const { startLoading, stopLoading } = useLoadingStore();
   const activeBranch = getActiveBranch();
-
-  const STAFF_URL = 'https://gymflow-api-2jdh.onrender.com/api/v1/gym/staff';
-  const cachedStaff = getCachedJson<any>(STAFF_URL);
-  const initialStaff: IStaff[] =
-    cachedStaff?.data?.items || (Array.isArray(cachedStaff?.data) ? cachedStaff.data : []);
-
-  const [staffList, setStaffList] = useState<IStaff[]>(initialStaff);
-  const [loading, setLoading] = useState<boolean>(() => !isApiCached(STAFF_URL) && initialStaff.length === 0);
+  const [staffList, setStaffList] = useState<IStaff[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [departmentFilter, setDepartmentFilter] = useState<string>('ALL');
 
   useEffect(() => {
@@ -410,10 +403,6 @@ export const ListPage: React.FC = () => {
         columns={columns}
         data={staffList}
         loading={loading}
-        onRefresh={() => {
-          invalidateApiCache('gym/staff');
-          loadStaff();
-        }}
         searchPlaceholder="Search by name, email, role, or staff ID..."
       />
     </PageContainer>

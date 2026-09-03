@@ -9,7 +9,6 @@ import { Plus, Download, Eye, Edit2, Database, CheckCircle2, Activity } from 'lu
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { moduleApi, IDbRecord } from '../../../core/api/moduleApi';
-import { invalidateApiCache } from '../../../core/api/liveApiCache';
 
 interface IModuleListViewProps {
   title: string;
@@ -31,23 +30,17 @@ export const ModuleListView: React.FC<IModuleListViewProps> = ({
   const [total, setTotal] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
   const [activeRate, setActiveRate] = useState('100%');
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadData();
   }, [domain, submodule]);
 
   const loadData = async () => {
-    setLoading(true);
-    try {
-      const result = await moduleApi.fetchSubmoduleData(domain, submodule);
-      setData(result.items);
-      setTotal(result.total);
-      setActiveCount(result.activeCount);
-      setActiveRate(result.activeRate);
-    } finally {
-      setLoading(false);
-    }
+    const result = await moduleApi.fetchSubmoduleData(domain, submodule);
+    setData(result.items);
+    setTotal(result.total);
+    setActiveCount(result.activeCount);
+    setActiveRate(result.activeRate);
   };
 
   const columns: ColumnDef<IDbRecord>[] = [
@@ -184,11 +177,6 @@ export const ModuleListView: React.FC<IModuleListViewProps> = ({
       <DataTable
         columns={columns}
         data={data}
-        loading={loading}
-        onRefresh={() => {
-          invalidateApiCache(`${domain}/${submodule}`);
-          loadData();
-        }}
         searchPlaceholder={`Search ${title.toLowerCase()} by name, code or status...`}
       />
     </PageContainer>
