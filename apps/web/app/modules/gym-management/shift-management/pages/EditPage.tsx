@@ -59,7 +59,7 @@ export const EditPage: React.FC = () => {
   const { branches } = useBranchStore();
   const { departmentOptions, loadDepartments, isLoading: loadingDepartments } = useDepartmentStore();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {

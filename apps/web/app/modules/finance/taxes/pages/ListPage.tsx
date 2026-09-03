@@ -425,6 +425,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search tax rules by code, name, tax registration number..."
       />
 

@@ -26,6 +26,7 @@ interface IClassItem {
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const [classes, setClasses] = useState<IClassItem[]>([]);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export const ListPage: React.FC = () => {
   }, []);
 
   const loadClasses = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/scheduling/classes', {
@@ -200,6 +202,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={classes}
+        loading={loading}
         searchPlaceholder="Search classes by title, instructor, room..."
       />
     </PageContainer>

@@ -65,7 +65,7 @@ const getInitialSettings = (): ISystemSettingsModel => {
 };
 
 export const ListPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [settings, setSettings] = useState<ISystemSettingsModel>(getInitialSettings);
 
   useEffect(() => {

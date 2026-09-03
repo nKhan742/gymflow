@@ -18,6 +18,7 @@ export const DEFAULT_TRAINER_SCHEDULES: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [schedules, setSchedules] = useState<ITrainerSchedule[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadSchedules = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_trainer_schedule');
       const customList: ITrainerSchedule[] = stored ? JSON.parse(stored) : [];
@@ -377,6 +379,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={schedules}
+        loading={loading}
         searchPlaceholder="Search coaches by name, specialty, shift hours, zone, duty status..."
       />
     </PageContainer>

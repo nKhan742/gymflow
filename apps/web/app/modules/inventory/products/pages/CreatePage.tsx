@@ -11,7 +11,7 @@ import { ImageUpload } from '../../../../shared/components/image-upload';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [name, setName] = useState('');
   const [image, setImage] = useState('');
 

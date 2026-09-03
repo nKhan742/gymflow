@@ -18,6 +18,7 @@ export const DEFAULT_ANNOUNCEMENTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [announcements, setAnnouncements] = useState<IAnnouncement[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadAnnouncements = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_announcements');
       const customList: IAnnouncement[] = stored ? JSON.parse(stored) : [];
@@ -338,6 +340,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={announcements}
+        loading={loading}
         searchPlaceholder="Search announcements by title, headline, category, author..."
       />
     </PageContainer>

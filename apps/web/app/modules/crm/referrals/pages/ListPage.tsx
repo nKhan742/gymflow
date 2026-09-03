@@ -18,6 +18,7 @@ export const DEFAULT_REFERRALS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [referrals, setReferrals] = useState<IReferral[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadReferrals = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_referrals');
       const customList: IReferral[] = stored ? JSON.parse(stored) : [];
@@ -367,6 +369,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={referrals}
+        loading={loading}
         searchPlaceholder="Search referrals by member name, friend name, code, status..."
       />
     </PageContainer>

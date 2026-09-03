@@ -18,6 +18,7 @@ export const DEFAULT_FINANCE_REPORTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [reports, setReports] = useState<IFinanceReport[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadReports = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_finance_reports');
       const customList: IFinanceReport[] = stored ? JSON.parse(stored) : [];
@@ -305,6 +307,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={reports}
+        loading={loading}
         searchPlaceholder="Search finance reports by title, CFO, cadence..."
       />
     </PageContainer>

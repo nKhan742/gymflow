@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../../shared/components/ui/card';
@@ -20,7 +20,7 @@ export const EditPage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
   const { user: authUser } = useAuthStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fetching, setFetching] = useState(true);
 
   // Form State

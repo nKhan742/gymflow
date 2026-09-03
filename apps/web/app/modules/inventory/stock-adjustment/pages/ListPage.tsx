@@ -338,6 +338,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search adjustments by product, SKU, audit code, reason..."
       />
 

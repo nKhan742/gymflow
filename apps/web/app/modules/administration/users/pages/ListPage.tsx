@@ -10,6 +10,7 @@ import { Plus, Download, ShieldCheck, Shield, Users, Smartphone, Eye, Edit, Tras
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
+import { isApiCached, getCachedJson, invalidateApiCache } from '../../../../core/api/liveApiCache';
 import { useBranchStore } from '../../../../core/store/branchStore';
 import { useAuthStore } from '../../../../core/store/authStore';
 import { IUserModel } from '../types';
@@ -30,12 +31,17 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeBranchId } = useBranchStore();
   const { user: currentUser } = useAuthStore();
-  const [users, setUsers] = useState<IUserModel[]>([]);
-  const [loading, setLoading] = useState(false);
+  const USERS_URL = 'https://gymflow-api-2jdh.onrender.com/api/v1/administration/users';
+  const cachedUsers = getCachedJson<any>(USERS_URL);
+  const initialUsers: IUserModel[] =
+    cachedUsers?.data?.items || (Array.isArray(cachedUsers?.data) ? cachedUsers.data : []);
+
+  const [users, setUsers] = useState<IUserModel[]>(initialUsers);
+  const [loading, setLoading] = useState<boolean>(() => !isApiCached(USERS_URL) && initialUsers.length === 0);
 
   useEffect(() => {
     loadUsers();
-  }, [activeBranchId, currentUser]);
+  }, [activeBranchId, currentUser?.id]);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -424,6 +430,11 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={users}
+        loading={loading}
+        onRefresh={() => {
+          invalidateApiCache('users');
+          loadUsers();
+        }}
         searchPlaceholder="Search IAM users by name, email, department, role..."
       />
     </PageContainer>

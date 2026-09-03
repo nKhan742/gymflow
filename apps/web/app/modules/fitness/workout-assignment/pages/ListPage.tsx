@@ -50,7 +50,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_WORKOUT_ASSIGNMENTS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchAssignments();
@@ -330,6 +330,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredAssignments}
+        loading={loading}
         searchKey="memberName"
         searchPlaceholder="Search member names, programs, coaches..."
       />

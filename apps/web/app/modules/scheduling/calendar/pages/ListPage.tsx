@@ -19,6 +19,7 @@ export const DEFAULT_CALENDAR_EVENTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [events, setEvents] = useState<ICalendarEvent[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
@@ -28,6 +29,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadEvents = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_calendar');
       const customList: ICalendarEvent[] = stored ? JSON.parse(stored) : [];
@@ -386,6 +388,7 @@ export const ListPage: React.FC = () => {
         <DataTable
           columns={columns}
           data={events}
+        loading={loading}
           searchPlaceholder="Search calendar by session title, instructor, zone, time, status..."
         />
       ) : (

@@ -18,6 +18,7 @@ export const DEFAULT_VISITORS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [visitors, setVisitors] = useState<IVisitor[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadVisitors = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_visitors');
       const customVisitors: IVisitor[] = stored ? JSON.parse(stored) : [];
@@ -397,6 +399,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={visitors}
+        loading={loading}
         searchPlaceholder="Search visitors by name, badge #, host staff, phone..."
       />
     </PageContainer>

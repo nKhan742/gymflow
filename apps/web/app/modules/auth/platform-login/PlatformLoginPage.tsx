@@ -26,7 +26,7 @@ export const PlatformLoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('platform@gymflow.io');
   const [password, setPassword] = useState('password123');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

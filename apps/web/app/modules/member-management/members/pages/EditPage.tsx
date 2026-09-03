@@ -27,7 +27,7 @@ import { ImageUpload } from '../../../../shared/components/image-upload';
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fetching, setFetching] = useState(true);
   const [member, setMember] = useState<IMemberItem | null>(null);
 

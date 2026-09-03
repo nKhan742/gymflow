@@ -49,7 +49,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_PT_PACKAGES;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchPTPackages();
@@ -334,6 +334,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredPackages}
+        loading={loading}
         searchKey="memberName"
         searchPlaceholder="Search client names, coaches, package codes..."
       />

@@ -286,6 +286,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={logs}
+        loading={loading}
         searchPlaceholder="Search activity stream by action, actor, IP, domain, method..."
       />
     </PageContainer>

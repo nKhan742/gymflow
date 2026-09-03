@@ -493,6 +493,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search documents by member, title, file name, verified by..."
       />
 

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [name, setName] = useState('Membership Renewals Item Alpha');
 
   const handleUpdate = (e: React.FormEvent) => {

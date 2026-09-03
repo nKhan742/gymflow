@@ -46,7 +46,7 @@ export const EditPage: React.FC = () => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fetching, setFetching] = useState(true);
 
   // Section 1: Core Brand Identity

@@ -18,6 +18,7 @@ export const DEFAULT_ATTENDANCE_MODELS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [analyses, setAnalyses] = useState<IAttendanceAnalyticsModel[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadAnalyses = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_attendance_analytics');
       const customList: IAttendanceAnalyticsModel[] = stored ? JSON.parse(stored) : [];
@@ -308,6 +310,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={analyses}
+        loading={loading}
         searchPlaceholder="Search attendance analytics by title, analyst, cadence..."
       />
     </PageContainer>

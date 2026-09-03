@@ -470,6 +470,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search commissions by trainer, client, title, code..."
       />
 

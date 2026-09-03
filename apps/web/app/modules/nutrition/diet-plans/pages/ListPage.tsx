@@ -52,7 +52,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_DIET_PLANS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchPlans();
@@ -329,6 +329,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredPlans}
+        loading={loading}
         searchPlaceholder="Search diet plan title, athletic goal, nutritionist..."
       />
     </PageContainer>

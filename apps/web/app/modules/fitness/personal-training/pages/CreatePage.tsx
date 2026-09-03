@@ -45,7 +45,7 @@ const TIER_OPTIONS: ISelectOption[] = [
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Section 1: Client & Coach
   const [memberId, setMemberId] = useState('MEM-001');

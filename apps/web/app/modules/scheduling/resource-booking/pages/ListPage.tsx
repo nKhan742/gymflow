@@ -18,6 +18,7 @@ export const DEFAULT_RESOURCE_BOOKINGS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [bookings, setBookings] = useState<IResourceBooking[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadBookings = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_resource_booking');
       const customList: IResourceBooking[] = stored ? JSON.parse(stored) : [];
@@ -358,6 +360,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={bookings}
+        loading={loading}
         searchPlaceholder="Search reservations by resource, type, member, zone, time, status..."
       />
     </PageContainer>

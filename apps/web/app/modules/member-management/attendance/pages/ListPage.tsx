@@ -518,6 +518,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredLogs}
+        loading={loading}
         searchPlaceholder="Search member name, code, gate location..."
       />
     </PageContainer>

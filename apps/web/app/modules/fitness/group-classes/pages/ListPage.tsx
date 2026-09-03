@@ -49,7 +49,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_GROUP_CLASSES;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchClasses();
@@ -340,6 +340,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredClasses}
+        loading={loading}
         searchKey="name"
         searchPlaceholder="Search classes, instructors, studio rooms..."
       />

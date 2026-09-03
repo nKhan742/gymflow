@@ -49,7 +49,7 @@ export const ListPage: React.FC = () => {
     const localRaw = localStorage.getItem('gymflow_custom_gym_branches');
     return localRaw ? JSON.parse(localRaw) : [];
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchBranches();

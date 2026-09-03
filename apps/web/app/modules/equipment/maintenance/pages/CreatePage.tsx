@@ -17,7 +17,7 @@ export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const prefill = (location.state as any)?.prefill || {};
 

@@ -50,7 +50,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_WORKOUT_PLANS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchPlans();
@@ -319,6 +319,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredPlans}
+        loading={loading}
         searchKey="name"
         searchPlaceholder="Search workout plans, categories, coaches..."
       />

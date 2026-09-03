@@ -210,6 +210,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredHolidays}
+        loading={loading}
         searchPlaceholder="Search holiday name, dates, or category..."
       />
     </PageContainer>

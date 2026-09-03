@@ -75,7 +75,7 @@ export const ViewPage: React.FC = () => {
     const saved = localStorage.getItem('gymflow_custom_gym_profile');
     return saved ? JSON.parse(saved) : DEFAULT_BLANK_PROFILE;
   });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const loadProfile = async () => {
     try {

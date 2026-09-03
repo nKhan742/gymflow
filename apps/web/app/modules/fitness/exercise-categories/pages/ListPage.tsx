@@ -49,7 +49,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_EXERCISE_CATEGORIES;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchCategories();
@@ -319,6 +319,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredCategories}
+        loading={loading}
         searchKey="name"
         searchPlaceholder="Search categories, target muscles, or patterns..."
       />

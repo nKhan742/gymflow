@@ -25,7 +25,7 @@ const AMENITY_OPTIONS = [
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [resourceName, setResourceName] = useState('Championship Glass Squash Court 1');

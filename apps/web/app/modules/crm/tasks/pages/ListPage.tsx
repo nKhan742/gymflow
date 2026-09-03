@@ -18,6 +18,7 @@ export const DEFAULT_TASKS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [tasks, setTasks] = useState<ITask[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadTasks = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_tasks');
       const customList: ITask[] = stored ? JSON.parse(stored) : [];
@@ -360,6 +362,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={tasks}
+        loading={loading}
         searchPlaceholder="Search tasks by title, assigned staff, category, priority..."
       />
     </PageContainer>

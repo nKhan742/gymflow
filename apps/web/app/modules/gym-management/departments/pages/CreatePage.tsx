@@ -55,7 +55,7 @@ export const DEFAULT_STAFF_MEMBERS: any[] = [];
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Section 1: Department Identity
   const [name, setName] = useState('');

@@ -385,6 +385,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredRenewals}
+        loading={loading}
         searchPlaceholder="Search renewals by member name, ID, plan..."
       />
 

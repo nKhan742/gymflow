@@ -32,7 +32,7 @@ import { useBranchStore } from '../../../../core/store/branchStore';
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Section 1: Basic Info & Image
   const [name, setName] = useState('');

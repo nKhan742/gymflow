@@ -16,7 +16,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State initialized from authenticated user
   const [accountEmail, setAccountEmail] = useState('');

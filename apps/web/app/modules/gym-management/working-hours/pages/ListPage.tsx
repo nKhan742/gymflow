@@ -213,6 +213,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredZones}
+        loading={loading}
         searchPlaceholder="Search facility zones by name or code..."
       />
     </PageContainer>

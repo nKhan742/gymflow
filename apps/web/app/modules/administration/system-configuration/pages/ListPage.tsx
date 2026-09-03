@@ -64,7 +64,7 @@ const DEFAULT_CONFIG: ISystemConfigurationModel = {
 };
 
 export const ListPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [config, setConfig] = useState<ISystemConfigurationModel>(DEFAULT_CONFIG);
   const { currentPlan, billingCycle, whatsAppMsgsUsed, openUpgradeModal, getPlanDefinition } = usePlanStore();
   const planDef = getPlanDefinition();

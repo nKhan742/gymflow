@@ -18,6 +18,7 @@ export const DEFAULT_MAINTENANCE: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [tickets, setTickets] = useState<IMaintenanceTicket[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadTickets = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_maintenance');
       const customList: IMaintenanceTicket[] = stored ? JSON.parse(stored) : [];
@@ -367,6 +369,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={tickets}
+        loading={loading}
         searchPlaceholder="Search work orders by ticket #, machine name, tag, technician, status..."
       />
     </PageContainer>

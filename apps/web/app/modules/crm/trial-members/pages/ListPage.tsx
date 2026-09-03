@@ -18,6 +18,7 @@ export const DEFAULT_TRIALS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [trials, setTrials] = useState<ITrialMember[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadTrials = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_trial_members');
       const customTrials: ITrialMember[] = stored ? JSON.parse(stored) : [];
@@ -394,6 +396,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={trials}
+        loading={loading}
         searchPlaceholder="Search trial passes by guest name, passcode, sponsor coach..."
       />
     </PageContainer>

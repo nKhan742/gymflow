@@ -18,6 +18,7 @@ export const DEFAULT_APPOINTMENTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [appointments, setAppointments] = useState<IAppointment[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadAppointments = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_appointments');
       const customList: IAppointment[] = stored ? JSON.parse(stored) : [];
@@ -377,6 +379,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={appointments}
+        loading={loading}
         searchPlaceholder="Search appointments by client name, phone, trainer, type, date, status..."
       />
     </PageContainer>

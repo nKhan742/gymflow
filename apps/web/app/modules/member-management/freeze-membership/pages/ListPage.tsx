@@ -441,6 +441,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredHolds}
+        loading={loading}
         searchPlaceholder="Search freeze records by member name, ID, reason..."
       />
 

@@ -37,7 +37,7 @@ export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
   const { departmentOptions, loadDepartments, isLoading: loadingDepartments } = useDepartmentStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadDepartments();

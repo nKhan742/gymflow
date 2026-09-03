@@ -53,7 +53,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_NUTRITION_LOGS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchLogs();
@@ -333,6 +333,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredLogs}
+        loading={loading}
         searchPlaceholder="Search athlete name, member ID, dietary status..."
       />
     </PageContainer>

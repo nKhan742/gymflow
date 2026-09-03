@@ -17,6 +17,7 @@ export const DEFAULT_AUDIT_LOGS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const [audits, setAudits] = useState<IAuditLogModel[]>([]);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export const ListPage: React.FC = () => {
   }, []);
 
   const loadAudits = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_admin_audit_logs');
       const customList: IAuditLogModel[] = stored ? JSON.parse(stored) : [];
@@ -310,6 +312,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={audits}
+        loading={loading}
         searchPlaceholder="Search audit ledger by record #, entity, auditor, compliance..."
       />
     </PageContainer>

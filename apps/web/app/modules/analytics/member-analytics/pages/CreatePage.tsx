@@ -16,7 +16,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [cohortTitle, setCohortTitle] = useState('Active Roster Retention Curve, Churn Hazard & Member Engagement Model');

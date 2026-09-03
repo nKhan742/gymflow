@@ -123,8 +123,6 @@ export const AppLayout: React.FC = () => {
   useEffect(() => {
     if (isSuperAdmin) {
       loadNotifications();
-      const interval = setInterval(loadNotifications, 10000);
-      return () => clearInterval(interval);
     }
   }, [isSuperAdmin]);
 

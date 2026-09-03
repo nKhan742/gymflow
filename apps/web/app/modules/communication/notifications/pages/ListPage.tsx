@@ -18,6 +18,7 @@ export const DEFAULT_NOTIFICATIONS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [notifications, setNotifications] = useState<INotification[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadNotifications = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_notifications');
       const customList: INotification[] = stored ? JSON.parse(stored) : [];
@@ -334,6 +336,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={notifications}
+        loading={loading}
         searchPlaceholder="Search notifications by title, category, priority, audience, author..."
       />
     </PageContainer>

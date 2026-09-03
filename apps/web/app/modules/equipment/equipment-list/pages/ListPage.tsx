@@ -17,6 +17,7 @@ export const DEFAULT_EQUIPMENT: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [equipmentList, setEquipmentList] = useState<IEquipment[]>([]);
 
@@ -25,6 +26,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadEquipment = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_equipment');
       const customList: IEquipment[] = stored ? JSON.parse(stored) : [];
@@ -353,6 +355,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={equipmentList}
+        loading={loading}
         searchPlaceholder="Search equipment by machine name, asset tag, brand, zone, status..."
       />
     </PageContainer>

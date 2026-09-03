@@ -17,6 +17,7 @@ export const DEFAULT_TEMPLATES: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [templates, setTemplates] = useState<IWhatsappTemplate[]>([]);
 
@@ -25,6 +26,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadTemplates = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_whatsapp');
       const customList: IWhatsappTemplate[] = stored ? JSON.parse(stored) : [];
@@ -324,6 +326,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={templates}
+        loading={loading}
         searchPlaceholder="Search WhatsApp templates by identifier, body text, category..."
       />
     </PageContainer>

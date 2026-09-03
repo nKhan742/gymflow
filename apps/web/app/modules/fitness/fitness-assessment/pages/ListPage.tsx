@@ -50,7 +50,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_ASSESSMENTS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchAssessments();
@@ -319,6 +319,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredAssessments}
+        loading={loading}
         searchKey="memberName"
         searchPlaceholder="Search member assessments, coaches..."
       />

@@ -416,6 +416,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search medical records by member name, ID, conditions..."
       />
 

@@ -227,6 +227,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredTemplates}
+        loading={loading}
         searchPlaceholder="Search workout templates, split types, or goals..."
       />
     </PageContainer>

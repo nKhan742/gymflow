@@ -317,6 +317,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={categories}
+        loading={loading}
         searchPlaceholder="Search categories by name, code, slug..."
       />
 

@@ -480,6 +480,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search wallets by member name, member code, wallet code..."
       />
 

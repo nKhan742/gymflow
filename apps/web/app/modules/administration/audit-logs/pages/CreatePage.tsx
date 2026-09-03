@@ -14,7 +14,7 @@ import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [mutationType, setMutationType] = useState<IAuditLogModel['mutationType']>('UPDATE');

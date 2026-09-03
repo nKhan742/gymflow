@@ -48,7 +48,7 @@ export const ListPage: React.FC = () => {
   const { currency: globalCurrency, setCurrency: setGlobalCurrency } = useCurrencyStore();
 
   const [step, setStep] = useState<1 | 2>(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState(false);
 
   // Form State

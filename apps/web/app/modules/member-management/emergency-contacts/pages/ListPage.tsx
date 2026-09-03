@@ -385,6 +385,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search emergency contacts by member, contact name, phone, relationship..."
       />
 

@@ -60,6 +60,7 @@ const INITIAL_TENANTS: IGymTenant[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { login } = useAuthStore();
   const { setPlan } = usePlanStore();
   const { loadBranches } = useBranchStore();
@@ -700,6 +701,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredTenants}
+        loading={loading}
         searchPlaceholder="Search by gym name, owner, email, campus, or database..."
       />
 

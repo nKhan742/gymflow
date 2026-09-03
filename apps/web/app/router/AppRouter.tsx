@@ -21,25 +21,14 @@ import { communicationRoutes } from '../modules/communication/routes';
 import { reportsRoutes } from '../modules/reports/routes';
 import { analyticsRoutes } from '../modules/analytics/routes';
 import { profileRoutes } from '../modules/profile/routes';
-import { useAuthStore } from '../core/store/authStore';
-import { getDefaultDashboardPath } from '../core/guards/rbacGuard';
 
 const PlatformLoginPage = React.lazy(() =>
   import('../modules/auth/platform-login/PlatformLoginPage').then((m) => ({ default: m.PlatformLoginPage }))
 );
 
-const RootRedirect: React.FC = () => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
-  }
-  return <Navigate to={getDefaultDashboardPath(user?.role)} replace />;
-};
-
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootRedirect />,
   },
   {
     path: '/platform-admin/login',
@@ -53,17 +42,16 @@ export const router = createBrowserRouter([
     path: '/auth',
     element: <AuthLayout />,
     children: [
-      { index: true, element: <Navigate to="/auth/login" replace /> },
       ...authRoutes,
     ],
   },
   {
+    path: '/',
     element: <ProtectedRoute />,
     children: [
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <Navigate to="/dashboard" replace /> },
           ...dashboardRoutes,
           ...administrationRoutes,
           ...gymManagementRoutes,

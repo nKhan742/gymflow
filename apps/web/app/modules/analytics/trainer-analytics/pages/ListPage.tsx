@@ -18,6 +18,7 @@ export const DEFAULT_TRAINER_MODELS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [models, setModels] = useState<ITrainerAnalyticsModel[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadModels = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_trainer_analytics');
       const customList: ITrainerAnalyticsModel[] = stored ? JSON.parse(stored) : [];
@@ -303,6 +305,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={models}
+        loading={loading}
         searchPlaceholder="Search trainer analytics by coach name, specialty, tier..."
       />
     </PageContainer>

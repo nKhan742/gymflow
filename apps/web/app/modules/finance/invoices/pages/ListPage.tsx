@@ -57,7 +57,7 @@ export const ListPage: React.FC = () => {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<IInvoiceItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const { startLoading, stopLoading } = useLoadingStore();
 
   useEffect(() => {

@@ -18,6 +18,7 @@ export const DEFAULT_LEADS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [leads, setLeads] = useState<ILead[]>([]);
   const [selectedStage, setSelectedStage] = useState<string>('ALL');
@@ -27,6 +28,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadLeads = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_leads');
       const customLeads: ILead[] = stored ? JSON.parse(stored) : [];
@@ -404,6 +406,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredData}
+        loading={loading}
         searchPlaceholder="Search leads by name, email, phone, sales rep..."
       />
     </PageContainer>

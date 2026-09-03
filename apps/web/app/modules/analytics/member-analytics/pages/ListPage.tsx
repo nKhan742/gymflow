@@ -18,6 +18,7 @@ export const DEFAULT_MEMBER_MODELS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [models, setModels] = useState<IMemberAnalyticsModel[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadModels = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_member_analytics');
       const customList: IMemberAnalyticsModel[] = stored ? JSON.parse(stored) : [];
@@ -309,6 +311,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={models}
+        loading={loading}
         searchPlaceholder="Search member analytics by title, CX lead, cadence..."
       />
     </PageContainer>

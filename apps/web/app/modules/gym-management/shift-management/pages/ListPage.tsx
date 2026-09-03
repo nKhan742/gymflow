@@ -218,6 +218,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredShifts}
+        loading={loading}
         searchPlaceholder="Search shift templates by name, code, or department..."
       />
     </PageContainer>

@@ -276,6 +276,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={permissions}
+        loading={loading}
         searchPlaceholder="Search permissions by name, token string, domain, action..."
       />
     </PageContainer>

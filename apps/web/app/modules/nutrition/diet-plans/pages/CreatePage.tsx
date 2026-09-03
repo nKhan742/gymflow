@@ -26,7 +26,7 @@ import { IDietPlan, DietGoal, IPlanMealScheduleItem } from '../types';
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [name, setName] = useState('');

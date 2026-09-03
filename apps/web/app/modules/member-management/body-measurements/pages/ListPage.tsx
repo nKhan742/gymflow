@@ -358,6 +358,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={measurements}
+        loading={loading}
         searchPlaceholder="Search measurements by member name, ID, coach..."
       />
 

@@ -19,7 +19,7 @@ export const CreatePage: React.FC = () => {
   const locationState = (location.state as any) || {};
 
   const { branchOptions } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [clientName, setClientName] = useState('Marcus Aurelius');

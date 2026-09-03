@@ -18,6 +18,7 @@ export const DEFAULT_MEMBERSHIP_REPORTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [reports, setReports] = useState<IMembershipReport[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadReports = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_membership_reports');
       const customList: IMembershipReport[] = stored ? JSON.parse(stored) : [];
@@ -307,6 +309,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={reports}
+        loading={loading}
         searchPlaceholder="Search membership reports by title, CX lead, cadence..."
       />
     </PageContainer>

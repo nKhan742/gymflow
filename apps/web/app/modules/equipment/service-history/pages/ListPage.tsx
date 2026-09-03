@@ -18,6 +18,7 @@ export const DEFAULT_SERVICE_LOGS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [serviceLogs, setServiceLogs] = useState<IServiceLog[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadLogs = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_service_history');
       const customList: IServiceLog[] = stored ? JSON.parse(stored) : [];
@@ -336,6 +338,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={serviceLogs}
+        loading={loading}
         searchPlaceholder="Search service history by log #, machine name, tag, technician, provider..."
       />
     </PageContainer>

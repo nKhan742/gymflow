@@ -57,7 +57,7 @@ const COLOR_OPTIONS: ISelectOption[] = [
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Section 1: Identity & Anatomy
   const [name, setName] = useState('');

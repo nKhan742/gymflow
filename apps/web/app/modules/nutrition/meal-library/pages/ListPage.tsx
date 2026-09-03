@@ -50,7 +50,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_MEALS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchMeals();
@@ -324,6 +324,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredMeals}
+        loading={loading}
         searchPlaceholder="Search recipe name, dietary protocol, ingredients..."
       />
     </PageContainer>

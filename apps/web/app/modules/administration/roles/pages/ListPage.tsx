@@ -10,6 +10,7 @@ import { Plus, Download, Shield, Layers, Users, Lock, Eye, Edit, Trash2, CheckCi
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
+import { invalidateApiCache } from '../../../../core/api/liveApiCache';
 import { IRoleModel } from '../types';
 import { toast } from 'sonner';
 import { getGrantedModules, AVAILABLE_MODULE_PERMISSIONS } from '../permissions.config';
@@ -35,7 +36,7 @@ export const ListPage: React.FC = () => {
       const [rolesRes, usersRes, staffRes] = await Promise.all([
         fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', { headers }),
         fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/users', { headers }).catch(() => null),
-        fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym-management/staff', { headers }).catch(() => null),
+        fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym/staff', { headers }).catch(() => null),
       ]);
 
       const roleHoldersMap: Record<string, Set<string>> = {};
@@ -342,6 +343,11 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={roles}
+        loading={loading}
+        onRefresh={() => {
+          invalidateApiCache('roles');
+          loadRoles();
+        }}
         searchPlaceholder="Search RBAC roles by title, key, tier level, permissions..."
       />
     </PageContainer>

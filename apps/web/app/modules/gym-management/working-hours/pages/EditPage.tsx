@@ -35,7 +35,7 @@ export const EditPage: React.FC = () => {
   const navigate = useNavigate();
   const { branches } = useBranchStore();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fetching, setFetching] = useState(true);
 
   // Section 1: Identity & Access Mode

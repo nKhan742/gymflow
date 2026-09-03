@@ -18,6 +18,7 @@ export const DEFAULT_DASHBOARD_SNAPSHOTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [snapshots, setSnapshots] = useState<IDashboardMetricSnapshot[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadSnapshots = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_dashboard_analytics');
       const customList: IDashboardMetricSnapshot[] = stored ? JSON.parse(stored) : [];
@@ -308,6 +310,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={snapshots}
+        loading={loading}
         searchPlaceholder="Search dashboard snapshots by title, controller, cadence..."
       />
     </PageContainer>

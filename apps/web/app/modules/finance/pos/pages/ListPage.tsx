@@ -49,7 +49,7 @@ export const ListPage: React.FC = () => {
   const [customerName, setCustomerName] = useState<string>('');
   const [discountCode, setDiscountCode] = useState<string>('');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const addToCart = (product: IPOSProduct) => {
     const existing = cart.find((item) => item.product.id === product.id);

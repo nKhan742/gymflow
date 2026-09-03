@@ -17,6 +17,7 @@ export const DEFAULT_CAMPAIGNS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [campaigns, setCampaigns] = useState<ICampaign[]>([]);
 
@@ -25,6 +26,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadCampaigns = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_campaigns');
       const customList: ICampaign[] = stored ? JSON.parse(stored) : [];
@@ -357,6 +359,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={campaigns}
+        loading={loading}
         searchPlaceholder="Search campaigns by name, voucher code, channel, status..."
       />
     </PageContainer>

@@ -18,6 +18,7 @@ export const DEFAULT_REVENUE_MODELS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [models, setModels] = useState<IRevenueAnalyticsModel[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadModels = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_revenue_analytics');
       const customList: IRevenueAnalyticsModel[] = stored ? JSON.parse(stored) : [];
@@ -308,6 +310,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={models}
+        loading={loading}
         searchPlaceholder="Search revenue models by title, analyst, cadence..."
       />
     </PageContainer>

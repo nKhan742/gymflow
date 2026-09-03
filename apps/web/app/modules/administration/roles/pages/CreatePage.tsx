@@ -26,7 +26,7 @@ const AVAILABLE_MODULE_PERMISSIONS = [
 
 export const CreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Form State
   const [roleName, setRoleName] = useState('');

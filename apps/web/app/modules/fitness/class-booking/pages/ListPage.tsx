@@ -50,7 +50,7 @@ export const ListPage: React.FC = () => {
       return DEFAULT_CLASS_BOOKINGS;
     }
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchBookings();
@@ -311,6 +311,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredBookings}
+        loading={loading}
         searchKey="memberName"
         searchPlaceholder="Search member names, classes, booking codes..."
       />

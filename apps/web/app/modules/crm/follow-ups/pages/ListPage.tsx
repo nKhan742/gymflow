@@ -18,6 +18,7 @@ export const DEFAULT_FOLLOW_UPS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [followUps, setFollowUps] = useState<IFollowUp[]>([]);
 
@@ -26,6 +27,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadFollowUps = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_follow_ups');
       const customList: IFollowUp[] = stored ? JSON.parse(stored) : [];
@@ -372,6 +374,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={followUps}
+        loading={loading}
         searchPlaceholder="Search follow-ups by contact name, rep, channel, outcome..."
       />
     </PageContainer>

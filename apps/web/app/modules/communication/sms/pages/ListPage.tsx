@@ -17,6 +17,7 @@ export const DEFAULT_SMS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [smsList, setSmsList] = useState<ISmsBlast[]>([]);
 
@@ -25,6 +26,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadSmsList = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_sms');
       const customList: ISmsBlast[] = stored ? JSON.parse(stored) : [];
@@ -301,6 +303,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={smsList}
+        loading={loading}
         searchPlaceholder="Search SMS campaigns by title, text content, sender ID, provider..."
       />
     </PageContainer>

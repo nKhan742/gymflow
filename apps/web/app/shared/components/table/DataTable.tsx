@@ -18,7 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Download, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { Download, Search, SlidersHorizontal, Loader2, RefreshCw } from 'lucide-react';
 import { TableSkeleton } from '../feedback/DatabaseLoader';
 
 interface DataTableProps<TData, TValue> {
@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   loading?: boolean;
   loadingMessage?: string;
+  onRefresh?: () => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   searchPlaceholder = 'Search records...',
   loading = false,
   loadingMessage = 'Fetching records from live database...',
+  onRefresh,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -105,6 +107,20 @@ export function DataTable<TData, TValue>({
               <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
               <span className="hidden sm:inline">Loading records...</span>
             </div>
+          )}
+
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={loading}
+              className="gap-1.5"
+              title="Reload live data from database"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
           )}
 
           <Button variant="outline" size="sm" className="gap-1.5">

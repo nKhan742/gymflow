@@ -17,6 +17,7 @@ export const DEFAULT_INVENTORY_REPORTS: any[] = [];
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
   const { activeBranchId } = useBranchStore();
   const [reports, setReports] = useState<IInventoryReport[]>([]);
 
@@ -25,6 +26,7 @@ export const ListPage: React.FC = () => {
   }, [activeBranchId]);
 
   const loadReports = async () => {
+    setLoading(true);
     try {
       const stored = localStorage.getItem('gymflow_custom_inventory_reports');
       const customList: IInventoryReport[] = stored ? JSON.parse(stored) : [];
@@ -301,6 +303,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={reports}
+        loading={loading}
         searchPlaceholder="Search inventory reports by category name, title, cadence..."
       />
     </PageContainer>

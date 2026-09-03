@@ -471,6 +471,7 @@ export const ListPage: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredList}
+        loading={loading}
         searchPlaceholder="Search salary by staff name, ID, slip code, role..."
       />
 
