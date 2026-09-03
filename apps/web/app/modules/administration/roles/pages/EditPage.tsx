@@ -19,6 +19,7 @@ import {
 } from '../permissions.config';
 import { realtimeService } from '../../../../core/notifications/realtimeService';
 import { invalidateApiCache } from '../../../../core/api/liveApiCache';
+import { useAuthStore } from '../../../../core/store/authStore';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -182,6 +183,14 @@ export const EditPage: React.FC = () => {
       if (res.ok) {
         invalidateApiCache('roles');
 
+        // Immediately update session in this active window if current user has this role
+        const curUser = useAuthStore.getState().user;
+        const curRole = (curUser?.role || '').toUpperCase().trim();
+        const targetRole = (roleKey || '').toUpperCase().trim();
+        if (curUser && (curRole === targetRole || curRole.includes(targetRole) || targetRole.includes(curRole))) {
+          useAuthStore.getState().setExactPermissions(effectivePermissions);
+        }
+
         // Dispatch real-time WebSocket notification with sound to all holders of this role
         realtimeService.dispatchNotification({
           targetRole: roleKey,
@@ -189,7 +198,7 @@ export const EditPage: React.FC = () => {
           message: `Your account permissions and clearance tier have been updated in real-time (${selectedModules.length} domains granted).`,
           notificationType: 'success',
           sound: true,
-          metadata: { roleKey, resource: 'roles' },
+          metadata: { roleKey, resource: 'roles', permissions: effectivePermissions },
         });
 
         toast.success(`Role "${roleName}" saved successfully! (${selectedModules.length} of ${Object.keys(AVAILABLE_MODULE_PERMISSIONS).length} domains granted)`);

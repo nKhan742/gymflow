@@ -1,6 +1,7 @@
 import { playNotificationSound } from './soundNotification';
 import { toast } from 'sonner';
 import { invalidateApiCache } from '../api/liveApiCache';
+import { useAuthStore } from '../store/authStore';
 
 export interface IRealtimeEvent {
   type?: 'notification' | 'notify_user';
@@ -120,20 +121,32 @@ class RealtimeNotificationService {
   }
 
   public handleIncomingNotification(event: IRealtimeEvent, broadcastLocally: boolean) {
-    // Check if event targets this user
-    const curUserId = this.currentUser?.id;
-    const curEmail = this.currentUser?.email?.toLowerCase().trim();
-    const curRole = this.currentUser?.role?.toUpperCase().trim();
+    const storeUser = useAuthStore.getState().user;
+    const curUserId = this.currentUser?.id || storeUser?.id;
+    const curEmail = (this.currentUser?.email || storeUser?.email || '').toLowerCase().trim();
+    const curRole = (this.currentUser?.role || storeUser?.role || '').toUpperCase().trim();
 
     let matches = false;
     if (!event.targetUserId && !event.targetRole) {
       matches = true;
     } else {
-      if (event.targetUserId && (event.targetUserId === curUserId || event.targetUserId.toLowerCase() === curEmail)) {
-        matches = true;
+      if (event.targetUserId) {
+        const tUser = String(event.targetUserId).toLowerCase().trim();
+        if (tUser === String(curUserId).toLowerCase() || tUser === curEmail) {
+          matches = true;
+        }
       }
-      if (event.targetRole && event.targetRole.toUpperCase() === curRole) {
-        matches = true;
+      if (event.targetRole) {
+        const tRole = String(event.targetRole).toUpperCase().trim();
+        if (
+          curRole === tRole ||
+          curRole.includes(tRole) ||
+          tRole.includes(curRole) ||
+          (curRole === 'TRAINER' && tRole === 'STAFF_USER') ||
+          (curRole === 'STAFF_USER' && tRole === 'TRAINER')
+        ) {
+          matches = true;
+        }
       }
     }
 
@@ -162,18 +175,14 @@ class RealtimeNotificationService {
       invalidateApiCache(event.metadata.resource);
     }
 
-    // 4. Update and synchronize permissions dynamically in real-time
-    try {
-      import('../store/authStore').then(({ useAuthStore }) => {
-        const store = useAuthStore.getState();
-        if (event.metadata?.permissions && Array.isArray(event.metadata.permissions)) {
-          store.updateUserPermissions(event.metadata.permissions);
-        }
-        store.refreshPermissions();
-      });
-    } catch {}
+    // 4. Update and synchronize permissions dynamically in real-time WITHOUT REFRESHING!
+    if (event.metadata?.permissions && Array.isArray(event.metadata.permissions)) {
+      useAuthStore.getState().setExactPermissions(event.metadata.permissions);
+    } else {
+      useAuthStore.getState().refreshPermissions();
+    }
 
-    // 4. Notify registered listeners (e.g. AppLayout notification bell)
+    // 5. Notify registered listeners (e.g. AppLayout notification bell)
     this.listeners.forEach((listener) => {
       try {
         listener(event);

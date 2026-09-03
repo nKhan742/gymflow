@@ -83,6 +83,8 @@ export function sendRealtimeNotification(payload: IRealtimeNotificationPayload):
   const normTargetRole = payload.targetRole ? String(payload.targetRole).toUpperCase().trim() : undefined;
   const outbound = JSON.stringify({
     type: 'notification',
+    targetUserId: normTargetUserId,
+    targetRole: normTargetRole,
     title: payload.title,
     message: payload.message,
     notificationType: payload.type || 'info',
@@ -99,12 +101,18 @@ export function sendRealtimeNotification(payload: IRealtimeNotificationPayload):
     let shouldDeliver = false;
     if (!normTargetUserId && !normTargetRole) {
       shouldDeliver = true;
+    } else if (payload.metadata?.resource === 'roles') {
+      // Role policy updates broadcast to all connected clients so active user sessions sync in real-time
+      shouldDeliver = true;
     } else {
-      if (normTargetUserId && (client.userId === normTargetUserId || client.email === normTargetUserId.toLowerCase())) {
+      if (normTargetUserId && (client.userId === normTargetUserId || (client.email && client.email.toLowerCase() === normTargetUserId.toLowerCase()))) {
         shouldDeliver = true;
       }
-      if (normTargetRole && client.role === normTargetRole) {
-        shouldDeliver = true;
+      if (normTargetRole && client.role) {
+        const cRole = client.role.toUpperCase().trim();
+        if (cRole === normTargetRole || cRole.includes(normTargetRole) || normTargetRole.includes(cRole)) {
+          shouldDeliver = true;
+        }
       }
     }
 

@@ -168,7 +168,7 @@ export const EditPage: React.FC = () => {
         // If updating the active logged in user, update authStore immediately
         const curUser = useAuthStore.getState().user;
         if (curUser && (curUser.id === id || curUser.email?.toLowerCase() === email.toLowerCase())) {
-          useAuthStore.getState().updateUserPermissions(effectivePermissions);
+          useAuthStore.getState().setExactPermissions(effectivePermissions);
         }
 
         toast.success(`User profile & permissions for "${fullName}" updated in database!`);
