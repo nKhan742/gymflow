@@ -57,9 +57,14 @@ export const ListPage: React.FC = () => {
           email: authUser.email || prev.email,
           phone: authUser.phone || prev.phone,
           securityRole: authUser.role || prev.securityRole,
-          jobTitle: authUser.roleName || (authUser.role === 'ADMIN' ? 'Administrator' : authUser.role === 'SUPER_ADMIN' ? 'Super Administrator' : prev.jobTitle),
+          jobTitle: authUser.roleName || (authUser.role === 'ADMIN' ? 'Administrator' : authUser.role === 'SUPER_ADMIN' ? 'Super Administrator' : authUser.role === 'TRAINER' ? 'Fitness Coach & Trainer' : prev.jobTitle),
           department: authUser.department || prev.department,
           branchName: authUser.branchName || prev.branchName,
+          avatarUrl: authUser.avatarUrl || authUser.avatar || prev.avatarUrl,
+          employeeId: authUser.employeeCode || prev.employeeId,
+          shiftSchedule: authUser.shift || prev.shiftSchedule,
+          certifications: authUser.certifications?.length ? authUser.certifications : prev.certifications,
+          bio: authUser.bio || prev.bio,
         }));
 
         try {
@@ -69,14 +74,20 @@ export const ListPage: React.FC = () => {
               'Content-Type': 'application/json',
             },
           });
+          let matched: any = null;
           if (staffRes.ok) {
             const sJson = await staffRes.json();
             const sList = sJson.data?.items || (Array.isArray(sJson.data) ? sJson.data : []);
-            const matched = sList.find((s: any) => s.email?.toLowerCase() === authUser.email?.toLowerCase());
+            matched = sList.find((s: any) => 
+              (s.email && s.email.toLowerCase() === authUser.email?.toLowerCase()) ||
+              (s.id && s.id === authUser.id) ||
+              (s._id && s._id === authUser.id)
+            );
             if (matched) {
               setProfile((prev) => ({
                 ...prev,
-                fullName: matched.name || `${matched.firstName} ${matched.lastName}`.trim() || prev.fullName,
+                fullName: matched.name || `${matched.firstName || ''} ${matched.lastName || ''}`.trim() || prev.fullName,
+                avatarUrl: matched.avatar || matched.avatarUrl || prev.avatarUrl,
                 phone: matched.phone || prev.phone,
                 employeeId: matched.code || prev.employeeId,
                 jobTitle: matched.role ? String(matched.role).replace('_', ' ') : prev.jobTitle,
@@ -88,41 +99,37 @@ export const ListPage: React.FC = () => {
               }));
             }
           }
+
+          if (!matched && authUser.id) {
+            try {
+              const uRes = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/users/${authUser.id}`, {
+                headers: {
+                  Authorization: token ? `Bearer ${token}` : '',
+                  'Content-Type': 'application/json',
+                },
+              });
+              if (uRes.ok) {
+                const uJson = await uRes.json();
+                const uData = uJson.data;
+                if (uData) {
+                  setProfile((prev) => ({
+                    ...prev,
+                    fullName: uData.fullName || `${uData.firstName || ''} ${uData.lastName || ''}`.trim() || prev.fullName,
+                    avatarUrl: uData.avatarUrl || uData.avatar || prev.avatarUrl,
+                    phone: uData.phone || prev.phone,
+                    jobTitle: uData.role ? String(uData.role).replace('_', ' ') : prev.jobTitle,
+                    department: uData.department || prev.department,
+                    branchName: uData.branchName || prev.branchName,
+                  }));
+                }
+              }
+            } catch {}
+          }
         } catch {}
       }
-
-      const stored = localStorage.getItem('gymflow_custom_my_profiles');
-      if (stored) {
-        const customList: IMyProfileModel[] = JSON.parse(stored);
-        if (customList.length > 0 && customList[0]) {
-          setProfile((prev) => ({ ...prev, ...customList[0] }));
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Fetch from live API
-      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile', {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data) {
-          const item = Array.isArray(json.data.items) ? json.data.items[0] : json.data;
-          if (item) {
-            setProfile((prev) => ({ ...prev, ...item }));
-            setLoading(false);
-            return;
-          }
-        }
-      }
-    } catch {}
-
-    setLoading(false);
+    } catch {} finally {
+      setLoading(false);
+    }
   };
 
   const handlePrintBadge = () => {

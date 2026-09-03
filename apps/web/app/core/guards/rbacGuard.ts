@@ -159,6 +159,9 @@ export const canAccessPath = (
 
   if (rootSegment === 'profile' || rootSegment === 'dashboard') return true;
 
+  // Allow authenticated users to view specific invoice receipts (e.g. trainer checking generated client invoice)
+  if (pathname.startsWith('/finance/invoices/')) return true;
+
   return canAccessModule(rootSegment, role, permissions);
 };
 

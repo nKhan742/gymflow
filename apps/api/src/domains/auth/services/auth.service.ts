@@ -326,13 +326,13 @@ export class AuthService {
         }
 
         // Dynamically merge user-specific permissions + latest role permissions from the Roles collection
+        const tenantModels = TenantDatabaseManager.getTenantModels(dbName);
         const userDirectPerms = Array.isArray(dbUser.permissions) ? dbUser.permissions : [];
         let rolePerms: string[] = [];
 
         if (dbUser.role && dbUser.role !== 'ADMIN' && dbUser.role !== 'SUPER_ADMIN') {
           try {
-            const tenantModels = TenantDatabaseManager.getTenantModels(dbName);
-            if (tenantModels.Roles) {
+            if (tenantModels?.Roles) {
               const roleDoc = await tenantModels.Roles.findOne({
                 roleKey: { $regex: new RegExp(`^${dbUser.role}$`, 'i') },
                 isDeleted: false,
@@ -350,15 +350,39 @@ export class AuthService {
 
         const effectivePermissions = Array.from(new Set([...userDirectPerms, ...rolePerms]));
 
+        let staffDoc: any = null;
+        if (tenantModels?.Staff) {
+          try {
+            staffDoc = await tenantModels.Staff.findOne({
+              email: { $regex: new RegExp(`^${dbUser.email}$`, 'i') },
+              isDeleted: false,
+            }).lean();
+          } catch {}
+        }
+
         const user = {
           id: dbUser._id.toString(),
           email: dbUser.email,
           firstName: dbUser.firstName,
           lastName: dbUser.lastName,
+          fullName: `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || dbUser.name || staffDoc?.name,
+          avatar: dbUser.avatar || dbUser.avatarUrl || staffDoc?.avatar || staffDoc?.avatarUrl || '',
+          avatarUrl: dbUser.avatarUrl || dbUser.avatar || staffDoc?.avatarUrl || staffDoc?.avatar || '',
+          phone: dbUser.phone || staffDoc?.phone || '',
           role: dbUser.role,
+          roleName: staffDoc?.role || dbUser.role,
+          department: dbUser.department || staffDoc?.department || 'Personal Training & Fitness',
+          branchId: dbUser.branchId || staffDoc?.branchId || 'BR-HQ',
+          branchName: staffDoc?.branchName || 'Main Facility',
+          shift: dbUser.shift || staffDoc?.shift || 'Morning Shift',
+          certifications: staffDoc?.certifications || dbUser.certifications || [],
+          specializations: staffDoc?.specializations || dbUser.specializations || [],
+          hourlyRate: staffDoc?.hourlyRate || dbUser.hourlyRate || 50,
+          commissionPercentage: staffDoc?.commissionPercentage || dbUser.commissionPercentage || 60,
+          bio: staffDoc?.bio || dbUser.bio || '',
+          employeeCode: staffDoc?.code || dbUser.code || '',
           tenantId: dbUser.tenantId,
           dbName,
-          branchId: dbUser.branchId,
           permissions: effectivePermissions,
           isActive: dbUser.isActive,
         };

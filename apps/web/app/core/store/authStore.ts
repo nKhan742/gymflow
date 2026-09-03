@@ -13,7 +13,6 @@ interface IAuthState {
   setAuth: (user: IUserProfile, token: string, refreshToken?: string) => void;
   refreshPermissions: () => Promise<void>;
   updateUserPermissions: (newPermissions: string[]) => void;
-  setExactPermissions: (newPermissions: string[]) => void;
 }
 
 const getStoredUser = (): IUserProfile | null => {
@@ -235,16 +234,12 @@ export const useAuthStore = create<IAuthState>((set) => ({
     }
   },
 
-  setExactPermissions: (newPermissions: string[]) => {
+  updateUserPermissions: (newPermissions: string[]) => {
     const currentUser = useAuthStore.getState().user;
     if (!currentUser) return;
-    const unique = Array.from(new Set(newPermissions));
-    const updatedUser: IUserProfile = { ...currentUser, permissions: unique };
+    const merged = Array.from(new Set([...(currentUser.permissions || []), ...newPermissions]));
+    const updatedUser: IUserProfile = { ...currentUser, permissions: merged };
     localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updatedUser));
     useAuthStore.setState({ user: updatedUser });
-  },
-
-  updateUserPermissions: (newPermissions: string[]) => {
-    useAuthStore.getState().setExactPermissions(newPermissions);
   },
 }));
