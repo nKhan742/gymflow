@@ -10,12 +10,8 @@ export interface IUsers {
   role: string;
   permissions: string[];
   phone?: string;
-  name?: string;
-  fullName?: string;
   avatar?: string;
-  avatarUrl?: string;
   isActive: boolean;
   status: any;
-  createdAt?: Date;
   updatedAt: Date;
 }

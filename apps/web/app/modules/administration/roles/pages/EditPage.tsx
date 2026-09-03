@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
@@ -11,128 +11,85 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { IRoleModel } from '../types';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
-
-const AVAILABLE_MODULE_PERMISSIONS = [
-  { key: 'gym_mgmt', label: '🏢 Gym Management & Multi-Branch Network', desc: 'Manage campuses, staff biometric rosters, and operating hours' },
-  { key: 'members', label: '👥 Member Management & Biometric Gate Logs', desc: 'Directory, KYC documents, medical safeguarding, and freeze workflows' },
-  { key: 'finance', label: '💳 Finance, Tax Invoices & POS Register', desc: 'Tax invoice generation, payment ledger signing, and POS checkout' },
-  { key: 'inventory', label: '📦 Inventory Valuation & Supplier Purchasing', desc: 'SKU restock orders, COGS audits, and vendor invoices' },
-  { key: 'fitness', label: '🏋️ Fitness Workouts & Personal Training', desc: 'Exercise library, PT packages, and group class bookings' },
-  { key: 'nutrition', label: '🥗 Nutrition, Meal Protocols & Diet Plans', desc: 'Caloric calculations, macronutrient assignments, and supplement plans' },
-  { key: 'crm', label: '💼 CRM, VIP Trials & Sales Pipeline', desc: 'Lead qualification, visitor passes, and campaign automation' },
-  { key: 'analytics', label: '📊 Business Intelligence & GAAP Reports', desc: 'Executive MRR dashboards, turnstile footfall, and coach yields' },
-  { key: 'admin', label: '⚙️ Administration & Security Governance', desc: 'IAM user provisioning, RBAC roles, and compliance audit trail' },
-];
-
-const DEFAULT_ROLES: Record<string, IRoleModel> = {
-  'ROL-101': {
-    id: 'ROL-101',
-    _id: 'ROL-101',
-    roleName: 'Super Administrator (Root)',
-    roleKey: 'ROLE_SUPER_ADMIN',
-    description: 'Unrestricted global root clearance across all multi-tenant branches, financial ledgers, and security policies.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    isSystemRole: true,
-    assignedUsersCount: 2,
-    permissionModulesCount: 9,
-    permissionsList: ['gym_mgmt', 'members', 'finance', 'inventory', 'fitness', 'nutrition', 'crm', 'analytics', 'admin'],
-    hierarchyTier: 1,
-    status: 'ACTIVE',
-    createdBy: 'System Root Provisioning',
-    createdAt: '2026-08-25T08:00:00.000Z',
-    updatedAt: '2026-08-25T08:00:00.000Z',
-  },
-  'ROL-102': {
-    id: 'ROL-102',
-    _id: 'ROL-102',
-    roleName: 'Facility Administrator',
-    roleKey: 'ROLE_FACILITY_ADMIN',
-    description: 'Full campus operational administration covering turnstile hardware, staff shifts, finance billing, and member profiles.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    isSystemRole: true,
-    assignedUsersCount: 4,
-    permissionModulesCount: 8,
-    permissionsList: ['gym_mgmt', 'members', 'finance', 'inventory', 'fitness', 'nutrition', 'crm', 'analytics'],
-    hierarchyTier: 2,
-    status: 'ACTIVE',
-    createdBy: 'System Root Provisioning',
-    createdAt: '2026-08-25T08:00:00.000Z',
-    updatedAt: '2026-08-25T08:00:00.000Z',
-  },
-  'ROL-103': {
-    id: 'ROL-103',
-    _id: 'ROL-103',
-    roleName: 'Branch General Manager',
-    roleKey: 'ROLE_BRANCH_MANAGER',
-    description: 'Branch-scoped executive management covering staff scheduling, lead pipelines, POS cash register, and member attendance.',
-    iconAvatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    isSystemRole: true,
-    assignedUsersCount: 6,
-    permissionModulesCount: 7,
-    permissionsList: ['gym_mgmt', 'members', 'finance', 'fitness', 'nutrition', 'crm', 'analytics'],
-    hierarchyTier: 3,
-    status: 'ACTIVE',
-    createdBy: 'System Root Provisioning',
-    createdAt: '2026-08-26T08:00:00.000Z',
-    updatedAt: '2026-08-26T08:00:00.000Z',
-  },
-};
+import { AVAILABLE_MODULE_PERMISSIONS, isModuleGranted } from './ViewPage';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   // Form State
-  const [roleName, setRoleName] = useState('Facility Administrator');
-  const [roleKey, setRoleKey] = useState('ROLE_FACILITY_ADMIN');
-  const [description, setDescription] = useState('Full campus operational administration...');
+  const [roleName, setRoleName] = useState('');
+  const [roleKey, setRoleKey] = useState('');
+  const [description, setDescription] = useState('');
   const [iconAvatarUrl, setIconAvatarUrl] = useState<string | undefined>(undefined);
-  const [hierarchyTier, setHierarchyTier] = useState(2);
+  const [hierarchyTier, setHierarchyTier] = useState(3);
   const [isSystemRole, setIsSystemRole] = useState(false);
   const [status, setStatus] = useState<IRoleModel['status']>('ACTIVE');
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([
-    'gym_mgmt',
-    'members',
-    'finance',
-    'inventory',
-    'fitness',
-    'nutrition',
-    'crm',
-    'analytics',
-  ]);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!id) return;
-    const stored = localStorage.getItem('gymflow_custom_admin_roles');
-    if (stored) {
-      const customList: IRoleModel[] = JSON.parse(stored);
-      const found = customList.find((r) => (r.id || r._id) === id);
-      if (found) {
-        setRoleName(found.roleName);
-        setRoleKey(found.roleKey);
-        setDescription(found.description);
-        setIconAvatarUrl(found.iconAvatarUrl);
-        setHierarchyTier(found.hierarchyTier);
-        setIsSystemRole(found.isSystemRole);
-        setStatus(found.status);
-        if (found.permissionsList) setSelectedPermissions(found.permissionsList);
-        return;
-      }
-    }
-
-    const defaultRole = DEFAULT_ROLES[id];
-    if (defaultRole) {
-      setRoleName(defaultRole.roleName);
-      setRoleKey(defaultRole.roleKey);
-      setDescription(defaultRole.description);
-      setIconAvatarUrl(defaultRole.iconAvatarUrl);
-      setHierarchyTier(defaultRole.hierarchyTier);
-      setIsSystemRole(defaultRole.isSystemRole);
-      setStatus(defaultRole.status);
-      if (defaultRole.permissionsList) setSelectedPermissions(defaultRole.permissionsList);
-    }
+    loadRoleData();
   }, [id]);
+
+  const loadRoleData = async () => {
+    setFetching(true);
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      let roleData: any = null;
+
+      // 1. Try fetching by ID from live backend
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles/${id}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        roleData = json.data;
+      }
+
+      // 2. If not found by direct ID, search directory
+      if (!roleData) {
+        const listRes = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.data?.items || (Array.isArray(listJson.data) ? listJson.data : []);
+          roleData = items.find((r: any) => (r.id || r._id) === id || r.roleKey === id);
+        }
+      }
+
+      if (roleData) {
+        setRoleName(roleData.roleName || roleData.name || '');
+        setRoleKey(roleData.roleKey || roleData.code || '');
+        setDescription(roleData.description || '');
+        setIconAvatarUrl(roleData.iconAvatarUrl);
+        setHierarchyTier(roleData.hierarchyTier || 3);
+        setIsSystemRole(!!roleData.isSystemRole);
+        setStatus((roleData.status || 'ACTIVE').toUpperCase() as any);
+
+        const perms = roleData.permissionsList || roleData.permissions || [];
+        // Map to which of the 9 high-level modules are granted
+        const granted = Object.keys(AVAILABLE_MODULE_PERMISSIONS).filter((modKey) =>
+          isModuleGranted(modKey, perms, roleData.roleKey || roleData.code)
+        );
+        setSelectedPermissions(granted);
+      }
+    } catch {
+      toast.error('Failed to load role details');
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const togglePermission = (key: string) => {
     setSelectedPermissions((prev) =>
@@ -140,48 +97,53 @@ export const EditPage: React.FC = () => {
     );
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const updatedRole: IRoleModel = {
-      id: id || 'ROL-102',
-      _id: id || 'ROL-102',
+    const updatedRole: Partial<IRoleModel> = {
       roleName,
       roleKey,
       description,
-      iconAvatarUrl: iconAvatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      isSystemRole,
-      assignedUsersCount: 4,
-      permissionModulesCount: selectedPermissions.length,
-      permissionsList: selectedPermissions,
+      iconAvatarUrl,
       hierarchyTier,
+      isSystemRole,
       status,
-      createdBy: 'Sarah Jenkins (Super Admin)',
-      createdAt: '2026-08-25T08:00:00.000Z',
-      updatedAt: new Date().toISOString(),
+      permissionsList: selectedPermissions,
+      permissionModulesCount: selectedPermissions.length,
     };
 
     try {
-      const stored = localStorage.getItem('gymflow_custom_admin_roles');
-      const existing: IRoleModel[] = stored ? JSON.parse(stored) : [];
-      const filtered = existing.filter((r) => (r.id || r._id) !== id);
-      localStorage.setItem('gymflow_custom_admin_roles', JSON.stringify([updatedRole, ...filtered]));
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles/${id}`, {
+      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedRole),
-      }).catch(() => {});
+        body: JSON.stringify({
+          name: roleName,
+          roleName,
+          code: roleKey,
+          roleKey,
+          description,
+          hierarchyTier,
+          isSystemRole,
+          status: status.toLowerCase(),
+          permissionsList: selectedPermissions,
+          permissions: selectedPermissions,
+          permissionModulesCount: selectedPermissions.length,
+        }),
+      });
 
-      toast.success(`RBAC Role "${roleName}" updated successfully!`);
-      navigate('/administration/roles');
+      if (res.ok) {
+        toast.success(`Role "${roleName}" updated successfully! (${selectedPermissions.length} / 9 modules active)`);
+        navigate(`/administration/roles/${id}`);
+      } else {
+        toast.error('Could not save role changes');
+      }
     } catch {
-      toast.error('Failed to update role');
+      toast.error('Network error updating role');
     } finally {
       setLoading(false);
     }
@@ -190,151 +152,174 @@ export const EditPage: React.FC = () => {
   return (
     <PageContainer>
       <PageHeader
-        title={`Edit RBAC Role • ${roleName}`}
-        subtitle={`Modify authorization boundaries, domain capabilities, and access policy for #${id || 'ROL-102'}.`}
+        title={`Edit Security Role • ${roleName || 'Policy'}`}
+        subtitle={`Configure permission grant matrices, operational boundaries, and security clearance for #${id}`}
         actions={
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/administration/roles')}>
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Back to Roles</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate(`/administration/roles/${id}`)}>
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back</span>
+            </Button>
+            <Button size="sm" className="gap-1.5 shadow-sm" disabled={loading || fetching} onClick={handleSubmit}>
+              <Save className="h-4 w-4" />
+              <span>{loading ? 'Saving...' : 'Save Policy Changes'}</span>
+            </Button>
+          </div>
         }
       />
 
-      <div className="max-w-4xl">
-        <form onSubmit={handleUpdate} className="space-y-6">
-          {/* Identity & Hierarchy */}
+      <div className="w-full">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Identity & Scope */}
           <Card>
             <CardHeader className="pb-4">
               <CardTitle className="text-base flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
                 Role Identity & Security Hierarchy
               </CardTitle>
+              <CardDescription className="text-xs">
+                Update identifier token, classification label, and authorization tier
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">Role Badge / Creator Avatar</label>
-                <ImageUpload
-                  value={iconAvatarUrl}
-                  onChange={(url) => setIconAvatarUrl(url)}
-                  variant="avatar"
-                  helperText="Upload role icon or authorization officer portrait (1:1)"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    Role Display Name <span className="text-rose-500">*</span>
-                  </label>
-                  <Input
-                    value={roleName}
-                    onChange={(e) => setRoleName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    Security Key Identifier <span className="text-rose-500">*</span>
-                  </label>
-                  <Input
-                    value={roleKey}
-                    onChange={(e) => setRoleKey(e.target.value)}
-                    required
-                    className="font-mono text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">Role Description & Scope</label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
-                  className="flex min-h-[70px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                />
-              </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Hierarchy Authorization Tier</label>
+                  <label className="text-xs font-semibold text-foreground">Role Display Name *</label>
+                  <Input value={roleName} onChange={(e) => setRoleName(e.target.value)} required />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">System Security Token / Key *</label>
+                  <Input value={roleKey} onChange={(e) => setRoleKey(e.target.value)} required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Hierarchy Clearance Tier</label>
                   <Select value={String(hierarchyTier)} onValueChange={(val) => setHierarchyTier(Number(val))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Tier Level" />
+                      <SelectValue placeholder="Select Tier" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">👑 Tier 1 - Root Super Admin (Global Bypass)</SelectItem>
-                      <SelectItem value="2">🏛️ Tier 2 - Facility Administrator</SelectItem>
-                      <SelectItem value="3">🏢 Tier 3 - Branch General Manager</SelectItem>
-                      <SelectItem value="4">🚪 Tier 4 - Staff Operator / Front Desk</SelectItem>
-                      <SelectItem value="5">⚖️ Tier 5 - Auditor (Read-Only Compliance)</SelectItem>
+                      <SelectItem value="1">👑 Tier 1 - Root / Master Authority</SelectItem>
+                      <SelectItem value="2">🏛️ Tier 2 - Facility Leadership</SelectItem>
+                      <SelectItem value="3">🏢 Tier 3 - Department Manager</SelectItem>
+                      <SelectItem value="4">🚪 Tier 4 - Frontline Operator</SelectItem>
+                      <SelectItem value="5">⚖️ Tier 5 - Auditor / Read-Only</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Lifecycle State</label>
+                  <label className="text-xs font-semibold text-foreground">Policy Type</label>
+                  <Select value={isSystemRole ? 'true' : 'false'} onValueChange={(val) => setIsSystemRole(val === 'true')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Policy Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">Custom Policy (Editable & Deletable)</SelectItem>
+                      <SelectItem value="true">Protected System Role</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Operational Status</label>
                   <Select value={status} onValueChange={(val) => setStatus(val as IRoleModel['status'])}>
                     <SelectTrigger>
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">🟢 Active & Grantable</SelectItem>
-                      <SelectItem value="ARCHIVED">📦 Archived / Deprecated</SelectItem>
+                      <SelectItem value="ACTIVE">🟢 Active Policy</SelectItem>
+                      <SelectItem value="ARCHIVED">🔴 Archived / Suspended</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Policy Scope Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  className="w-full text-xs p-3 rounded-lg border border-input bg-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Module Capability Matrix */}
+          {/* Module Capabilities Matrix */}
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Layers className="h-4 w-4 text-emerald-500" />
-                Domain Permission Capability Grants ({selectedPermissions.length} Active)
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-emerald-500" />
+                    Module Permission Grants ({selectedPermissions.length} of 9 Granted)
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Select module domains this role is authorized to operate within
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7"
+                    onClick={() => setSelectedPermissions(Object.keys(AVAILABLE_MODULE_PERMISSIONS))}
+                  >
+                    Select All
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 text-muted-foreground"
+                    onClick={() => setSelectedPermissions([])}
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {AVAILABLE_MODULE_PERMISSIONS.map((perm) => {
-                  const isChecked = selectedPermissions.includes(perm.key);
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Object.entries(AVAILABLE_MODULE_PERMISSIONS).map(([key, perm]) => {
+                  const isChecked = selectedPermissions.includes(key);
                   return (
                     <div
-                      key={perm.key}
-                      onClick={() => togglePermission(perm.key)}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                      key={key}
+                      onClick={() => togglePermission(key)}
+                      className={`p-3.5 rounded-xl border flex items-start justify-between gap-3 cursor-pointer select-none transition-all ${
                         isChecked
-                          ? 'bg-primary/5 border-primary/40 shadow-xs'
-                          : 'bg-muted/30 border-border hover:border-border/80'
+                          ? 'border-emerald-500/50 bg-emerald-500/10 text-foreground'
+                          : 'border-border bg-card/40 opacity-50 hover:opacity-80'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="h-4 w-4 mt-0.5 accent-primary cursor-pointer"
-                      />
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-foreground block">{perm.label}</span>
                         <p className="text-[10px] text-muted-foreground">{perm.desc}</p>
                       </div>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}}
+                        className="h-4 w-4 accent-emerald-500 rounded mt-0.5 cursor-pointer"
+                      />
                     </div>
                   );
                 })}
               </div>
             </CardContent>
-
-            <CardFooter className="flex items-center justify-between border-t border-border pt-4 bg-muted/20">
-              <span className="text-xs text-muted-foreground font-mono">
-                Record ID: <strong>{id || 'ROL-102'}</strong>
+            <CardFooter className="flex items-center justify-between border-t border-border pt-4">
+              <span className="text-xs text-muted-foreground">
+                Current authorization coverage: <strong>{selectedPermissions.length} / 9 Domains</strong>
               </span>
-              <Button type="submit" loading={loading} className="gap-1.5 shadow-sm">
+              <Button type="submit" disabled={loading || fetching} className="gap-1.5 shadow-sm">
                 <Save className="h-4 w-4" />
-                <span>Save Changes</span>
+                <span>{loading ? 'Saving Policy...' : 'Save & Apply Grants'}</span>
               </Button>
             </CardFooter>
           </Card>
