@@ -14,10 +14,10 @@ const clients = new Set<IClientInfo>();
 export function initWebSocketServer(httpServer: HttpServer): WebSocketServer {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
-  wss.on('connection', (ws: WebSocket, req: any) => {
+  wss.on('connection', (ws: WebSocket, req) => {
     const clientInfo: IClientInfo = { ws };
     clients.add(clientInfo);
-    logger.info(`[WebSocket] New client connected from ${req?.socket?.remoteAddress}. Total active: ${clients.size}`);
+    logger.info(`[WebSocket] New client connected from ${req.socket.remoteAddress}. Total active: ${clients.size}`);
 
     ws.on('message', (messageRaw: string) => {
       try {
@@ -41,7 +41,7 @@ export function initWebSocketServer(httpServer: HttpServer): WebSocketServer {
             metadata: payload.metadata,
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         logger.warn('[WebSocket] Error parsing message:', err);
       }
     });
@@ -51,7 +51,7 @@ export function initWebSocketServer(httpServer: HttpServer): WebSocketServer {
       logger.info(`[WebSocket] Client disconnected. Total active: ${clients.size}`);
     });
 
-    ws.on('error', (err: any) => {
+    ws.on('error', (err) => {
       logger.warn('[WebSocket] Socket error:', err);
       clients.delete(clientInfo);
     });

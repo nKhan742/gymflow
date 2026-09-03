@@ -123,6 +123,9 @@ export const AppLayout: React.FC = () => {
 
   useEffect(() => {
     realtimeService.connect(user);
+    if (user?.id) {
+      useAuthStore.getState().refreshPermissions();
+    }
 
     const unsubscribe = realtimeService.subscribe((event) => {
       setPlatformNotifications((prev) => [

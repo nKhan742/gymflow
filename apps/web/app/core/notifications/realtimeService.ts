@@ -162,6 +162,17 @@ class RealtimeNotificationService {
       invalidateApiCache(event.metadata.resource);
     }
 
+    // 4. Update and synchronize permissions dynamically in real-time
+    try {
+      import('../store/authStore').then(({ useAuthStore }) => {
+        const store = useAuthStore.getState();
+        if (event.metadata?.permissions && Array.isArray(event.metadata.permissions)) {
+          store.updateUserPermissions(event.metadata.permissions);
+        }
+        store.refreshPermissions();
+      });
+    } catch {}
+
     // 4. Notify registered listeners (e.g. AppLayout notification bell)
     this.listeners.forEach((listener) => {
       try {

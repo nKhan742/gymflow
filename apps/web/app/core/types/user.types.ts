@@ -8,7 +8,7 @@ export interface IUserProfile extends IBaseEntity {
   avatar?: string;
   phone?: string;
   role: RoleType;
-  permissions: PermissionType[];
+  permissions: (PermissionType | string)[];
   branchId?: string;
   gymId?: string;
   gymName?: string;

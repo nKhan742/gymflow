@@ -47,4 +47,5 @@ export type PermissionType =
   | 'SETTINGS_MANAGE'
   | 'USERS_VIEW'
   | 'USERS_MANAGE'
-  | 'ROLES_MANAGE';
+  | 'ROLES_MANAGE'
+  | (string & {});

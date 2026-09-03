@@ -325,8 +325,10 @@ export class AuthService {
           throw new UnauthorizedException('Invalid credentials provided.');
         }
 
-        // Dynamically resolve the latest permissions from the Roles collection for this user's role
-        let effectivePermissions = dbUser.permissions || [];
+        // Dynamically merge user-specific permissions + latest role permissions from the Roles collection
+        const userDirectPerms = Array.isArray(dbUser.permissions) ? dbUser.permissions : [];
+        let rolePerms: string[] = [];
+
         if (dbUser.role && dbUser.role !== 'ADMIN' && dbUser.role !== 'SUPER_ADMIN') {
           try {
             const tenantModels = TenantDatabaseManager.getTenantModels(dbName);
@@ -336,18 +338,17 @@ export class AuthService {
                 isDeleted: false,
               }).lean();
               if (roleDoc) {
-                const rolePerms = (roleDoc.permissionsList && roleDoc.permissionsList.length > 0)
+                rolePerms = (roleDoc.permissionsList && roleDoc.permissionsList.length > 0)
                   ? roleDoc.permissionsList
                   : (roleDoc.permissions || []);
-                if (rolePerms.length > 0) {
-                  effectivePermissions = rolePerms;
-                }
               }
             }
           } catch {}
         } else if (dbUser.role === 'ADMIN' || dbUser.role === 'SUPER_ADMIN') {
-          effectivePermissions = ['*'];
+          rolePerms = ['*'];
         }
+
+        const effectivePermissions = Array.from(new Set([...userDirectPerms, ...rolePerms]));
 
         const user = {
           id: dbUser._id.toString(),

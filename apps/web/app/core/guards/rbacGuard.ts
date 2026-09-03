@@ -91,6 +91,9 @@ export const getDefaultDashboardPath = (role?: string): string => {
 /**
  * Validates whether a user with a given role and permissions is authorized to access a top-level module menu.
  */
+/**
+ * Validates whether a user with a given role and permissions is authorized to access a top-level module menu.
+ */
 export const canAccessModule = (
   menuId: string,
   role?: string,
@@ -101,18 +104,29 @@ export const canAccessModule = (
     return true;
   }
 
-  // Profile is always open for all authenticated users
+  // Profile and Dashboard are always open for all authenticated users
   if (menuId === 'profile' || menuId === 'dashboard') {
     return true;
   }
 
-  // Administration domain is strictly reserved for Admin & Super Admin
+  // Administration domain
   if (menuId === 'administration') {
-    return normRole === 'ADMIN' || normRole === 'SUPER_ADMIN';
+    if (normRole === 'ADMIN' || normRole === 'SUPER_ADMIN') return true;
+    return isModuleGranted('admin', permissions, role);
   }
 
-  const moduleKey = MENU_TO_MODULE_MAP[menuId];
-  if (!moduleKey) {
+  // Check wildcards
+  if (permissions.includes('*') || permissions.includes('all')) {
+    return true;
+  }
+
+  // Direct module match or wildcard
+  if (permissions.includes(menuId) || permissions.includes(`${menuId}:*`)) {
+    return true;
+  }
+
+  const moduleKey = MENU_TO_MODULE_MAP[menuId] || menuId;
+  if (permissions.includes(moduleKey) || permissions.includes(`${moduleKey}:*`)) {
     return true;
   }
 
@@ -139,50 +153,13 @@ export const canAccessPath = (
     }
   }
 
-  // Check disallowed subpaths for role
-  const disallowed = ROLE_DISALLOWED_SUBPATHS[normRole] || [];
-  if (disallowed.some((badPath) => pathname === badPath || pathname.startsWith(badPath + '/'))) {
-    return false;
-  }
-
-  // Check exact sub-item permission if the route maps to a declared sidebar item
-  if (normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
-    for (const menu of SIDEBAR_MENU_CONFIG) {
-      if (menu.children) {
-        for (const child of menu.children) {
-          if (child.path === pathname || pathname.startsWith(child.path + '/')) {
-            if (child.permission) {
-              const hasWildcard = permissions.includes('*') || permissions.includes('all');
-              const modKey = MENU_TO_MODULE_MAP[menu.id];
-              const hasModuleWildcard = permissions.includes(`${menu.id}:*`) || (modKey ? permissions.includes(`${modKey}:*`) : false);
-              const hasExact = permissions.includes(child.permission);
-              if (!hasWildcard && !hasModuleWildcard && !hasExact) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   // Check top-level domain access
   const segments = pathname.split('/').filter(Boolean);
   const rootSegment = segments[0] || '';
 
-  if (rootSegment === 'profile') return true;
-  if (rootSegment === 'dashboard') return true;
+  if (rootSegment === 'profile' || rootSegment === 'dashboard') return true;
 
-  if (rootSegment === 'administration') {
-    return normRole === 'ADMIN' || normRole === 'SUPER_ADMIN';
-  }
-
-  const moduleKey = MENU_TO_MODULE_MAP[rootSegment];
-  if (moduleKey) {
-    return isModuleGranted(moduleKey, permissions, role);
-  }
-
-  return true;
+  return canAccessModule(rootSegment, role, permissions);
 };
 
 /**
@@ -206,6 +183,8 @@ export const filterSidebarMenuForUser = (
         return menu;
       }
 
+      const isModuleOpen = canAccessModule(menu.id, role, permissions);
+
       const filteredChildren = menu.children.filter((sub) => {
         // Superadmin only items
         if (sub.superAdminOnly && !isSuperAdmin) {
@@ -220,20 +199,22 @@ export const filterSidebarMenuForUser = (
           }
         }
 
-        // Check disallowed subpaths
-        const disallowed = ROLE_DISALLOWED_SUBPATHS[normRole] || [];
-        if (disallowed.some((bad) => sub.path === bad || sub.path.startsWith(bad + '/'))) {
-          return false;
+        // If the top-level module is granted to the user, ALL operational children in that module are accessible
+        if (isModuleOpen && menu.id !== 'administration') {
+          return true;
         }
 
-        // Check sub-item specific permission if declared
-        if (sub.permission && normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
-          const hasWildcard = permissions.includes('*') || permissions.includes('all');
-          const modKey = MENU_TO_MODULE_MAP[menu.id];
-          const hasModuleWildcard = permissions.includes(`${menu.id}:*`) || (modKey ? permissions.includes(`${modKey}:*`) : false);
-          const hasExact = permissions.includes(sub.permission);
-          if (!hasWildcard && !hasModuleWildcard && !hasExact) {
-            return false;
+        // For administration sub-items, check specific permission if not full admin
+        if (menu.id === 'administration' && normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
+          if (sub.permission) {
+            const hasWildcard = permissions.includes('*') || permissions.includes('all');
+            const hasExact = permissions.includes(sub.permission);
+            const hasPrefix = permissions.some((p) =>
+              sub.permission && (p.startsWith(sub.permission.split(':')[0]) || sub.permission.startsWith(p))
+            );
+            if (!hasWildcard && !hasExact && !hasPrefix) {
+              return false;
+            }
           }
         }
 
@@ -246,8 +227,8 @@ export const filterSidebarMenuForUser = (
       };
     })
     .filter((menu) => {
-      // If a group has children defined originally but all were filtered out, hide the group
-      if (menu.children && menu.children.length === 0 && menu.id !== 'profile') {
+      // Keep menus with children, or root action menus like Profile/Dashboard
+      if (menu.children && menu.children.length === 0 && menu.id !== 'profile' && menu.id !== 'dashboard') {
         return false;
       }
       return true;
