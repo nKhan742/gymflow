@@ -23,58 +23,62 @@ export const ViewPage: React.FC = () => {
   const loadProfile = async () => {
     setLoading(true);
     try {
-      const stored = localStorage.getItem('gymflow_custom_my_profiles');
-      if (stored) {
-        const customList: IMyProfileModel[] = JSON.parse(stored);
-        const match = customList.find((p) => (p.id || p._id) === id);
-        if (match) {
-          setProfile(match);
-          setLoading(false);
-          return;
-        }
-      }
-
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile/${id}`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
 
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data) {
-          setProfile(json.data);
-          setLoading(false);
-          return;
+      // 1. Fetch live profile from backend
+      try {
+        const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            const item = Array.isArray(json.data.items) ? json.data.items[0] : json.data;
+            if (item) {
+              setProfile(item);
+              setLoading(false);
+              return;
+            }
+          }
         }
+      } catch {}
+
+      // 2. Fallback to auth user in storage
+      const authUserRaw = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
+      if (authUserRaw) {
+        const authUser = JSON.parse(authUserRaw);
+        setProfile({
+          id: authUser.id || authUser._id || 'PRF-CURRENT-USER',
+          _id: authUser.id || authUser._id || 'PRF-CURRENT-USER',
+          fullName: authUser.name || `${authUser.firstName || ''} ${authUser.lastName || ''}`.trim() || 'Staff Member',
+          email: authUser.email || '',
+          phone: authUser.phone || '',
+          jobTitle: authUser.roleName || (authUser.role === 'ADMIN' ? '👑 Gym Administrator' : authUser.role === 'TRAINER' ? '🏋️ Fitness Coach' : authUser.role),
+          department: authUser.department || 'Personal Training & Operations',
+          avatarUrl: authUser.avatar || authUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          coverBannerUrl: authUser.coverBannerUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80',
+          employeeId: authUser.code || `EMP-${(authUser.id || '001').slice(-4).toUpperCase()}`,
+          securityRole: authUser.role || 'STAFF',
+          shiftSchedule: authUser.shiftSchedule || 'Standard Facility Operations (08:00 - 17:00)',
+          emergencyContactName: authUser.emergencyContactName || 'Family Contact',
+          emergencyContactPhone: authUser.emergencyContactPhone || authUser.phone || '+1 (555) 019-2834',
+          bio: authUser.bio || `Staff member at GymFlow ERP with verified security clearance.`,
+          certifications: authUser.certifications || ['CPR/AED Certified', 'GymFlow Certified Professional'],
+          profileCompletionScore: 100,
+          status: (authUser.status || 'ACTIVE').toUpperCase(),
+          branchName: authUser.campusName || authUser.branchName || 'Main Facility Campus',
+          createdAt: authUser.createdAt || new Date().toISOString(),
+          updatedAt: authUser.updatedAt || new Date().toISOString(),
+        });
+        setLoading(false);
+        return;
       }
     } catch {}
 
-    setProfile({
-      id: id || 'PRF-101',
-      _id: id || 'PRF-101',
-      fullName: 'Sarah Jenkins',
-      email: 's.jenkins@gymflow.io',
-      phone: '+1 (555) 234-8901',
-      jobTitle: 'Director of Facility Operations',
-      department: 'Operations & Facilities',
-      avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-      coverBannerUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80',
-      employeeId: 'EMP-8820',
-      securityRole: 'FACILITY_MANAGER',
-      shiftSchedule: 'Morning Operations (06:00 - 14:30 EST)',
-      emergencyContactName: 'David Jenkins (Spouse)',
-      emergencyContactPhone: '+1 (555) 890-1234',
-      bio: 'Seasoned fitness facility operator specializing in biometric turnstile infrastructure, campus maintenance, and cross-functional team leadership.',
-      certifications: ['CPR/AED Certified', 'OSHA Facility Safety', 'NASM Club Admin'],
-      profileCompletionScore: 100,
-      status: 'ACTIVE',
-      branchName: 'Main Facility',
-      createdAt: '2026-08-25T08:00:00.000Z',
-      updatedAt: '2026-08-25T08:00:00.000Z',
-    });
     setLoading(false);
   };
 
