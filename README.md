@@ -300,9 +300,18 @@ The **GymFlow CRM & Growth Marketing Domain** is engineered as a unified 7-layer
 
 - **Unified Media Uploader**: Reusable `<ImageUpload variant="avatar" | "banner" | "thumbnail" | "card" />` component with drag-and-drop, instant file reader, and clear/replace actions.
 
-GymFlow ERP comes with built-in enterprise demo profiles:
+GymFlow ERP comes with built-in enterprise demo profiles across both platform and tenant tiers:
 
-| Role | Email | Password | Access Scope |
+| Persona & Role | System Key | Hierarchy | Demo Email | Password | Access Scope & Dedicated Dashboard |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Platform Super Admin** | `SUPER_ADMIN` | Level 0 | `platform@gymflow.io` | `password123` | Root multi-tenant cloud controller (`/platform-admin/login`) |
+| **Gym Administrator / Owner** | `ADMIN` | Tier 1 | `ahmad@gmail.com` | `password123` | Root tenant authority across all 10 modules (`/dashboard/admin-dashboard`) |
+| **Branch General Manager** | `BRANCH_MANAGER` | Tier 2 | `manager@gymflow.io` | `password123` | Campus leadership across 6 operational modules (`/dashboard/admin-dashboard`) |
+| **Finance & Billing Officer** | `ACCOUNTANT` | Tier 3 | `finance@gymflow.io` | `password123` | Invoices, POS register, payroll, and revenue BI (`/dashboard/accountant-dashboard`) |
+| **Fitness Coach & Trainer** | `TRAINER` | Tier 3 | `trainer@gymflow.io` | `password123` | Exercise library, workout routines, and PT clients (`/dashboard/trainer-dashboard`) |
+| **Front Desk & Concierge** | `RECEPTIONIST` | Tier 3 | `reception@gymflow.io` | `password123` | Turnstiles, check-ins, classes, and day guests (`/dashboard/reception-dashboard`) |
+| **Certified Nutritionist** | `NUTRITIONIST` | Tier 3 | `nutrition@gymflow.io` | `password123` | Meal catalog, macros, hydration, and diets (`/dashboard/nutrition-dashboard`) |
+| **Gym Member (Self-Service)** | `MEMBER` | Tier 4 | `member@gymflow.io` | `password123` | Personal workouts, prescribed diets, and class booking (`/dashboard/member-dashboard`) |
 
 ---
 
@@ -735,8 +744,34 @@ flowchart TD
 
 2. **Roles Management (`/administration/roles`)**:
    - *Role*: Hierarchical RBAC tiering and domain authorization matrix.
-   - *Workflow*: Configures custom roles with `<ImageUpload variant="avatar" />`, hierarchy rank tiers (Tier 1 Root Superadmin to Tier 5 Staff), and an interactive 9-module capability checkbox grid (`Administration`, `Gym Management`, `Member Management`, `Finance & Billing`, `Inventory & POS`, `Fitness & Workouts`, `CRM & Sales`, `Reports & BI`, `Communication`).
-   - *360° Role Policy Dossier*: Role badge, 4 telemetry metrics (`HIERARCHY TIER`, `GRANTED CAPABILITIES`, `ASSIGNED USERS`, `POLICY STATUS`), granular domain access matrix, and **"Print Policy"** action.
+   - *Workflow*: Configures custom roles with `<ImageUpload variant="avatar" />`, hierarchy rank tiers (Tier 1 Root Superadmin to Tier 5 Staff), and an interactive 10-module capability checkbox grid (`Administration`, `Gym Management`, `Member Management`, `Fitness & Workouts`, `Nutrition & Diets`, `Class Scheduling`, `Finance & Billing`, `Inventory & Equipment`, `CRM & Leads`, `Business Intelligence & Analytics`).
+   - *360° Role Policy Dossier*: Responsive side-by-side card interface, role badge, 4 telemetry metrics (`HIERARCHY TIER`, `GRANTED CAPABILITIES`, `ASSIGNED USERS`, `POLICY STATUS`), granular domain access matrix, and **"Print Policy"** action.
+
+   #### 🛡️ Enterprise 7-Role Master Permission Matrix (Predefined RBAC Engine)
+
+   | Operational Domain | 👑 Admin (`ADMIN`) | 🏛️ Branch Mgr (`BRANCH_MANAGER`) | 💳 Accountant (`ACCOUNTANT`) | 🏋️ Trainer (`TRAINER`) | 🚪 Reception (`RECEPTIONIST`) | 🥗 Nutritionist (`NUTRITIONIST`) | 📱 Member (`MEMBER`) |
+   | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+   | **1. Administration** (`admin`) | ✅ Full Access | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+   | **2. Gym Management** (`gym_mgmt`) | ✅ Full Access | ✅ Full Campus | ❌ | ❌ | 👁️ Shifts & Gates | ❌ | ❌ |
+   | **3. Member Management** (`members`) | ✅ Full Access | ✅ Full Campus | 👁️ Read Plans | 👁️ Active Clients | ✅ Frontline Check-In | 👁️ Dietary Clients | 🔒 Self Profile Only |
+   | **4. Fitness & Workouts** (`fitness`) | ✅ Full Access | 👁️ Read Routines | ❌ | ✅ Full Coaching | ❌ | 👁️ Read Routines | 👁️ Assigned Only |
+   | **5. Nutrition & Diets** (`nutrition`) | ✅ Full Access | ❌ | ❌ | 👁️ Read Diets | ❌ | ✅ Full Clinical | 👁️ Assigned Only |
+   | **6. Scheduling & Calendar** (`scheduling`) | ✅ Full Access | ✅ Master Timetable | ❌ | ✏️ PT Appointments | ✅ Class Check-In | ❌ | 👁️ Spot Booking |
+   | **7. Finance & Billing** (`finance`) | ✅ Full Access | ❌ | ✅ Full Ledger & Tax | ❌ | 💵 POS Cashier | ❌ | 🔒 My Receipts Only |
+   | **8. Inventory & Equipment** (`inventory`) | ✅ Full Access | ✅ Full Asset Mgmt | 👁️ Stock Ledger | ❌ | ❌ | ❌ | ❌ |
+   | **9. CRM & Sales Leads** (`crm`) | ✅ Full Access | ✅ Full Pipeline | ❌ | ❌ | ✅ Day Pass Intake | ❌ | ❌ |
+   | **10. Analytics & Reports** (`analytics`) | ✅ Full Access | 📊 Branch Occupancy | 📊 Revenue & Tax BI | 📊 PT NPS / Hours | ❌ | ❌ | ❌ |
+   | **Total Granted Domains** | **10 / 10 Modules** | **6 / 10 Modules** | **4 / 10 Modules** | **4 / 10 Modules** | **3 / 10 Modules** | **3 / 10 Modules** | **4 / 10 Modules** |
+
+   ##### 🔒 Role Security & Architectural Boundaries:
+   * **👑 Gym Administrator / Owner (`ADMIN` — Tier 1)**: Holds master wildcard grant (`*`). Authority to onboard gym campuses, configure corporate branding, sign financial tax invoices, adjust membership rates, and provision IAM staff credentials.
+   * **🏛️ Branch General Manager (`BRANCH_MANAGER` — Tier 2)**: Governs facility operations, turnstile gates, biometric shift rosters, and equipment repairs. *Boundary*: Zero access to modify corporate tax rates, company bank accounts, or system-level IAM credentials.
+   * **💳 Finance & Billing Officer (`ACCOUNTANT` — Tier 3)**: Certifies GAAP tax invoices (`gymflow.finance.invoices.sign`), processes POS registers, disburses coach commission salaries, and exports financial analytics. *Boundary*: Zero access to member medical assessments or workout prescriptions.
+   * **🏋️ Fitness Coach & Trainer (`TRAINER` — Tier 3)**: Prescribes periodized training, conducts InBody biometric body compositions, manages 1-on-1 PT consultation calendars, and reviews client diet logs. *Boundary*: Zero access to facility financial receipts or tenant billing configurations.
+   * **🚪 Front Desk & Concierge (`RECEPTIONIST` — Tier 3)**: Turnstile access overrides (`gymflow.gym.turnstiles.override`), locker assignments, walk-in day pass registrations, and studio class check-ins. *Boundary*: Zero access to back-office payroll, executive profit margins, or diet prescriptions.
+   * **🥗 Certified Nutritionist (`NUTRITIONIST` — Tier 3)**: Authors clinical meal recipes, calculates caloric/macronutrient splits, tracks client hydration, and prescribes nutritional plans. *Boundary*: Zero access to hardware turnstiles, staff shift scheduling, or financial ledgers.
+   * **📱 Gym Member (`MEMBER` — Tier 4)**: Mobile app and self-service portal access. Logs workout sets/reps, checks prescribed diet plans, reserves group fitness class spots, and views billing receipts. *Boundary*: Strict multi-tenant row isolation ensures members can only read and mutate documents where `memberId === req.user.id`.
+
 
 3. **Permissions Registry (`/administration/permissions`)**:
    - *Role*: Atomic machine capability registry and NIST access governance.
