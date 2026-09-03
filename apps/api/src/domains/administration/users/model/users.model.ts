@@ -8,7 +8,7 @@ export interface IUsersModel extends IBaseModel {
   passwordHash: string;
   firstName: string;
   lastName: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'BRANCH_MANAGER' | 'TRAINER' | 'RECEPTIONIST' | 'NUTRITIONIST' | 'MEMBER';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'BRANCH_MANAGER' | 'TRAINER' | 'RECEPTIONIST' | 'NUTRITIONIST' | 'MEMBER' | 'ACCOUNTANT';
   permissions: string[];
   branchId?: string;
   phone?: string;
@@ -28,7 +28,7 @@ export const usersSchema = new Schema<IUsersModel>(
     lastName: { type: String, required: true },
     role: {
       type: String,
-      enum: ['SUPER_ADMIN', 'ADMIN', 'BRANCH_MANAGER', 'TRAINER', 'RECEPTIONIST', 'NUTRITIONIST', 'MEMBER'],
+      enum: ['SUPER_ADMIN', 'ADMIN', 'BRANCH_MANAGER', 'TRAINER', 'RECEPTIONIST', 'NUTRITIONIST', 'MEMBER', 'ACCOUNTANT'],
       default: 'ADMIN',
       index: true,
     },
