@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../../../shared/layouts/PageContainer';
 import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { MetricCard } from '../../../../shared/components/cards/MetricCard';
@@ -11,46 +11,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { IRoleModel } from '../types';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 
-export const AVAILABLE_MODULE_PERMISSIONS: Record<string, { label: string; desc: string }> = {
-  gym_mgmt: { label: '🏢 Gym Management & Multi-Branch Network', desc: 'Manage campuses, staff biometric rosters, departments, and operating hours' },
-  members: { label: '👥 Member Management & Biometric Gate Logs', desc: 'Directory, KYC documents, medical safeguarding, and freeze workflows' },
-  fitness: { label: '🏋️ Fitness Workouts & Personal Training', desc: 'Exercise library, PT packages, and group class bookings' },
-  nutrition: { label: '🥗 Nutrition, Meal Protocols & Diet Plans', desc: 'Caloric calculations, macronutrient assignments, and supplement plans' },
-  finance: { label: '💳 Finance, Tax Invoices & POS Register', desc: 'Tax invoice generation, payment ledger signing, and POS checkout' },
-  inventory: { label: '📦 Inventory Valuation & Supplier Purchasing', desc: 'SKU restock orders, COGS audits, and vendor invoices' },
-  crm: { label: '💼 CRM, VIP Trials & Sales Pipeline', desc: 'Lead qualification, visitor passes, and campaign automation' },
-  analytics: { label: '📊 Business Intelligence & GAAP Reports', desc: 'Executive MRR dashboards, turnstile footfall, and coach yields' },
-  admin: { label: '⚙️ Administration & Security Governance', desc: 'IAM user provisioning, RBAC roles, and compliance audit trail' },
-};
+import {
+  AVAILABLE_MODULE_PERMISSIONS,
+  isModuleGranted,
+  getGrantedModules,
+} from '../permissions.config';
 
-// Map granular permission strings or role keys to the 9 high-level modules
-export const isModuleGranted = (moduleKey: string, permissionsList: string[] = [], roleKey?: string): boolean => {
-  if (!permissionsList || permissionsList.length === 0) {
-    if (roleKey === 'ADMIN' || roleKey === 'SUPER_ADMIN') return true;
-    return false;
-  }
-  if (permissionsList.includes('*') || permissionsList.includes('all') || roleKey === 'ADMIN' || roleKey === 'SUPER_ADMIN') {
-    return true;
-  }
-  if (permissionsList.includes(moduleKey)) return true;
-
-  const prefixMap: Record<string, string[]> = {
-    gym_mgmt: ['gym:', 'gym_mgmt', 'branches:', 'departments:', 'staff:', 'shift-management:', 'holidays:'],
-    members: ['members:', 'members', 'member-management:'],
-    fitness: ['fitness:', 'fitness', 'workout:', 'classes:', 'trainer:'],
-    nutrition: ['nutrition:', 'nutrition', 'diet:'],
-    finance: ['finance:', 'finance', 'invoices:', 'payments:'],
-    inventory: ['inventory:', 'inventory', 'equipment:'],
-    crm: ['crm:', 'crm', 'leads:', 'visitors:'],
-    analytics: ['analytics:', 'reports:', 'analytics'],
-    admin: ['administration:', 'admin', 'users:', 'roles:', 'settings:'],
-  };
-
-  const prefixes = prefixMap[moduleKey] || [moduleKey];
-  return permissionsList.some((perm) =>
-    prefixes.some((prefix) => perm.toLowerCase().includes(prefix) || perm.toLowerCase().startsWith(prefix))
-  );
-};
+export { AVAILABLE_MODULE_PERMISSIONS, isModuleGranted, getGrantedModules };
 
 export const ViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -110,6 +77,7 @@ export const ViewPage: React.FC = () => {
   const permissionsList = role?.permissionsList || (role as any)?.permissions || [];
   const roleKey = role?.roleKey || (role as any)?.code || '';
 
+  const totalModulesCount = Object.keys(AVAILABLE_MODULE_PERMISSIONS).length;
   const grantedModulesCount = Object.keys(AVAILABLE_MODULE_PERMISSIONS).filter((k) =>
     isModuleGranted(k, permissionsList, roleKey)
   ).length;
@@ -153,8 +121,8 @@ export const ViewPage: React.FC = () => {
         />
         <MetricCard
           title="PERMISSIONS GRANTED"
-          value={`${grantedModulesCount} / 9 Domains`}
-          change={`${Math.round((grantedModulesCount / 9) * 100)}% Clearance`}
+          value={`${grantedModulesCount} / ${totalModulesCount} Domains`}
+          change={`${Math.round((grantedModulesCount / totalModulesCount) * 100)}% Clearance`}
           trend="up"
           timeframe="Module Coverage"
           icon={<Layers className="h-5 w-5 text-emerald-500" />}
@@ -221,7 +189,7 @@ export const ViewPage: React.FC = () => {
             Granted Domain Capabilities Matrix
           </CardTitle>
           <CardDescription className="text-xs">
-            Review live read/write/delete authorization for this role across all 9 GymFlow modules ({grantedModulesCount} of 9 Granted)
+            Review live read/write/delete authorization for this role across all {totalModulesCount} GymFlow modules ({grantedModulesCount} of {totalModulesCount} Granted)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -231,22 +199,46 @@ export const ViewPage: React.FC = () => {
               return (
                 <div
                   key={key}
-                  className={`p-3.5 rounded-xl border flex items-start justify-between gap-2 transition-all ${
+                  className={`p-3.5 rounded-xl border flex flex-col justify-between gap-3 transition-all ${
                     isGranted
                       ? 'bg-emerald-500/10 border-emerald-500/40 text-foreground'
                       : 'bg-muted/20 border-border/60 opacity-40'
                   }`}
                 >
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-foreground block">{perm.label}</span>
-                    <p className="text-[10px] text-muted-foreground">{perm.desc}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-foreground block">{perm.label}</span>
+                      <p className="text-[10px] text-muted-foreground">{perm.desc}</p>
+                    </div>
+                    <Badge
+                      variant={isGranted ? 'success' : 'outline'}
+                      className={`text-[9px] font-bold shrink-0 mt-0.5 ${isGranted ? 'bg-emerald-500 text-white' : ''}`}
+                    >
+                      {isGranted ? 'GRANTED' : 'DENIED'}
+                    </Badge>
                   </div>
-                  <Badge
-                    variant={isGranted ? 'success' : 'outline'}
-                    className={`text-[9px] font-bold shrink-0 mt-0.5 ${isGranted ? 'bg-emerald-500 text-white' : ''}`}
-                  >
-                    {isGranted ? 'GRANTED' : 'DENIED'}
-                  </Badge>
+                  {isGranted && perm.capabilities && perm.capabilities.length > 0 && (
+                    <div className="pt-2 border-t border-emerald-500/20 space-y-1">
+                      <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 block uppercase tracking-wider">
+                        Active Sub-Capabilities:
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {perm.capabilities.slice(0, 3).map((cap) => (
+                          <span
+                            key={cap.code}
+                            className="inline-flex items-center text-[9px] bg-background/80 px-1.5 py-0.5 rounded border border-border text-foreground font-mono"
+                          >
+                            {cap.name}
+                          </span>
+                        ))}
+                        {perm.capabilities.length > 3 && (
+                          <span className="text-[9px] text-muted-foreground self-center">
+                            +{perm.capabilities.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

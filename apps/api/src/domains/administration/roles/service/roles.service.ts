@@ -10,12 +10,22 @@ export class RolesService extends BaseService {
     super();
   }
 
-  async create(tenantId: string, dto: CreateRolesDto, createdBy?: string) {
+  async create(tenantId: string, dto: any, createdBy?: string) {
+    const roleName = dto.roleName || dto.name;
+    const roleKey = dto.roleKey || dto.code;
     const item = await this.repo.create({
       tenantId,
-      name: dto.name,
-      code: dto.code,
+      name: roleName,
+      roleName,
+      code: roleKey,
+      roleKey,
       description: dto.description,
+      hierarchyTier: dto.hierarchyTier ?? 3,
+      isSystemRole: !!dto.isSystemRole,
+      assignedUsersCount: dto.assignedUsersCount || 0,
+      permissionModulesCount: dto.permissionModulesCount || (dto.permissionsList || []).length,
+      permissionsList: dto.permissionsList || dto.permissions || [],
+      permissions: dto.permissions || dto.permissionsList || [],
       status: (dto.status as any) || 'active',
       createdBy,
     });
@@ -36,8 +46,21 @@ export class RolesService extends BaseService {
     };
   }
 
-  async update(id: string, tenantId: string, dto: UpdateRolesDto, updatedBy?: string) {
-    const item = await this.repo.updateById(id, { ...dto, updatedBy }, tenantId);
+  async update(id: string, tenantId: string, dto: any, updatedBy?: string) {
+    const payload: any = { ...dto, updatedBy };
+    if (dto.roleName || dto.name) {
+      payload.name = dto.roleName || dto.name;
+      payload.roleName = dto.roleName || dto.name;
+    }
+    if (dto.roleKey || dto.code) {
+      payload.code = dto.roleKey || dto.code;
+      payload.roleKey = dto.roleKey || dto.code;
+    }
+    if (dto.permissionsList || dto.permissions) {
+      payload.permissionsList = dto.permissionsList || dto.permissions;
+      payload.permissions = dto.permissions || dto.permissionsList;
+    }
+    const item = await this.repo.updateById(id, payload, tenantId);
     if (!item) throw new NotFoundException('Roles record not found');
     return RolesMapper.toDTO(item);
   }

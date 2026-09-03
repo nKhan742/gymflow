@@ -4,14 +4,19 @@ import { PageHeader } from '../../../../shared/layouts/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../shared/components/ui/card';
 import { Button } from '../../../../shared/components/ui/button';
 import { Input } from '../../../../shared/components/ui/input';
+import { Badge } from '../../../../shared/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../shared/components/ui/select';
-import { ImageUpload } from '../../../../shared/components/image-upload';
-import { ArrowLeft, Save, Shield, Layers } from 'lucide-react';
+import { ArrowLeft, Save, Shield, Layers, CheckCircle2, AlertCircle, KeyRound, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { IRoleModel } from '../types';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
-import { AVAILABLE_MODULE_PERMISSIONS, isModuleGranted } from './ViewPage';
+import {
+  AVAILABLE_MODULE_PERMISSIONS,
+  getGrantedModules,
+  resolveEffectivePermissions,
+  IModuleDefinition,
+} from '../permissions.config';
 
 export const EditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +32,8 @@ export const EditPage: React.FC = () => {
   const [hierarchyTier, setHierarchyTier] = useState(3);
   const [isSystemRole, setIsSystemRole] = useState(false);
   const [status, setStatus] = useState<IRoleModel['status']>('ACTIVE');
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [rawPermissions, setRawPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -40,7 +46,7 @@ export const EditPage: React.FC = () => {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       let roleData: any = null;
 
-      // 1. Try fetching by ID from live backend
+      // 1. Fetch by ID from live backend
       const res = await fetch(`https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles/${id}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -73,45 +79,48 @@ export const EditPage: React.FC = () => {
         setRoleKey(roleData.roleKey || roleData.code || '');
         setDescription(roleData.description || '');
         setIconAvatarUrl(roleData.iconAvatarUrl);
-        setHierarchyTier(roleData.hierarchyTier || 3);
+        setHierarchyTier(roleData.hierarchyTier ?? 3);
         setIsSystemRole(!!roleData.isSystemRole);
         setStatus((roleData.status || 'ACTIVE').toUpperCase() as any);
 
-        const perms = roleData.permissionsList || roleData.permissions || [];
-        // Map to which of the 9 high-level modules are granted
-        const granted = Object.keys(AVAILABLE_MODULE_PERMISSIONS).filter((modKey) =>
-          isModuleGranted(modKey, perms, roleData.roleKey || roleData.code)
-        );
-        setSelectedPermissions(granted);
+        const perms: string[] = roleData.permissionsList || roleData.permissions || [];
+        setRawPermissions(perms);
+
+        // Derive which module domains are granted
+        const granted = getGrantedModules(perms, roleData.roleKey || roleData.code);
+        setSelectedModules(granted);
       }
     } catch {
-      toast.error('Failed to load role details');
+      toast.error('Failed to load role details from database');
     } finally {
       setFetching(false);
     }
   };
 
-  const togglePermission = (key: string) => {
-    setSelectedPermissions((prev) =>
-      prev.includes(key) ? prev.filter((p) => p !== key) : [...prev, key]
-    );
+  const toggleModule = (moduleKey: string) => {
+    setSelectedModules((prev) => {
+      const isSelected = prev.includes(moduleKey);
+      if (isSelected) {
+        return prev.filter((m) => m !== moduleKey);
+      } else {
+        return [...prev, moduleKey];
+      }
+    });
+  };
+
+  const handleSelectAllModules = () => {
+    setSelectedModules(Object.keys(AVAILABLE_MODULE_PERMISSIONS));
+  };
+
+  const handleClearAllModules = () => {
+    setSelectedModules([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const updatedRole: Partial<IRoleModel> = {
-      roleName,
-      roleKey,
-      description,
-      iconAvatarUrl,
-      hierarchyTier,
-      isSystemRole,
-      status,
-      permissionsList: selectedPermissions,
-      permissionModulesCount: selectedPermissions.length,
-    };
+    const effectivePermissions = resolveEffectivePermissions(selectedModules, rawPermissions);
 
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
@@ -130,24 +139,27 @@ export const EditPage: React.FC = () => {
           hierarchyTier,
           isSystemRole,
           status: status.toLowerCase(),
-          permissionsList: selectedPermissions,
-          permissions: selectedPermissions,
-          permissionModulesCount: selectedPermissions.length,
+          permissionsList: effectivePermissions,
+          permissions: effectivePermissions,
+          permissionModulesCount: selectedModules.length,
         }),
       });
 
       if (res.ok) {
-        toast.success(`Role "${roleName}" updated successfully! (${selectedPermissions.length} / 9 modules active)`);
+        toast.success(`Role "${roleName}" saved successfully! (${selectedModules.length} of ${Object.keys(AVAILABLE_MODULE_PERMISSIONS).length} domains granted)`);
         navigate(`/administration/roles/${id}`);
       } else {
-        toast.error('Could not save role changes');
+        toast.error('Failed to persist role policy to live database');
       }
     } catch {
-      toast.error('Network error updating role');
+      toast.error('Network error while updating role policy');
     } finally {
       setLoading(false);
     }
   };
+
+  const totalModules = Object.keys(AVAILABLE_MODULE_PERMISSIONS).length;
+  const coveragePercent = Math.round((selectedModules.length / totalModules) * 100);
 
   return (
     <PageContainer>
@@ -162,38 +174,51 @@ export const EditPage: React.FC = () => {
             </Button>
             <Button size="sm" className="gap-1.5 shadow-sm" disabled={loading || fetching} onClick={handleSubmit}>
               <Save className="h-4 w-4" />
-              <span>{loading ? 'Saving...' : 'Save Policy Changes'}</span>
+              <span>{loading ? 'Saving Policy...' : 'Save Policy Changes'}</span>
             </Button>
           </div>
         }
       />
 
-      <div className="w-full">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Identity & Scope */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" />
-                Role Identity & Security Hierarchy
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Update identifier token, classification label, and authorization tier
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit}>
+        {/* Side-by-Side Responsive Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (5 Cols): Role Identity, Governance & Clearance */}
+          <div className="lg:col-span-5 space-y-6">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Role Identity & Security Hierarchy
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Update identifier token, classification label, and clearance tier
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Role Display Name *</label>
-                  <Input value={roleName} onChange={(e) => setRoleName(e.target.value)} required />
+                  <Input
+                    value={roleName}
+                    onChange={(e) => setRoleName(e.target.value)}
+                    placeholder="e.g. Fitness Coach & Personal Trainer"
+                    required
+                  />
                 </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">System Security Token / Key *</label>
-                  <Input value={roleKey} onChange={(e) => setRoleKey(e.target.value)} required />
+                  <Input
+                    value={roleKey}
+                    onChange={(e) => setRoleKey(e.target.value)}
+                    placeholder="e.g. TRAINER"
+                    required
+                  />
+                  <span className="text-[10px] text-muted-foreground block">
+                    Machine identifier used by backend authentication guards
+                  </span>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Hierarchy Clearance Tier</label>
                   <Select value={String(hierarchyTier)} onValueChange={(val) => setHierarchyTier(Number(val))}>
@@ -210,121 +235,242 @@ export const EditPage: React.FC = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Policy Type</label>
-                  <Select value={isSystemRole ? 'true' : 'false'} onValueChange={(val) => setIsSystemRole(val === 'true')}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Policy Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="false">Custom Policy (Editable & Deletable)</SelectItem>
-                      <SelectItem value="true">Protected System Role</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">Policy Governance</label>
+                    <Select value={isSystemRole ? 'true' : 'false'} onValueChange={(val) => setIsSystemRole(val === 'true')}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Policy Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="false">Custom Policy</SelectItem>
+                        <SelectItem value="true">🔒 System Protected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">Operational Status</label>
+                    <Select value={status} onValueChange={(val) => setStatus(val as IRoleModel['status'])}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ACTIVE">🟢 Active Policy</SelectItem>
+                        <SelectItem value="ARCHIVED">🔴 Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Operational Status</label>
-                  <Select value={status} onValueChange={(val) => setStatus(val as IRoleModel['status'])}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ACTIVE">🟢 Active Policy</SelectItem>
-                      <SelectItem value="ARCHIVED">🔴 Archived / Suspended</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="text-xs font-semibold text-foreground">Policy Scope Description</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    placeholder="Describe the operational responsibilities and system boundaries for this role..."
+                    className="w-full text-xs p-3 rounded-lg border border-input bg-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">Policy Scope Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={2}
-                  className="w-full text-xs p-3 rounded-lg border border-input bg-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                />
-              </div>
-            </CardContent>
-          </Card>
+            {/* Clearance Summary Card */}
+            <Card className="border border-border shadow-sm bg-muted/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                  Authorization Telemetry
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Granted Domains:</span>
+                  <span className="font-mono font-bold text-foreground">
+                    {selectedModules.length} / {totalModules} Modules
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden border border-border">
+                  <div
+                    className="bg-emerald-500 h-full transition-all duration-300"
+                    style={{ width: `${coveragePercent}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Coverage: {coveragePercent}%</span>
+                  <span>{selectedModules.length === totalModules ? 'Full System Clearance' : 'Scoped Role'}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Module Capabilities Matrix */}
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-emerald-500" />
-                    Module Permission Grants ({selectedPermissions.length} of 9 Granted)
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Select module domains this role is authorized to operate within
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-7"
-                    onClick={() => setSelectedPermissions(Object.keys(AVAILABLE_MODULE_PERMISSIONS))}
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-7 text-muted-foreground"
-                    onClick={() => setSelectedPermissions([])}
-                  >
-                    Clear All
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {Object.entries(AVAILABLE_MODULE_PERMISSIONS).map(([key, perm]) => {
-                  const isChecked = selectedPermissions.includes(key);
-                  return (
-                    <div
-                      key={key}
-                      onClick={() => togglePermission(key)}
-                      className={`p-3.5 rounded-xl border flex items-start justify-between gap-3 cursor-pointer select-none transition-all ${
-                        isChecked
-                          ? 'border-emerald-500/50 bg-emerald-500/10 text-foreground'
-                          : 'border-border bg-card/40 opacity-50 hover:opacity-80'
-                      }`}
+          {/* Right Column (7 Cols): Module Grants & Granular Permissions List */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Module Capability Matrix */}
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-emerald-500" />
+                      Module Permission Grants ({selectedModules.length} of {totalModules} Granted)
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Toggle high-level operational modules to grant access to whole domains
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7 px-2.5"
+                      onClick={handleSelectAllModules}
                     >
-                      <div className="space-y-0.5">
-                        <span className="text-xs font-bold text-foreground block">{perm.label}</span>
-                        <p className="text-[10px] text-muted-foreground">{perm.desc}</p>
+                      Select All
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs h-7 px-2.5 text-muted-foreground"
+                      onClick={handleClearAllModules}
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Object.entries(AVAILABLE_MODULE_PERMISSIONS).map(([key, mod]: [string, IModuleDefinition]) => {
+                    const isChecked = selectedModules.includes(key);
+                    return (
+                      <div
+                        key={key}
+                        onClick={() => toggleModule(key)}
+                        className={`p-3 rounded-xl border flex items-start justify-between gap-2.5 cursor-pointer select-none transition-all ${
+                          isChecked
+                            ? 'border-emerald-500/60 bg-emerald-500/10 shadow-sm'
+                            : 'border-border bg-card/40 opacity-60 hover:opacity-100 hover:border-border/80'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <span className="text-xs font-bold text-foreground block leading-tight">
+                            {mod.label}
+                          </span>
+                          <p className="text-[10px] text-muted-foreground line-clamp-2">
+                            {mod.desc}
+                          </p>
+                          <div className="flex items-center gap-1 pt-1">
+                            <span className="text-[9px] font-mono text-muted-foreground">
+                              {mod.capabilities.length} capabilities
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isChecked
+                              ? 'bg-emerald-500 border-emerald-500 text-white'
+                              : 'border-input bg-background'
+                          }`}
+                        >
+                          {isChecked && <Check className="h-3.5 w-3.5" />}
+                        </div>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="h-4 w-4 accent-emerald-500 rounded mt-0.5 cursor-pointer"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-            <CardFooter className="flex items-center justify-between border-t border-border pt-4">
-              <span className="text-xs text-muted-foreground">
-                Current authorization coverage: <strong>{selectedPermissions.length} / 9 Domains</strong>
-              </span>
-              <Button type="submit" disabled={loading || fetching} className="gap-1.5 shadow-sm">
-                <Save className="h-4 w-4" />
-                <span>{loading ? 'Saving Policy...' : 'Save & Apply Grants'}</span>
-              </Button>
-            </CardFooter>
-          </Card>
-        </form>
-      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Granular Permission Breakdown List */}
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-primary" />
+                  Granular Permission Capabilities List
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Detailed tokens and operations enforced for active granted domains
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {selectedModules.length === 0 ? (
+                  <div className="p-8 text-center border border-dashed border-border rounded-xl">
+                    <AlertCircle className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground">
+                      No modules selected. Check modules above to grant operational capabilities.
+                    </p>
+                  </div>
+                ) : (
+                  selectedModules.map((modKey) => {
+                    const mod = AVAILABLE_MODULE_PERMISSIONS[modKey];
+                    if (!mod) return null;
+                    return (
+                      <div key={modKey} className="rounded-xl border border-border p-3.5 bg-card/40 space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-border pb-2">
+                          <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                            {mod.label}
+                          </span>
+                          <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                            ACTIVE DOMAIN
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          {mod.capabilities.map((cap) => (
+                            <div
+                              key={cap.code}
+                              className="flex items-center justify-between text-xs p-2 rounded-lg bg-background/80 border border-border/70"
+                            >
+                              <div className="space-y-0.5">
+                                <span className="font-semibold text-foreground block">{cap.name}</span>
+                                <code className="text-[10px] text-muted-foreground font-mono">{cap.code}</code>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[9px] font-mono font-bold ${
+                                    cap.action === 'SIGN_OFF'
+                                      ? 'bg-purple-500/10 text-purple-600 border-purple-500/30'
+                                      : cap.action === 'CREATE'
+                                      ? 'bg-blue-500/10 text-blue-600 border-blue-500/30'
+                                      : cap.action === 'UPDATE'
+                                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/30'
+                                      : 'bg-muted text-muted-foreground'
+                                  }`}
+                                >
+                                  {cap.action}
+                                </Badge>
+                                <Badge
+                                  variant={cap.risk === 'CRITICAL' ? 'destructive' : cap.risk === 'HIGH' ? 'warning' : 'outline'}
+                                  className="text-[9px] font-bold"
+                                >
+                                  {cap.risk}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </CardContent>
+              <CardFooter className="flex items-center justify-between border-t border-border pt-4">
+                <span className="text-xs text-muted-foreground">
+                  Authorized Domains: <strong>{selectedModules.length} of {totalModules}</strong>
+                </span>
+                <Button type="submit" disabled={loading || fetching} className="gap-1.5 shadow-sm">
+                  <Save className="h-4 w-4" />
+                  <span>{loading ? 'Saving Policy...' : 'Save & Apply Grants'}</span>
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </form>
     </PageContainer>
   );
 };
