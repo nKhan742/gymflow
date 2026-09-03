@@ -64,10 +64,8 @@ export async function seedDatabase(): Promise<void> {
           const rolesCount = await tenantModels.Roles.countDocuments();
           const deptCount = await tenantModels.Departments.countDocuments();
           const shiftsCount = await tenantModels.Shifts.countDocuments();
-          const permissionsCount = await tenantModels.Permissions.countDocuments();
 
           if (rolesCount === 0 || deptCount <= 2 || shiftsCount === 0 || permissionsCount === 0) {
-            const profile = await tenantModels.GymProfile.findOne();
             const branch = await tenantModels.Branches.findOne();
             const branchDoc = branch || { _id: 'BR-HQ', name: 'Main Campus' };
             const tenantId = profile?.tenantId || dbName.replace(/^gymflow_db_/, 'tenant_');

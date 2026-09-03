@@ -147,7 +147,7 @@ export const ViewPage: React.FC = () => {
 
       {/* Hero Header Card */}
       <Card className="mb-6 border border-border">
-        <CardContent className="p-6">
+        <div className="p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 border-2 border-border shadow-sm">
@@ -178,7 +178,7 @@ export const ViewPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
       {/* Granted Permissions Breakdown */}
