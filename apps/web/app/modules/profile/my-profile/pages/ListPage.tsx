@@ -47,77 +47,49 @@ export const ListPage: React.FC = () => {
   const loadMyProfile = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const authUserRaw = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
-      let authUser: any = null;
       if (authUserRaw) {
-        try {
-          authUser = JSON.parse(authUserRaw);
-        } catch {}
+        const authUser = JSON.parse(authUserRaw);
+        setProfile((prev) => ({
+          ...prev,
+          fullName: authUser.fullName || `${authUser.firstName || ''} ${authUser.lastName || ''}`.trim() || prev.fullName,
+          email: authUser.email || prev.email,
+          phone: authUser.phone || prev.phone,
+          securityRole: authUser.role || prev.securityRole,
+          jobTitle: authUser.roleName || (authUser.role === 'ADMIN' ? 'Administrator' : authUser.role === 'SUPER_ADMIN' ? 'Super Administrator' : prev.jobTitle),
+          department: authUser.department || prev.department,
+          branchName: authUser.branchName || prev.branchName,
+        }));
       }
 
-      // 1. Fetch live profile from backend database
-      let fetchedProfile = null;
-      try {
-        const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile', {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json',
-          },
-        });
+      const stored = localStorage.getItem('gymflow_custom_my_profiles');
+      if (stored) {
+        const customList: IMyProfileModel[] = JSON.parse(stored);
+        if (customList.length > 0 && customList[0]) {
+          setProfile((prev) => ({ ...prev, ...customList[0] }));
+          setLoading(false);
+          return;
+        }
+      }
 
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.data) {
-            fetchedProfile = Array.isArray(json.data.items) ? json.data.items[0] : json.data;
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/profile/my-profile', {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const item = Array.isArray(json.data.items) ? json.data.items[0] : json.data;
+          if (item) {
+            setProfile((prev) => ({ ...prev, ...item }));
+            setLoading(false);
+            return;
           }
         }
-      } catch {}
-
-      if (fetchedProfile) {
-        setProfile((prev) => ({ ...prev, ...fetchedProfile }));
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fallback to authenticated user in session
-      if (authUser) {
-        const roleNameMap: Record<string, string> = {
-          ADMIN: '👑 Gym Administrator (Full Management)',
-          SUPER_ADMIN: '🛡️ Root Platform Administrator',
-          BRANCH_MANAGER: '🏢 Branch General Manager',
-          TRAINER: '🏋️ Fitness Coach & Personal Trainer',
-          RECEPTIONIST: '🛎️ Front Desk & Concierge',
-          NUTRITIONIST: '🥗 Nutrition & Wellness Specialist',
-          ACCOUNTANT: '💳 Finance & Billing Officer',
-          MEMBER: '👤 Gym Member Portal',
-        };
-
-        setProfile({
-          id: authUser.id || authUser._id || 'PRF-CURRENT-USER',
-          _id: authUser.id || authUser._id || 'PRF-CURRENT-USER',
-          fullName: authUser.name || `${authUser.firstName || ''} ${authUser.lastName || ''}`.trim() || 'Staff Member',
-          email: authUser.email || 'user@gymflow.io',
-          phone: authUser.phone || '',
-          jobTitle: roleNameMap[authUser.role] || authUser.roleName || authUser.role || 'Staff Member',
-          department: authUser.department || (authUser.role === 'TRAINER' ? 'Personal Training & Fitness' : 'Operations'),
-          avatarUrl: authUser.avatar || authUser.avatarUrl || '',
-          coverBannerUrl: authUser.coverBannerUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80',
-          employeeId: authUser.code || `EMP-${(authUser.id || '001').slice(-4).toUpperCase()}`,
-          securityRole: authUser.role || 'STAFF',
-          shiftSchedule: authUser.shiftSchedule || 'Standard Facility Operations (08:00 - 17:00)',
-          emergencyContactName: authUser.emergencyContactName || 'Family Contact',
-          emergencyContactPhone: authUser.emergencyContactPhone || authUser.phone || '+1 (555) 019-2834',
-          bio: authUser.bio || `Staff member at GymFlow ERP with verified security clearance.`,
-          certifications: authUser.certifications || ['CPR/AED Certified', 'GymFlow Certified Professional'],
-          profileCompletionScore: 100,
-          status: (authUser.status || 'ACTIVE').toUpperCase(),
-          branchName: authUser.campusName || authUser.branchName || 'Main Facility Campus',
-          createdAt: authUser.createdAt || new Date().toISOString(),
-          updatedAt: authUser.updatedAt || new Date().toISOString(),
-        });
-        setLoading(false);
-        return;
       }
     } catch {}
 
@@ -138,7 +110,7 @@ export const ListPage: React.FC = () => {
     );
   }
 
-  const safeFullName = profile?.fullName || (profile as any)?.name || 'Staff Member';
+  const safeFullName = profile?.fullName || 'Sarah Jenkins';
   const safeInitials = safeFullName.slice(0, 2).toUpperCase();
 
   return (
@@ -176,7 +148,7 @@ export const ListPage: React.FC = () => {
         />
         <MetricCard
           title="STAFF IDENTIFIER"
-          value={profile?.employeeId || (profile as any)?.code || 'USR-001'}
+          value={profile?.employeeId || 'EMP-8820'}
           change={profile?.department || 'Operations'}
           trend="up"
           timeframe="Badge Token"
@@ -184,10 +156,10 @@ export const ListPage: React.FC = () => {
         />
         <MetricCard
           title="SECURITY CLEARANCE"
-          value={profile?.securityRole?.replace('_', ' ') || 'STAFF'}
-          change="Campus RBAC Clearance"
+          value={profile?.securityRole?.replace('_', ' ') || 'FACILITY MANAGER'}
+          change="Full Campus Access Tier"
           trend="up"
-          timeframe="Role Token"
+          timeframe="RBAC Token"
           icon={<Shield className="h-5 w-5 text-purple-500" />}
         />
         <MetricCard
@@ -357,16 +329,12 @@ export const ListPage: React.FC = () => {
                 <span className="font-bold text-foreground">{profile.securityRole}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-border/60">
-                <span className="text-muted-foreground">Active Campus:</span>
-                <span className="font-bold text-foreground">{profile.branchName || 'Main Facility'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-border/60">
                 <span className="text-muted-foreground">Biometric Turnstile:</span>
-                <span className="font-bold text-emerald-600">Active Clearance</span>
+                <span className="font-bold text-emerald-600">Full 24/7 Access</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-muted-foreground">Account Status:</span>
-                <span className="font-bold text-primary">{profile.status || 'ACTIVE'}</span>
+                <span className="text-muted-foreground">Financial Permissions:</span>
+                <span className="font-bold text-purple-600">Approved Ledger Signer</span>
               </div>
             </CardContent>
           </Card>

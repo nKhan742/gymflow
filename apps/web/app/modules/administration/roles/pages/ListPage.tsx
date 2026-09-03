@@ -27,18 +27,54 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      const res = await fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
+      const headers = {
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      };
 
-      if (res.ok) {
-        const json = await res.json();
+      const [rolesRes, usersRes, staffRes] = await Promise.all([
+        fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/roles', { headers }),
+        fetch('https://gymflow-api-2jdh.onrender.com/api/v1/administration/users', { headers }).catch(() => null),
+        fetch('https://gymflow-api-2jdh.onrender.com/api/v1/gym-management/staff', { headers }).catch(() => null),
+      ]);
+
+      const roleHoldersMap: Record<string, Set<string>> = {};
+      const addHolder = (roleKey?: string, identifier?: string) => {
+        if (!roleKey || !identifier) return;
+        const normKey = roleKey.toUpperCase().trim();
+        if (!roleHoldersMap[normKey]) roleHoldersMap[normKey] = new Set();
+        roleHoldersMap[normKey].add(identifier.toLowerCase().trim());
+      };
+
+      if (usersRes && usersRes.ok) {
+        const uJson = await usersRes.json().catch(() => ({}));
+        const uList = uJson.data?.items || (Array.isArray(uJson.data) ? uJson.data : []);
+        uList.forEach((u: any) => {
+          if (u.role && u.isDeleted !== true) addHolder(u.role, u.email || u.id || u._id);
+        });
+      }
+
+      if (staffRes && staffRes.ok) {
+        const sJson = await staffRes.json().catch(() => ({}));
+        const sList = sJson.data?.items || (Array.isArray(sJson.data) ? sJson.data : []);
+        sList.forEach((s: any) => {
+          if (s.role && s.isDeleted !== true) addHolder(s.role, s.email || s.id || s._id);
+        });
+      }
+
+      if (rolesRes.ok) {
+        const json = await rolesRes.json();
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setRoles(items);
-        if (items.length > 0) {
+        const enriched = items.map((r: any) => {
+          const key = (r.roleKey || r.code || r.name || '').toUpperCase().trim();
+          const dynamicCount = roleHoldersMap[key]?.size;
+          return {
+            ...r,
+            assignedUsersCount: dynamicCount !== undefined ? dynamicCount : (r.assignedUsersCount ?? 0),
+          };
+        });
+        setRoles(enriched);
+        if (enriched.length > 0) {
           localStorage.removeItem('gymflow_custom_admin_roles');
         }
       } else {
