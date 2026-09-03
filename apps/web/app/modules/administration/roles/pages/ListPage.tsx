@@ -12,6 +12,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { STORAGE_KEYS } from '../../../../core/constants/storageKeys';
 import { IRoleModel } from '../types';
 import { toast } from 'sonner';
+import { getGrantedModules, AVAILABLE_MODULE_PERMISSIONS } from '../permissions.config';
 
 export const ListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -131,15 +132,20 @@ export const ListPage: React.FC = () => {
     {
       accessorKey: 'permissionModulesCount',
       header: 'Granted Domains',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <Layers className="h-3.5 w-3.5 text-emerald-500" />
-          <span className="font-bold text-foreground">
-            {row.original.permissionModulesCount || row.original.permissionsList?.length || 0}
-          </span>
-          <span className="text-muted-foreground">/ 9 Modules</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const perms = row.original.permissionsList || (row.original as any).permissions || [];
+        const granted = getGrantedModules(perms, row.original.roleKey || (row.original as any).code);
+        const total = Object.keys(AVAILABLE_MODULE_PERMISSIONS).length;
+        return (
+          <div className="flex items-center gap-2 font-mono text-xs">
+            <Layers className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="font-bold text-foreground">
+              {granted.length}
+            </span>
+            <span className="text-muted-foreground">/ {total} Modules</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'assignedUsersCount',

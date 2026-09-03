@@ -25,7 +25,7 @@ export async function seedTenantDefaults(
         hierarchyTier: 1,
         isSystemRole: true,
         assignedUsersCount: 1,
-        permissionModulesCount: 9,
+        permissionModulesCount: 10,
         permissionsList: ['*'],
         permissions: ['*'],
         status: 'ACTIVE',
@@ -164,7 +164,7 @@ export async function seedTenantDefaults(
         hierarchyTier: 4,
         isSystemRole: false,
         assignedUsersCount: 0,
-        permissionModulesCount: 2,
+        permissionModulesCount: 4,
         permissionsList: [
           'profile:view',
           'fitness:workout-plans:view',

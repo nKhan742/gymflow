@@ -64,6 +64,8 @@ export async function seedDatabase(): Promise<void> {
           const rolesCount = await tenantModels.Roles.countDocuments();
           const deptCount = await tenantModels.Departments.countDocuments();
           const shiftsCount = await tenantModels.Shifts.countDocuments();
+          const permissionsCount = await tenantModels.Permissions.countDocuments();
+          const profile = await tenantModels.GymProfile.findOne();
 
           if (rolesCount === 0 || deptCount <= 2 || shiftsCount === 0 || permissionsCount === 0) {
             const branch = await tenantModels.Branches.findOne();
